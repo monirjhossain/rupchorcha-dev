@@ -1,0 +1,42 @@
+/* Global Sort Bar Styles */
+.global-sort-bar {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 28px;
+  gap: 1rem;
+  background: #fff;
+  padding: 0.7rem 0 0.7rem 0;
+  border-bottom: 1.5px solid #f0f0f0;
+  box-shadow: 0 2px 8px #0001;
+  z-index: 10;
+}
+.global-sort-bar .sort-select {
+  min-width: 180px;
+  padding: 0.5em 1.2em 0.5em 0.8em;
+  border-radius: 8px;
+  border: 1.5px solid #e0e0e0;
+  background: #fafbfc;
+  color: #333;
+  font-size: 1rem;
+  font-weight: 500;
+  outline: none;
+  transition: border 0.18s;
+  box-shadow: 0 1px 6px #0001;
+}
+.global-sort-bar .sort-select:focus {
+  border-color: #e91e63;
+}
+@media (max-width: 700px) {
+  .global-sort-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.7rem;
+    padding: 0.5rem 0;
+  }
+  .global-sort-bar .sort-select {
+    width: 100%;
+    min-width: 0;
+  }
+}

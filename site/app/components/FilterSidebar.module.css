@@ -1,0 +1,52 @@
+.shopSidebar {
+  width: 100%;
+  max-width: 320px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px #0001;
+  padding: 1.5rem 1rem;
+}
+.filterSection {
+  margin-bottom: 2rem;
+}
+.priceRange {
+  margin: 1rem 0 0.5rem 0;
+}
+.priceSlider {
+  width: 100%;
+}
+.priceLabels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.95rem;
+  color: #e91e63;
+  margin-top: 0.3rem;
+}
+.categoryList, .brandList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.filterItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+}
+.categoryName, .brandName {
+  flex: 1;
+}
+.categoryCount {
+  color: #888;
+  font-size: 0.9em;
+  margin-left: 0.5em;
+}
+.seeMoreBtn {
+  background: none;
+  border: none;
+  color: #e91e63;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  font-size: 0.98rem;
+}

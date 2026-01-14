@@ -1,0 +1,982 @@
+World Standard Ecommerce Platform Documentation
+
+1. Project Structure
+-------------------
+
+**Backend (Laravel)**
+
+backend/
+├── app/
+│   ├── Console/
+│   ├── Exceptions/
+│   ├── Http/
+│   │   ├── Controllers/
+│   │   ├── Middleware/
+│   ├── Models/
+│   ├── Providers/
+├── config/
+├── database/
+│   ├── migrations/
+│   ├── seeders/
+│   ├── factories/
+├── public/
+├── resources/
+│   ├── views/
+│   ├── lang/
+├── routes/
+│   ├── api.php
+│   ├── web.php
+├── storage/
+├── tests/
+├── .env
+├── composer.json
+└── artisan
+
+**Frontend (React)**
+
+frontend/
+├── public/
+├── src/
+│   ├── api/
+│   ├── assets/
+│   ├── components/
+│   ├── contexts/
+│   ├── hooks/
+│   ├── pages/
+│   ├── routes/
+│   ├── store/
+│   ├── styles/
+│   ├── utils/
+│   └── App.js
+├── .env
+├── package.json
+└── README.md
+
+2. Database Structure (Core Tables)
+-----------------------------------
+
+**Users**
+- id (PK)
+- name
+- email (unique)
+- password
+- phone
+- address
+- role (customer, admin, seller)
+- created_at, updated_at
+
+**Products**
+- id (PK)
+- name
+- description
+- price
+- stock
+- category_id (FK)
+- brand_id (FK)
+- image_url
+- status (active/inactive)
+- created_at, updated_at
+
+**Categories**
+- id (PK)
+- name
+- parent_id (nullable, FK)
+- created_at, updated_at
+
+**Brands**
+- id (PK)
+- name
+- created_at, updated_at
+
+**Orders**
+- id (PK)
+- user_id (FK)
+- total_amount
+- status (pending, paid, shipped, delivered, cancelled)
+- payment_method
+- shipping_address
+- created_at, updated_at
+
+**Order_Items**
+- id (PK)
+- order_id (FK)
+- product_id (FK)
+- quantity
+- price
+- created_at, updated_at
+
+**Carts**
+- id (PK)
+- user_id (FK)
+- created_at, updated_at
+
+**Cart_Items**
+- id (PK)
+- cart_id (FK)
+- product_id (FK)
+- quantity
+- created_at, updated_at
+
+**Reviews**
+- id (PK)
+- user_id (FK)
+- product_id (FK)
+- rating
+- comment
+- created_at, updated_at
+
+**Payments**
+- id (PK)
+- order_id (FK)
+- amount
+- payment_method
+- payment_status
+- transaction_id
+- created_at, updated_at
+
+**Wishlists**
+- id (PK)
+- user_id (FK)
+- product_id (FK)
+- created_at
+
+3. Core Features
+----------------
+
+**Customer Features**
+- User registration, login, password reset
+- Product browsing, search, filter, sort
+- Product details, reviews, ratings
+- Add to cart, update cart, remove from cart
+- Wishlist management
+- Checkout, order placement
+- Payment gateway integration (SSLCommerz, Stripe, etc.)
+- Order tracking, order history
+- Profile management
+
+**Admin Features**
+- Dashboard (sales, orders, users, products stats)
+- Product CRUD (add, edit, delete, manage stock)
+- Category & brand management
+- Order management (view, update status)
+- User management (block/unblock, roles)
+- Review moderation
+- Reports (sales, inventory, users)
+
+**Seller Features (if multi-vendor)**
+- Product management
+- Order management
+- Earnings report
+
+**General Features**
+- Responsive UI (mobile-friendly)
+- Secure authentication (JWT, Sanctum)
+- RESTful API (Laravel API resources)
+- Email notifications (order, registration, password reset)
+- SEO friendly URLs
+- Multi-language support (optional)
+- Role-based access control
+
+4. Development Workflow
+-----------------------
+
+1. **Backend Setup**
+   - Laravel installation
+   - Database migration & seeding
+   - API development (RESTful endpoints)
+   - Authentication (Laravel Sanctum/Passport)
+   - Unit & feature testing
+
+2. **Frontend Setup**
+   - React app setup (Vite/CRA/Next.js)
+   - State management (Redux/Context)
+   - API integration (Axios/Fetch)
+   - Routing (React Router)
+   - UI library (MUI, Ant Design, Tailwind CSS)
+   - Responsive design
+
+3. **Deployment**
+   - Backend: Deploy on VPS/Cloud (DigitalOcean, AWS, etc.)
+   - Frontend: Deploy on Vercel/Netlify/Shared hosting
+   - Environment variables management
+   - SSL, domain setup
+
+5. Security & Best Practices
+----------------------------
+
+- Use HTTPS everywhere
+- Validate & sanitize all inputs
+- Use Laravel policies/gates for authorization
+- Hash passwords (bcrypt/argon2)
+- Rate limiting for APIs
+- CSRF/XSS protection
+- Regular backups
+
+6. Future Enhancements
+----------------------
+
+- Multi-vendor support
+- Mobile app (React Native/Flutter)
+- Advanced analytics dashboard
+- Push notifications
+- Loyalty program, coupons, discounts
+- Chat support
+
+2. Authentication APIs
+---------------------
+
+A. User Registration
+-------------------
+- Endpoint: POST /api/register
+- Request Body:
+    {
+        "name": "string",
+        "email": "string",
+        "phone": "string",
+        "password": "string",
+        "password_confirmation": "string"
+    }
+- Response:
+    {
+        "success": true,
+        "message": "Registration successful.",
+        "user": { ...user data... }
+    }
+
+B. User Login (Email/Password)
+-----------------------------
+- Endpoint: POST /api/login
+- Request Body:
+    {
+        "email": "string",
+        "password": "string"
+    }
+- Response:
+    {
+        "success": true,
+        "message": "Login successful.",
+        "user": { ...user data... }
+    }
+
+C. OTP Login
+------------
+- Step 1: Send OTP
+    - Endpoint: POST /api/send-otp
+    - Request Body:
+        {
+            "email": "string" OR "phone": "string"
+        }
+    - Response:
+        {
+            "success": true,
+            "message": "OTP sent to your email/SMS."
+        }
+- Step 2: Verify OTP
+    - Endpoint: POST /api/verify-otp
+    - Request Body:
+        {
+            "email": "string" OR "phone": "string",
+            "otp": "string"
+        }
+    - Response:
+        {
+            "success": true,
+            "message": "Login successful.",
+            "user": { ...user data... }
+        }
+
+D. Forgot Password
+-----------------
+- Endpoint: POST /api/forgot-password
+- Request Body:
+    {
+        "email": "string"
+    }
+- Response:
+    {
+        "success": true,
+        "message": "Password reset link sent to your email."
+    }
+
+E. Reset Password
+----------------
+- Endpoint: POST /api/reset-password
+- Request Body:
+    {
+        "email": "string",
+        "token": "string",
+        "password": "string",
+        "password_confirmation": "string"
+    }
+- Response:
+    {
+        "success": true,
+        "message": "Password has been reset successfully."
+    }
+
+All endpoints return JSON responses. Use Authorization header for protected APIs after login.
+
+3. User Profile APIs
+-------------------
+
+A. Get User Profile
+-------------------
+- Endpoint: GET /api/profile
+- Headers:
+    Authorization: Bearer <token>
+- Response:
+    {
+        "success": true,
+        "user": { ...user data... }
+    }
+
+B. Update User Profile
+---------------------
+- Endpoint: PUT /api/profile
+- Headers:
+    Authorization: Bearer <token>
+- Request Body:
+    {
+        "name": "string",
+        "email": "string",
+        "phone": "string",
+        "address": "string"
+    }
+- Response:
+    {
+        "success": true,
+        "message": "Profile updated successfully.",
+        "user": { ...user data... }
+    }
+
+C. Change Password
+------------------
+- Endpoint: PUT /api/change-password
+- Headers:
+    Authorization: Bearer <token>
+- Request Body:
+    {
+        "current_password": "string",
+        "new_password": "string",
+        "new_password_confirmation": "string"
+    }
+- Response:
+    {
+        "success": true,
+        "message": "Password changed successfully."
+    }
+
+4. Inventory/Product APIs
+-------------------------
+
+A. List Products
+----------------
+- Endpoint: GET /api/products
+- Response:
+    {
+        "success": true,
+        "products": [ ...product list... ]
+    }
+
+B. Get Product Details
+---------------------            
+- Endpoint: GET /api/products/{id}
+- Response:
+    {
+        "success": true,
+        "product": { ...product data... }
+    }
+
+C. Add Product (Admin)
+---------------------
+- Endpoint: POST /api/products
+- Headers:
+    Authorization: Bearer <admin token>
+- Request Body:
+    {
+        "name": "string",
+        "description": "string",
+        "price": "decimal",
+        "stock": "integer",
+        "category_id": "integer",
+        "brand_id": "integer",
+        "image": "file (optional)"
+    }
+- Response:
+    {
+        "success": true,
+        "message": "Product added successfully.",
+        "product": { ...product data... }
+    }
+
+D. Update Product (Admin)
+------------------------
+- Endpoint: PUT /api/products/{id}
+- Headers:
+    Authorization: Bearer <admin token>
+- Request Body:
+    {
+        "name": "string",
+        "description": "string",
+        "price": "decimal",
+        "stock": "integer",
+        "category_id": "integer",
+        "brand_id": "integer",
+        "image": "file (optional)"
+    }
+- Response:
+    {
+        "success": true,
+        "message": "Product updated successfully.",
+        "product": { ...product data... }
+    }
+
+E. Delete Product (Admin)
+------------------------
+- Endpoint: DELETE /api/products/{id}
+- Headers:
+    Authorization: Bearer <admin token>
+- Response:
+    {
+        "success": true,
+        "message": "Product deleted successfully."
+    }
+}
+
+5. Product Management APIs
+-------------------------
+
+A. List All Products
+--------------------
+- Endpoint: GET /api/products
+- Description: Returns a paginated list of all products.
+- Query Params (optional):
+    - page: integer (for pagination)
+    - per_page: integer (items per page)
+    - category_id: integer (filter by category)
+    - brand_id: integer (filter by brand)
+    - search: string (search by name/description)
+- Response:
+    {
+        "success": true,
+        "products": [ ...product list... ],
+        "pagination": { ...pagination info... }
+    }
+
+B. Get Product Details
+---------------------
+- Endpoint: GET /api/products/{id}
+- Description: Returns details of a single product by ID.
+- Response:
+    {
+        "success": true,
+        "product": { ...product data... }
+    }
+
+C. Add New Product (Admin)
+-------------------------
+- Endpoint: POST /api/products
+- Headers:
+    Authorization: Bearer <admin token>
+- Request Body:
+    {
+        "name": "string",
+        "description": "string",
+        "price": "decimal",
+        "stock": "integer",
+        "category_id": "integer",
+        "brand_id": "integer",
+        "image": "file (optional)"
+    }
+- Response:
+    {
+        "success": true,
+        "message": "Product added successfully.",
+        "product": { ...product data... }
+    }
+
+D. Update Product (Admin)
+------------------------
+- Endpoint: PUT /api/products/{id}
+- Headers:
+    Authorization: Bearer <admin token>
+- Request Body:
+    {
+        "name": "string",
+        "description": "string",
+        "price": "decimal",
+        "stock": "integer",
+        "category_id": "integer",
+        "brand_id": "integer",
+        "image": "file (optional)"
+    }
+- Response:
+    {
+        "success": true,
+        "message": "Product updated successfully.",
+        "product": { ...product data... }
+    }
+
+E. Delete Product (Admin)
+------------------------
+- Endpoint: DELETE /api/products/{id}
+- Headers:
+    Authorization: Bearer <admin token>
+- Response:
+    {
+        "success": true,
+        "message": "Product deleted successfully."
+    }
+
+F. Bulk Import Products (Admin)
+------------------------------
+- Endpoint: POST /api/products/import
+- Headers:
+    Authorization: Bearer <admin token>
+- Request Body:
+    {
+        "file": "CSV or Excel file containing product data"
+    }
+- Response:
+    {
+        "success": true,
+        "message": "Products imported successfully.",
+        "imported_count": integer
+    }
+
+G. Export Products (Admin)
+-------------------------
+- Endpoint: GET /api/products/export
+- Headers:
+    Authorization: Bearer <admin token>
+- Query Params (optional):
+    - format: string (csv, xlsx)
+- Response:
+    {
+        "success": true,
+        "file_url": "string"
+    }
+}
+
+6. Category Management APIs
+--------------------------
+
+A. List Categories
+- Endpoint: GET /api/categories
+- Response: { "success": true, "categories": [ ... ] }
+
+B. Add Category (Admin)
+- Endpoint: POST /api/categories
+- Headers: Authorization: Bearer <admin token>
+- Request Body: { "name": "string", "description": "string" }
+- Response: { "success": true, "message": "Category added.", "category": { ... } }
+
+C. Update Category (Admin)
+- Endpoint: PUT /api/categories/{id}
+- Headers: Authorization: Bearer <admin token>
+- Request Body: { "name": "string", "description": "string" }
+- Response: { "success": true, "message": "Category updated.", "category": { ... } }
+
+D. Delete Category (Admin)
+- Endpoint: DELETE /api/categories/{id}
+- Headers: Authorization: Bearer <admin token>
+- Response: { "success": true, "message": "Category deleted." }
+
+7. Cart APIs
+------------
+
+A. Add to Cart
+- Endpoint: POST /api/cart
+- Headers: Authorization: Bearer <token>
+- Request Body: { "product_id": "integer", "quantity": "integer" }
+- Response: { "success": true, "message": "Added to cart.", "cart": { ... } }
+
+B. View Cart
+- Endpoint: GET /api/cart
+- Headers: Authorization: Bearer <token>
+- Response: { "success": true, "cart": { ... } }
+
+C. Update Cart Item
+- Endpoint: PUT /api/cart/{item_id}
+- Headers: Authorization: Bearer <token>
+- Request Body: { "quantity": "integer" }
+- Response: { "success": true, "message": "Cart updated.", "cart": { ... } }
+
+D. Remove Cart Item
+- Endpoint: DELETE /api/cart/{item_id}
+- Headers: Authorization: Bearer <token>
+- Response: { "success": true, "message": "Item removed." }
+
+8. Order APIs
+-------------
+
+A. Place Order
+- Endpoint: POST /api/orders
+- Headers: Authorization: Bearer <token>
+- Request Body: { "cart_id": "integer", "address": "string", "payment_method": "string", "shipping_method_id": "integer" }
+- Response: { "success": true, "message": "Order placed.", "order": { ... } }
+
+B. Order History
+- Endpoint: GET /api/orders
+- Headers: Authorization: Bearer <token>
+- Response: { "success": true, "orders": [ ... ] }
+
+C. Order Details
+- Endpoint: GET /api/orders/{id}
+- Headers: Authorization: Bearer <token>
+- Response: { "success": true, "order": { ... } }
+
+D. Update Order Status (Admin)
+- Endpoint: PUT /api/orders/{id}/status
+- Headers: Authorization: Bearer <admin token>
+- Request Body: { "status": "string" }
+- Response: { "success": true, "message": "Order status updated.", "order": { ... } }
+
+E. Cancel Order
+- Endpoint: POST /api/orders/{id}/cancel
+- Headers: Authorization: Bearer <token>
+- Response: { "success": true, "message": "Order cancelled." }
+
+F. Track Order
+- Endpoint: GET /api/orders/{id}/track
+- Headers: Authorization: Bearer <token>
+- Response: { "success": true, "tracking": { ...tracking info... } }
+
+G. Admin Order List
+- Endpoint: GET /api/admin/orders
+- Headers: Authorization: Bearer <admin token>
+- Response: { "success": true, "orders": [ ... ] }
+
+H. Admin Order Details
+- Endpoint: GET /api/admin/orders/{id}
+- Headers: Authorization: Bearer <admin token>
+- Response: { "success": true, "order": { ... } }
+
+9. Payment APIs
+---------------
+
+A. Initiate Payment
+- Endpoint: POST /api/payments/initiate
+- Headers: Authorization: Bearer <token>
+- Request Body: { "order_id": "integer", "payment_method": "string" }
+- Response: { "success": true, "payment_url": "string", "payment_id": "string" }
+
+B. Verify Payment
+- Endpoint: POST /api/payments/verify
+- Headers: Authorization: Bearer <token>
+- Request Body: { "order_id": "integer", "payment_id": "string", "transaction_id": "string" }
+- Response: { "success": true, "message": "Payment verified." }
+
+C. Payment Status
+- Endpoint: GET /api/payments/status/{order_id}
+- Headers: Authorization: Bearer <token>
+- Response: { "success": true, "status": "string", "details": { ... } }
+
+D. List Payment Methods
+- Endpoint: GET /api/payment-methods
+- Response: { "success": true, "methods": [ ... ] }
+
+E. Refund Payment
+- Endpoint: POST /api/payments/refund
+- Headers: Authorization: Bearer <token>
+- Request Body: { "order_id": "integer", "reason": "string" }
+- Response: { "success": true, "message": "Refund requested." }
+}
+
+10. Wishlist APIs
+-----------------
+
+A. Add to Wishlist
+- Endpoint: POST /api/wishlist
+- Headers: Authorization: Bearer <token>
+- Request Body: { "product_id": "integer" }
+- Response: { "success": true, "message": "Added to wishlist." }
+
+B. Remove from Wishlist
+- Endpoint: DELETE /api/wishlist/{product_id}
+- Headers: Authorization: Bearer <token>
+- Response: { "success": true, "message": "Removed from wishlist." }
+
+C. View Wishlist
+- Endpoint: GET /api/wishlist
+- Headers: Authorization: Bearer <token>
+- Response: { "success": true, "wishlist": [ ... ] }
+
+11. Review & Rating APIs
+------------------------
+
+A. Add Review
+- Endpoint: POST /api/reviews
+- Headers: Authorization: Bearer <token>
+- Request Body: { "product_id": "integer", "rating": "integer", "comment": "string" }
+- Response: { "success": true, "message": "Review added." }
+
+B. View Reviews for Product
+- Endpoint: GET /api/reviews/{product_id}
+- Response: { "success": true, "reviews": [ ... ] }
+
+C. Update Review
+- Endpoint: PUT /api/reviews/{id}
+- Headers: Authorization: Bearer <token>
+- Request Body: { "rating": "integer", "comment": "string" }
+- Response: { "success": true, "message": "Review updated." }
+
+D. Delete Review
+- Endpoint: DELETE /api/reviews/{id}
+- Headers: Authorization: Bearer <token>
+- Response: { "success": true, "message": "Review deleted." }
+
+E. Get Product Rating Summary
+- Endpoint: GET /api/products/{id}/rating
+- Response: { "success": true, "average_rating": "decimal", "total_reviews": "integer" }
+}
+
+12. Admin APIs
+--------------
+
+A. Dashboard Stats
+- Endpoint: GET /api/admin/dashboard
+- Headers: Authorization: Bearer <admin token>
+- Response: { "success": true, "stats": { ... } }
+
+B. Manage Users
+- Endpoint: GET /api/admin/users
+- Headers: Authorization: Bearer <admin token>
+- Response: { "success": true, "users": [ ... ] }
+
+C. Manage Orders
+- Endpoint: GET /api/admin/orders
+- Headers: Authorization: Bearer <admin token>
+- Response: { "success": true, "orders": [ ... ] }
+
+D. Manage Products
+- Endpoint: GET /api/admin/products
+- Headers: Authorization: Bearer <admin token>
+- Response: { "success": true, "products": [ ... ] }
+
+13. Notification APIs
+---------------------
+
+A. List Notifications
+- Endpoint: GET /api/notifications
+- Headers: Authorization: Bearer <token>
+- Response: { "success": true, "notifications": [ ... ] }
+
+B. Mark Notification as Read
+- Endpoint: POST /api/notifications/read/{id}
+- Headers: Authorization: Bearer <token>
+- Response: { "success": true, "message": "Notification marked as read." }
+
+14. Shipping APIs
+-----------------
+A. List Shipping Methods
+- Endpoint: GET /api/shipping-methods
+- Response: { "success": true, "methods": [ ... ] }
+
+B. Add Shipping Method (Admin)
+- Endpoint: POST /api/shipping-methods
+- Headers: Authorization: Bearer <admin token>
+- Request Body: { "name": "string", "cost": "decimal", "description": "string" }
+- Response: { "success": true, "message": "Shipping method added.", "method": { ... } }
+
+C. Update Shipping Method (Admin)
+- Endpoint: PUT /api/shipping-methods/{id}
+- Headers: Authorization: Bearer <admin token>
+- Request Body: { "name": "string", "cost": "decimal", "description": "string" }
+- Response: { "success": true, "message": "Shipping method updated.", "method": { ... } }
+
+D. Delete Shipping Method (Admin)
+- Endpoint: DELETE /api/shipping-methods/{id}
+- Headers: Authorization: Bearer <admin token>
+- Response: { "success": true, "message": "Shipping method deleted." }
+
+E. Calculate Shipping Cost
+- Endpoint: POST /api/shipping/calculate
+- Request Body: { "address": "string", "cart_id": "integer" }
+- Response: { "success": true, "cost": "decimal", "method": "string" }
+
+F. Track Shipment
+- Endpoint: GET /api/shipping/track/{order_id}
+- Response: { "success": true, "tracking": { ...tracking info... } }
+
+15. Purchase Order APIs
+----------------------
+
+A. Create Purchase Order (Admin)
+- Endpoint: POST /api/purchase-orders
+- Headers: Authorization: Bearer <admin token>
+- Request Body: { "supplier_id": "integer", "items": [ { "product_id": "integer", "quantity": "integer", "price": "decimal" } ], "expected_delivery_date": "date", "notes": "string (optional)" }
+- Response: { "success": true, "message": "Purchase order created.", "purchase_order": { ... } }
+
+B. List Purchase Orders (Admin)
+- Endpoint: GET /api/purchase-orders
+- Headers: Authorization: Bearer <admin token>
+- Response: { "success": true, "purchase_orders": [ ... ] }
+
+C. Purchase Order Details (Admin)
+- Endpoint: GET /api/purchase-orders/{id}
+- Headers: Authorization: Bearer <admin token>
+- Response: { "success": true, "purchase_order": { ... } }
+
+D. Update Purchase Order (Admin)
+- Endpoint: PUT /api/purchase-orders/{id}
+- Headers: Authorization: Bearer <admin token>
+- Request Body: { "supplier_id": "integer", "items": [ { "product_id": "integer", "quantity": "integer", "price": "decimal" } ], "expected_delivery_date": "date", "notes": "string (optional)" }
+- Response: { "success": true, "message": "Purchase order updated.", "purchase_order": { ... } }
+
+E. Delete Purchase Order (Admin)
+- Endpoint: DELETE /api/purchase-orders/{id}
+- Headers: Authorization: Bearer <admin token>
+- Response: { "success": true, "message": "Purchase order deleted." }
+
+F. Receive Purchase Order (Admin)
+- Endpoint: POST /api/purchase-orders/{id}/receive
+- Headers: Authorization: Bearer <admin token>
+- Request Body: { "received_items": [ { "product_id": "integer", "quantity": "integer" } ], "received_date": "date" }
+- Response: { "success": true, "message": "Purchase order received.", "purchase_order": { ... } }
+
+17. Marketing APIs
+------------------
+
+A. Coupon Management
+- Create Coupon (Admin)
+  - Endpoint: POST /api/coupons
+  - Headers: Authorization: Bearer <admin token>
+  - Request Body: { "code": "string", "discount_type": "string", "discount_value": "decimal", "valid_from": "date", "valid_to": "date", "usage_limit": "integer", "active": "boolean" }
+  - Response: { "success": true, "message": "Coupon created.", "coupon": { ... } }
+- List Coupons
+  - Endpoint: GET /api/coupons
+  - Response: { "success": true, "coupons": [ ... ] }
+- Update Coupon (Admin)
+  - Endpoint: PUT /api/coupons/{id}
+  - Headers: Authorization: Bearer <admin token>
+  - Request Body: { ...fields... }
+  - Response: { "success": true, "message": "Coupon updated.", "coupon": { ... } }
+- Delete Coupon (Admin)
+  - Endpoint: DELETE /api/coupons/{id}
+  - Headers: Authorization: Bearer <admin token>
+  - Response: { "success": true, "message": "Coupon deleted." }
+- Apply Coupon
+  - Endpoint: POST /api/coupons/apply
+  - Headers: Authorization: Bearer <token>
+  - Request Body: { "code": "string", "cart_id": "integer" }
+  - Response: { "success": true, "message": "Coupon applied.", "discount": "decimal" }
+
+B. Discount Management
+- Create Discount (Admin)
+  - Endpoint: POST /api/discounts
+  - Headers: Authorization: Bearer <admin token>
+  - Request Body: { "name": "string", "discount_type": "string", "discount_value": "decimal", "valid_from": "date", "valid_to": "date", "active": "boolean" }
+  - Response: { "success": true, "message": "Discount created.", "discount": { ... } }
+- List Discounts
+  - Endpoint: GET /api/discounts
+  - Response: { "success": true, "discounts": [ ... ] }
+- Update Discount (Admin)
+  - Endpoint: PUT /api/discounts/{id}
+  - Headers: Authorization: Bearer <admin token>
+  - Request Body: { ...fields... }
+  - Response: { "success": true, "message": "Discount updated.", "discount": { ... } }
+- Delete Discount (Admin)
+  - Endpoint: DELETE /api/discounts/{id}
+  - Headers: Authorization: Bearer <admin token>
+  - Response: { "success": true, "message": "Discount deleted." }
+
+C. Product Discount Management
+- Create Product Discount (Admin)
+  - Endpoint: POST /api/product-discounts
+  - Headers: Authorization: Bearer <admin token>
+  - Request Body: { "product_id": "integer", "discount_type": "string", "discount_value": "decimal", "valid_from": "date", "valid_to": "date", "active": "boolean" }
+  - Response: { "success": true, "message": "Product discount created.", "product_discount": { ... } }
+- List Product Discounts
+  - Endpoint: GET /api/product-discounts
+  - Response: { "success": true, "product_discounts": [ ... ] }
+- Update Product Discount (Admin)
+  - Endpoint: PUT /api/product-discounts/{id}
+  - Headers: Authorization: Bearer <admin token>
+  - Request Body: { ...fields... }
+  - Response: { "success": true, "message": "Product discount updated.", "product_discount": { ... } }
+- Delete Product Discount (Admin)
+  - Endpoint: DELETE /api/product-discounts/{id}
+  - Headers: Authorization: Bearer <admin token>
+  - Response: { "success": true, "message": "Product discount deleted." }
+
+18. Advanced Discount APIs
+-------------------------
+
+A. Create Advanced Discount (Admin)
+- Endpoint: POST /api/advanced-discounts
+- Headers: Authorization: Bearer <admin token>
+- Request Body: {
+    "name": "string",
+    "discount_type": "string", // e.g. percentage, fixed
+    "discount_value": "decimal",
+    "valid_from": "date",
+    "valid_to": "date",
+    "active": "boolean",
+    "conditions": [
+        {
+            "type": "string", // e.g. min_cart_value, buy_x_get_y, customer_group, etc.
+            "value": "string|integer|decimal"
+        }
+    ]
+}
+- Response: { "success": true, "message": "Advanced discount created.", "advanced_discount": { ... } }
+
+B. List Advanced Discounts
+- Endpoint: GET /api/advanced-discounts
+- Response: { "success": true, "advanced_discounts": [ ... ] }
+
+C. Update Advanced Discount (Admin)
+- Endpoint: PUT /api/advanced-discounts/{id}
+- Headers: Authorization: Bearer <admin token>
+- Request Body: { ...fields... }
+- Response: { "success": true, "message": "Advanced discount updated.", "advanced_discount": { ... } }
+
+D. Delete Advanced Discount (Admin)
+- Endpoint: DELETE /api/advanced-discounts/{id}
+- Headers: Authorization: Bearer <admin token>
+- Response: { "success": true, "message": "Advanced discount deleted." }
+
+E. Apply Advanced Discount
+- Endpoint: POST /api/advanced-discounts/apply
+- Headers: Authorization: Bearer <token>
+- Request Body: {
+    "cart_id": "integer"
+}
+- Response: { "success": true, "message": "Advanced discount applied.", "discount": "decimal" }
+
+21. Report APIs
+--------------
+
+A. Sales Report
+- Endpoint: GET /api/reports/sales
+- Headers: Authorization: Bearer <admin token>
+- Query Params (optional): { "from_date": "date", "to_date": "date", "product_id": "integer", "category_id": "integer" }
+- Response: { "success": true, "report": [ ... ] }
+
+B. Inventory Report
+- Endpoint: GET /api/reports/inventory
+- Headers: Authorization: Bearer <admin token>
+- Query Params (optional): { "category_id": "integer", "brand_id": "integer" }
+- Response: { "success": true, "report": [ ... ] }
+
+C. Customer Report
+- Endpoint: GET /api/reports/customers
+- Headers: Authorization: Bearer <admin token>
+- Query Params (optional): { "from_date": "date", "to_date": "date" }
+- Response: { "success": true, "report": [ ... ] }
+
+D. Order Report
+- Endpoint: GET /api/reports/orders
+- Headers: Authorization: Bearer <admin token>
+- Query Params (optional): { "from_date": "date", "to_date": "date", "status": "string" }
+- Response: { "success": true, "report": [ ... ] }
+
+E. Export Report
+- Endpoint: GET /api/reports/export
+- Headers: Authorization: Bearer <admin token>
+- Query Params: { "type": "string (sales, inventory, customer, order)", "format": "string (csv, xlsx)" }
+- Response: { "success": true, "file_url": "string" }
+}
+
+Ei documentation ta ekta world-class ecommerce platform build korar jonno shob dike theke guide korbe. Jodi kono specific feature, code sample, ba implementation help dorkar hoy, bolo—I can help step by step.

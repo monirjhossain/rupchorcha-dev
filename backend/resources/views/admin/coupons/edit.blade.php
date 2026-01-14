@@ -1,0 +1,26 @@
+@extends('layouts.admin')
+@section('title', 'Edit Coupon')
+@section('content')
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 font-weight-bold text-primary"><i class="fas fa-ticket-alt mr-2"></i>Edit Coupon</h1>
+        <a href="{{ route('coupons.index') }}" class="btn btn-outline-secondary shadow-sm"><i class="fa fa-arrow-left"></i> Back</a>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <form action="{{ route('coupons.update', $coupon->id) }}" method="POST">
+                        @csrf
+                        @method('PUT')
+                        @include('admin.coupons.partials.form', ['coupon' => $coupon])
+                        <div class="text-right mt-4">
+                            <button type="submit" class="btn btn-primary px-4 shadow-sm"><i class="fa fa-save mr-1"></i> Update Coupon</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection

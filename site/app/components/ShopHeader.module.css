@@ -1,0 +1,39 @@
+.shopHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.shopSearch {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.shopSearch input {
+  padding: 0.5em 1em;
+  border: 1.5px solid #e91e63;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+}
+.shopSearch button {
+  background: #e91e63;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5em 1em;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.shopSearch button:hover {
+  background: #c2185b;
+}
+.sortSelect {
+  padding: 0.5em 1em;
+  border: 1.5px solid #eee;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: #fff;
+}

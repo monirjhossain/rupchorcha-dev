@@ -1,0 +1,264 @@
+.cartPage {
+  background: #f7f7fa;
+  min-height: 100vh;
+  font-family: 'Inter', sans-serif;
+}
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+.cartProgress {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2.5rem;
+  gap: 1.5rem;
+}
+.progressStep {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  color: #bbb;
+}
+.progressStep.active {
+  color: #e91e63;
+}
+.stepNumber {
+  background: #fff;
+  border: 2px solid #e91e63;
+  color: #e91e63;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+.stepLabel {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+.progressLine {
+  flex: 1;
+  height: 2px;
+  background: #e91e6322;
+}
+.cartContent {
+  display: flex;
+  gap: 2.5rem;
+  align-items: flex-start;
+}
+.cartItemsSection {
+  flex: 2;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px #0001;
+  padding: 2rem;
+}
+.emptyCart {
+  text-align: center;
+  color: #888;
+  font-size: 1.2rem;
+}
+.continueShopping {
+  display: inline-block;
+  margin-top: 1rem;
+  color: #e91e63;
+  font-weight: 700;
+  text-decoration: underline;
+}
+.cartItem {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 1.5rem;
+}
+.removeItem {
+  background: none;
+  border: none;
+  color: #e91e63;
+  font-size: 1.3rem;
+  cursor: pointer;
+  font-weight: 700;
+}
+.itemImage img {
+  width: 80px;
+  height: 80px;
+  border-radius: 10px;
+  object-fit: cover;
+  box-shadow: 0 2px 8px #0001;
+}
+.itemDetails {
+  flex: 1;
+}
+.itemDetails h4 {
+  font-weight: 700;
+  color: #222;
+  font-size: 1.15rem;
+  margin-bottom: 0.3rem;
+}
+.itemMeta {
+  color: #888;
+  font-size: 0.95rem;
+}
+.itemQuantity {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+.itemQuantity button {
+  background: #fff;
+  border: 1.5px solid #e91e63;
+  color: #e91e63;
+  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+.itemQuantity span {
+  font-weight: 700;
+  font-size: 1.08rem;
+  color: #222;
+  min-width: 24px;
+  text-align: center;
+}
+.itemPrice {
+  font-weight: 700;
+  color: #e91e63;
+  font-size: 1.18rem;
+}
+.shippingProgress {
+  margin: 2rem 0 1.5rem 0;
+}
+.progressBarContainer {
+  background: #eee;
+  border-radius: 8px;
+  height: 10px;
+  width: 100%;
+  overflow: hidden;
+}
+.progressBarFill {
+  background: linear-gradient(90deg, #e91e63 60%, #f7b7c3 100%);
+  height: 100%;
+  border-radius: 8px;
+  transition: width 0.3s;
+}
+.progressText {
+  margin-top: 0.5rem;
+  font-size: 1rem;
+  color: #e91e63;
+  font-weight: 600;
+}
+.couponSection {
+  margin-top: 1.5rem;
+  display: flex;
+  gap: 0.7rem;
+}
+.couponSection input {
+  flex: 1;
+  padding: 0.7rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #eee;
+  font-size: 1rem;
+}
+.couponSection button {
+  background: #e91e63;
+  color: #fff;
+  font-weight: 700;
+  border: none;
+  border-radius: 8px;
+  padding: 0.7rem 1.2rem;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.orderSummary {
+  flex: 1;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px #0001;
+  padding: 2rem;
+  min-width: 320px;
+}
+.summaryContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+.summaryRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 700;
+  font-size: 1.08rem;
+}
+.totalRow {
+  font-size: 1.25rem;
+  color: #e91e63;
+  font-weight: 800;
+}
+.shippingOptions {
+  margin: 1.2rem 0;
+}
+.shippingOptions h4 {
+  font-size: 1.08rem;
+  font-weight: 700;
+  margin-bottom: 0.7rem;
+}
+.radioOption {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 0.5rem;
+}
+.shippingLocation {
+  font-size: 0.95rem;
+  color: #888;
+  margin-top: 0.5rem;
+}
+.checkoutBtn {
+  width: 100%;
+  background: #e91e63;
+  color: #fff;
+  font-weight: 800;
+  padding: 1rem 0;
+  border-radius: 10px;
+  border: none;
+  font-size: 1.18rem;
+  cursor: pointer;
+  box-shadow: 0 2px 8px #e91e6322;
+  margin-top: 1.5rem;
+  transition: background 0.2s;
+}
+.checkoutBtn:disabled {
+  background: #eee;
+  color: #bbb;
+  cursor: not-allowed;
+}
+.paymentMethods {
+  display: flex;
+  gap: 0.7rem;
+  margin-top: 1.2rem;
+  align-items: center;
+}
+.paymentMethods img {
+  height: 25px;
+  width: 40px;
+  object-fit: contain;
+  border-radius: 4px;
+  background: #f7f7fa;
+  border: 1px solid #eee;
+}
+.loading {
+  text-align: center;
+  color: #e91e63;
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-top: 4rem;
+}

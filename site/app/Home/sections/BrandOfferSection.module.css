@@ -1,0 +1,39 @@
+.brandOfferSection {
+  width: 100%;
+  background: #fff;
+  margin: 2rem 0;
+}
+.brandOfferTitle {
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: #222;
+  letter-spacing: 0.02em;
+}
+.brandOfferContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.brandOfferCard {
+  display: block;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px #0001;
+  background: #fff;
+  transition: box-shadow 0.2s;
+  width: 260px;
+}
+.brandOfferCard:hover {
+  box-shadow: 0 4px 24px #0002;
+}
+.brandOfferImage {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  display: block;
+}
