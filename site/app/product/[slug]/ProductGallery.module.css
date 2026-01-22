@@ -1,0 +1,128 @@
+/* Modal for large image */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(30, 0, 50, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modalContent {
+  position: relative;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 8px 40px #0005;
+  padding: 24px;
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modalImage {
+  max-width: 70vw;
+  max-height: 70vh;
+  border-radius: 12px;
+  box-shadow: 0 2px 16px #a004b033;
+}
+.modalClose {
+  position: absolute;
+  top: 12px;
+  right: 18px;
+  background: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  font-size: 28px;
+  color: #a004b0;
+  cursor: pointer;
+  box-shadow: 0 2px 8px #a004b022;
+  transition: background 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modalClose:hover {
+  background: #f3e6f7;
+}
+.gallery {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 480px;
+}
+.mainImageWrapper {
+  position: relative;
+  width: 440px;
+  height: 440px;
+  margin-bottom: 20px;
+}
+.mainImage {
+  width: 440px;
+  height: 440px;
+  object-fit: contain;
+  border-radius: 16px;
+  background: #f5f5f5;
+}
+.placeholder {
+  background: #f5f5f5;
+  height: 440px;
+  border-radius: 16px;
+  width: 440px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ccc;
+  font-size: 32px;
+}
+.arrowBtn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #a004b0;
+  border: 0;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  box-shadow: 0 4px 16px #0002;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.18s, box-shadow 0.18s;
+  z-index: 2;
+}
+.arrowBtn:hover {
+  background: #7c0291;
+  box-shadow: 0 6px 20px #a004b033;
+}
+.arrowLeft {
+  left: 8px;
+}
+.arrowRight {
+  right: 8px;
+}
+.thumbs {
+  display: flex;
+  gap: 8px;
+}
+.thumb {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid #eee;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: border 0.15s, box-shadow 0.15s, opacity 0.15s;
+}
+.thumbActive {
+  border: 2px solid #a004b0;
+  box-shadow: 0 2px 8px #a004b033;
+  opacity: 1;
+}

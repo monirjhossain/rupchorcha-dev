@@ -1,0 +1,71 @@
+.tagLink {
+  color: #fff;
+  background: #a004b0;
+  border-radius: 6px;
+  padding: 2px 10px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-right: 6px;
+  text-decoration: none;
+  display: inline-block;
+  transition: background 0.15s, color 0.15s;
+}
+.tagLink:hover {
+  background: #e53935;
+  color: #fff;
+}
+.categoryLink {
+  color: #a004b0;
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 1px dashed #a004b0;
+  padding: 0 2px;
+  transition: color 0.15s, border-bottom 0.15s;
+}
+.categoryLink:hover {
+  color: #e53935;
+  border-bottom: 1px solid #e53935;
+}
+.deliveryInfo {
+  background: linear-gradient(135deg, #f8eaff 0%, #fafdff 100%);
+  border-radius: 18px;
+  padding: 28px 28px 18px 28px;
+  margin-top: 18px;
+  font-size: 16px;
+  color: #3a2950;
+  box-shadow: 0 4px 24px #a004b022;
+  border: 1.5px solid #f3e6f7;
+  min-width: 320px;
+}
+.infoRow {
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.badgeRow {
+  display: flex;
+  gap: 14px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+.badge {
+  background: #fff;
+  border-radius: 8px;
+  padding: 6px 16px;
+  font-weight: 600;
+  font-size: 15px;
+  color: #7c0291;
+  box-shadow: 0 2px 8px #a004b011;
+  border: 1px solid #f3e6f7;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.icon {
+  font-size: 18px;
+  color: #a004b0;
+  margin-right: 4px;
+  display: inline-flex;
+  align-items: center;
+}

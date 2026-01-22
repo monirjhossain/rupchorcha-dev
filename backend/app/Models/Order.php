@@ -10,6 +10,12 @@ class Order extends Model
     use HasFactory;
 
     protected $guarded = [];
+    
+    protected $casts = [
+        'shipping_cost' => 'decimal:2',
+        'discount_amount' => 'decimal:2',
+        'total' => 'decimal:2',
+    ];
 
     public function items()
     {
@@ -26,23 +32,28 @@ class Order extends Model
         return $this->hasMany(OrderStatusHistory::class);
     }
 
-    public function shippingAddress()
-    {
-        return $this->belongsTo(Address::class, 'shipping_address_id');
-    }
-
-    public function billingAddress()
-    {
-        return $this->belongsTo(Address::class, 'billing_address_id');
-    }
-
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-        public function courier()
-        {
-            return $this->belongsTo(Courier::class);
-        }
+    public function refunds()
+    {
+        return $this->hasMany(Refund::class);
+    }
+
+    public function courier()
+    {
+        return $this->belongsTo(Courier::class);
+    }
+
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class);
+    }
+
+    public function packingSlips()
+    {
+        return $this->hasMany(PackingSlip::class);
+    }
 }

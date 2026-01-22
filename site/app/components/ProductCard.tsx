@@ -1,7 +1,11 @@
-
 "use client";
 import React, { useState } from "react";
+import { useWishlist } from "./WishlistContext";
+import { useFeatureAccess } from "@/src/hooks/useFeatureAccess";
+import { openLoginModal } from "@/src/utils/loginModal";
+import { FaHeart, FaRegHeart } from "react-icons/fa";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import styles from "./ProductCard.module.css";
 
 interface ProductCardProps {
@@ -12,17 +16,20 @@ interface ProductCardProps {
 
 const backendBase = "http://localhost:8000";
 
-const getImageUrl = (product: any): string => {
-  if (product.images?.length) {
-    const img = product.images[0].url || product.images[0].path;
-    if (img) return img.startsWith("http") ? img : `${backendBase}/storage/${img.replace(/^storage[\\/]/, "")}`;
+
+const getImageUrl = (product: any, idx = 0): string => {
+  if (product.images?.length && product.images[idx]) {
+    const img = product.images[idx].url || product.images[idx].path || product.images[idx];
+    if (typeof img === "string" && img) {
+      return img.startsWith("http") ? img : `${backendBase}/storage/${img.replace(/^storage[\\/]/, "")}`;
+    }
   }
-  if (product.main_image) {
+  if (typeof product.main_image === "string" && product.main_image) {
     return product.main_image.startsWith("http")
       ? product.main_image
       : `${backendBase}/storage/${product.main_image.replace(/^storage[\\/]/, "")}`;
   }
-  if (product.image) {
+  if (typeof product.image === "string" && product.image) {
     return product.image.startsWith("http")
       ? product.image
       : `${backendBase}/storage/${product.image.replace(/^storage[\\/]/, "")}`;
@@ -32,28 +39,75 @@ const getImageUrl = (product: any): string => {
 
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, isAddingToCart = false }) => {
-  const imageUrl = getImageUrl(product);
+  const [hovered, setHovered] = useState(false);
+  const router = useRouter();
+  const { canAccessWishlist } = useFeatureAccess();
+  const images = Array.isArray(product.images) ? product.images : [];
+  const imageUrl = getImageUrl({ ...product, images }, 0);
+  const secondImageUrl = images[1] ? getImageUrl({ ...product, images }, 1) : null;
   const brand = product.brand?.name || product.brand_name;
-
-  // Wishlist removed
 
   // Discount calculation (robust against NaN and string numbers)
   const price = Number((product.price || "").toString().replace(/[^\d.]/g, ""));
   const sale = Number((product.sale_price || "").toString().replace(/[^\d.]/g, ""));
   const hasDiscount = !isNaN(price) && !isNaN(sale) && sale > 0 && sale < price;
   const discountPercent = hasDiscount ? Math.round(((price - sale) / price) * 100) : 0;
-  // Debug print
-  console.log("Product price debug:", product.price, product.sale_price, price, sale, hasDiscount);
 
-  // Rating (optional, fallback to 0)
   const rating = product.rating || product.average_rating || 0;
   const ratingCount = product.rating_count || product.reviews_count || 0;
 
-  // Badges
-  const isNew = product.is_new || false; // You can set this from backend
+  const isNew = product.is_new || false;
+
+  const { isInWishlist, addToWishlist, removeFromWishlist, loading: wishlistLoading, isAuthenticated } = useWishlist();
+  const [wishlistError, setWishlistError] = useState<string | null>(null);
+
+  const handleWishlist = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setWishlistError(null);
+
+    // Check if feature is accessible
+    if (!canAccessWishlist) {
+      openLoginModal();
+      return;
+    }
+
+    try {
+      if (isInWishlist(product.id)) {
+        await removeFromWishlist(product.id);
+      } else {
+        await addToWishlist(product.id);
+      }
+    } catch (err: any) {
+      const message = err.message || "Wishlist action failed. Please login or try again.";
+      setWishlistError(message);
+      console.error("Wishlist error:", err);
+      if (message.includes("Please login") || message.includes("login")) {
+        setTimeout(() => openLoginModal(), 2000);
+      }
+    }
+  };
 
   return (
     <div className={styles.productCard}>
+      {wishlistError && (
+        <div style={{ color: 'red', fontSize: 13, marginBottom: 4 }}>{wishlistError}</div>
+      )}
+      <button
+        className={styles.wishlistBtn}
+        aria-label={isInWishlist(product.id) ? "Remove from wishlist" : "Add to wishlist"}
+        onClick={handleWishlist}
+        disabled={wishlistLoading}
+        style={{ position: "absolute", top: 14, right: 14, background: "none", border: "none", cursor: "pointer", zIndex: 2 }}
+      >
+        {wishlistLoading ? (
+          <span className="spinner" />
+        ) : isInWishlist(product.id) ? (
+          <FaHeart color="#e91e63" size={24} />
+        ) : (
+          <FaRegHeart color="#e91e63" size={24} />
+        )}
+      </button>
       {/* Badges */}
       <div className={styles.badgeContainer}>
         {isNew && <span className={styles.newBadge}>NEW</span>}
@@ -62,11 +116,17 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, isAddin
         )}
       </div>
       {/* Product image */}
-      <Link href={`/product/${product.id}`} className={styles.productImageLink}>
+      <Link 
+        href={product.slug ? `/product/${product.slug}` : `/product/${product.id}`} 
+        className={styles.productImageLink}
+        prefetch={true}
+      >
         <img
-          src={imageUrl}
+          src={hovered && secondImageUrl && secondImageUrl !== imageUrl ? secondImageUrl : imageUrl}
           alt={product.name || "No Image Available"}
           className={styles.productImage}
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
         />
       </Link>
       {/* Product info */}
@@ -77,12 +137,16 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, isAddin
             href={product.brand?.slug ? `/brands/${product.brand.slug}` : (brand ? `/brands/${encodeURIComponent(brand)}` : '#')}
             className={styles.brandName}
             title={brand}
+            prefetch={true}
           >
             {brand}
           </Link>
         )}
         {/* Title */}
-        <Link href={`/product/${product.id}`}>
+        <Link 
+          href={product.slug ? `/product/${product.slug}` : `/product/${product.id}`}
+          prefetch={true}
+        >
           <h3 className={styles.productTitle}>{product.name}</h3>
         </Link>
         {/* Rating */}

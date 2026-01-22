@@ -2,10 +2,9 @@
 import Link from "next/link";
 import React, { useState, useRef, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { categoriesAPI, brandsAPI } from "../services/api";
+import { useCategories, useBrands } from "../services/useCategoriesBrands";
 
-type Category = { id: number; name: string; slug?: string; products_count?: number };
-type Brand = { id: number; name: string; slug?: string; products_count?: number };
+
 
 const Sidebar = () => {
   const pathname = usePathname();
@@ -15,10 +14,9 @@ const Sidebar = () => {
   const maxPrice = 15000;
   const sliderRef = useRef<HTMLDivElement | null>(null);
 
-  // Loading state
-  const [loading, setLoading] = useState(true);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [brands, setBrands] = useState<Brand[]>([]);
+  // Use SWR hooks for categories and brands
+  const { categories, isLoading: categoriesLoading } = useCategories();
+  const { brands, isLoading: brandsLoading } = useBrands();
   const [showAllBrands, setShowAllBrands] = useState(false);
   const [brandSearch, setBrandSearch] = useState("");
   const [showAllCategories, setShowAllCategories] = useState(false);
@@ -27,27 +25,10 @@ const Sidebar = () => {
   const [showCategories, setShowCategories] = useState(true);
   const [showBrandsSection, setShowBrandsSection] = useState(true);
 
-  // Fetch categories and brands from backend
-  useEffect(() => {
-    async function fetchData() {
-      setLoading(true);
-      try {
-        const categoriesRes = await categoriesAPI.getAll();
-        setCategories(Array.isArray(categoriesRes) ? categoriesRes : categoriesRes.categories || []);
-        const brandsRes = await brandsAPI.getAll();
-        setBrands(Array.isArray(brandsRes) ? brandsRes : brandsRes.brands || []);
-      } catch {
-        setCategories([]);
-        setBrands([]);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchData();
-  }, []);
 
-  const brandsToShow = showAllBrands ? brands : brands.slice(0, 10);
-  const categoriesToShow = showAllCategories ? categories : categories.slice(0, 10);
+
+  const brandsToShow = showAllBrands ? brands : (brands || []).slice(0, 10);
+  const categoriesToShow = showAllCategories ? categories : (categories || []).slice(0, 10);
 
   // Slider change handler
   const handleSliderChange = (index: 0 | 1, value: number) => {
@@ -73,6 +54,9 @@ const Sidebar = () => {
     }, 0);
   };
 
+  if (categoriesLoading || brandsLoading) {
+    return <aside style={{width:300, minWidth:220, background:'#fff', borderRadius:14, boxShadow:'0 4px 24px #0001', padding:'2.2rem 1.5rem', marginRight:'1.5rem', fontSize:'1rem', position:'sticky', top:24, alignSelf:'flex-start', maxHeight:'90vh', overflowY:'auto', border:'1px solid #f2f2f2'}}>Loading filters...</aside>;
+  }
   return (
     <aside style={{width:300, minWidth:220, background:'#fff', borderRadius:14, boxShadow:'0 4px 24px #0001', padding:'2.2rem 1.5rem', marginRight:'1.5rem', fontSize:'1rem', position:'sticky', top:24, alignSelf:'flex-start', maxHeight:'90vh', overflowY:'auto', border:'1px solid #f2f2f2'}}>
       {/* Price Filter (collapsible) */}
@@ -133,7 +117,7 @@ const Sidebar = () => {
         {showCategories && (
           <>
             <input type="text" value={categorySearch} onChange={e=>setCategorySearch(e.target.value)} placeholder="Search category..." style={{width:'100%',padding:'0.5rem',border:'1px solid #eee',borderRadius:6,marginBottom:'0.75rem',fontSize:'1rem'}} />
-            {loading ? (
+            {(categoriesLoading || brandsLoading) ? (
               <div style={{textAlign:'center',padding:'1.2rem 0'}}>
                 <span style={{display:'inline-block',width:22,height:22,border:'3px solid #f3f3f3',borderTop:'3px solid #e91e63',borderRadius:'50%',animation:'spin 0.7s linear infinite',verticalAlign:'middle',marginRight:8}}></span>
                 <span style={{color:'#888'}}>Loading categories...</span>
@@ -198,7 +182,7 @@ const Sidebar = () => {
         {showBrandsSection && (
           <>
             <input type="text" value={brandSearch} onChange={e=>setBrandSearch(e.target.value)} placeholder="Search brand..." style={{width:'100%',padding:'0.5rem',border:'1px solid #eee',borderRadius:6,marginBottom:'0.75rem',fontSize:'1rem'}} />
-            {loading ? (
+            {(categoriesLoading || brandsLoading) ? (
               <div style={{textAlign:'center',padding:'1.2rem 0'}}>
                 <span style={{display:'inline-block',width:22,height:22,border:'3px solid #f3f3f3',borderTop:'3px solid #e91e63',borderRadius:'50%',animation:'spin 0.7s linear infinite',verticalAlign:'middle',marginRight:8}}></span>
                 <span style={{color:'#888'}}>Loading brands...</span>
@@ -221,14 +205,16 @@ const Sidebar = () => {
                             }}
                             style={{accentColor:'#e91e63',width:18,height:18,cursor:'pointer'}}
                           />
-                          <span style={{fontWeight:500,color:'#444',fontSize:'1rem',display:'flex',alignItems:'center',gap:'0.5rem',cursor:'pointer'}}
-                            onClick={() => { if (!isChecked && brand.slug) router.push(`/brands/${brand.slug}`); }}
+                          <Link 
+                            href={`/brands/${brand.slug}`}
+                            prefetch={true}
+                            style={{fontWeight:500,color:'#444',fontSize:'1rem',display:'flex',alignItems:'center',gap:'0.5rem',cursor:'pointer',textDecoration:'none'}}
                           >
                             {brand.name}
                             <span style={{color:'#aaa',fontWeight:400}}>
                               ({typeof brand.products_count === "number" ? brand.products_count : 0})
                             </span>
-                          </span>
+                          </Link>
                         </li>
                       );
                     })

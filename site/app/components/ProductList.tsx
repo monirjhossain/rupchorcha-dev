@@ -11,16 +11,23 @@ interface Product {
 
 interface ProductListProps {
   products: Product[];
+  onAddToCart?: (product: Product) => void;
+  isAddingToCart?: boolean;
 }
 
-const ProductList: React.FC<ProductListProps> = ({ products }) => {
+const ProductList: React.FC<ProductListProps> = ({ products, onAddToCart, isAddingToCart }) => {
   if (!products || products.length === 0) {
     return <div>No products found.</div>;
   }
   return (
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "1.5rem" }}>
       {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
+        <ProductCard
+          key={product.id}
+          product={product}
+          onAddToCart={onAddToCart ? onAddToCart : () => {}}
+          isAddingToCart={isAddingToCart}
+        />
       ))}
     </div>
   );

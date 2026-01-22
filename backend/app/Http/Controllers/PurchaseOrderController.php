@@ -1,4 +1,3 @@
-use Barryvdh\DomPDF\Facade\Pdf;
 <?php
 
 namespace App\Http\Controllers;
@@ -7,7 +6,7 @@ use App\Models\Product;
 use App\Models\PurchaseOrder;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
-
+use Barryvdh\DomPDF\Facade\Pdf;
 class PurchaseOrderController extends Controller
 {
     public function index(Request $request)

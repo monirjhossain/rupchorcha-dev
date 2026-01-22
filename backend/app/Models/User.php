@@ -23,6 +23,8 @@ class User extends Authenticatable
         'phone',
         'address',
         'active',
+        'google_id',
+        'email_verified_at',
     ];
         // Permissions via role
     public function permissions()

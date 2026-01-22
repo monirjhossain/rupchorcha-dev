@@ -3,8 +3,8 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { cartStorage } from "../../utils/cartStorage";
-import styles from "./cartPage.module.css";
-import Header from "../components/Header";
+import styles from "./CartPage.module.css";
+import Header from "@/app/components/Header";
 
 const shippingCosts = {
   outside: 130,

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { cartStorage } from "../../utils/cartStorage";
-import "./Checkout.css";
+import "./checkout.css";
 
 const CheckoutPage = ({ updateCartCount }: { updateCartCount?: () => void }) => {
   const router = useRouter();

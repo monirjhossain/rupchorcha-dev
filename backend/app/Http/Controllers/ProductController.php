@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Product;
@@ -15,12 +14,14 @@ class ProductController extends Controller
     // Display a listing of the products
     public function index(Request $request)
     {
-        $query = Product::with(['category', 'brand', 'images', 'tags', 'attributes']);
+        $query = Product::with(['categories', 'brand', 'images', 'tags', 'attributes']);
         if ($request->filled('name')) {
             $query->where('name', 'like', '%' . $request->name . '%');
         }
         if ($request->filled('category_id')) {
-            $query->where('category_id', $request->category_id);
+            $query->whereHas('categories', function($q) use ($request) {
+                $q->where('categories.id', $request->category_id);
+            });
         }
         if ($request->filled('brand_id')) {
             $query->where('brand_id', $request->brand_id);
@@ -70,6 +71,7 @@ class ProductController extends Controller
     // Store a newly created product in storage
     public function store(Request $request)
     {
+        // dd($request->file('gallery_images'));
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'slug' => 'required|string|max:255|unique:products',
@@ -91,7 +93,8 @@ class ProductController extends Controller
             'meta_description' => 'nullable|string',
             'main_image' => 'nullable|file|image',
             'gallery_images.*' => 'nullable|file|image',
-            'category_id' => 'required|exists:categories,id',
+            'category_ids' => 'required|array',
+            'category_ids.*' => 'exists:categories,id',
             'brand_id' => 'required|exists:brands,id',
             'min_order_qty' => 'nullable|integer',
             'max_order_qty' => 'nullable|integer',
@@ -102,7 +105,11 @@ class ProductController extends Controller
         if ($request->hasFile('main_image')) {
             $validated['main_image'] = $request->file('main_image')->store('products', 'public');
         }
-        $product = Product::create($validated);
+        $productData = $validated;
+        unset($productData['category_ids']);
+        $product = Product::create($productData);
+        // Attach categories
+        $product->categories()->sync($validated['category_ids']);
         // Handle gallery images upload
         if ($request->hasFile('gallery_images')) {
             foreach ($request->file('gallery_images') as $galleryImage) {
@@ -117,9 +124,10 @@ class ProductController extends Controller
     }
 
     // Show the form for editing the specified product
-    public function edit($id)
+    public function edit(Request $request, $id)
     {
-        $product = Product::with('tags')->findOrFail($id);
+        
+        $product = Product::with(['images', 'tags', 'categories'])->findOrFail($id);
         $tags = Tag::all();
         $categories = Category::all();
         $brands = Brand::all();
@@ -131,6 +139,7 @@ class ProductController extends Controller
     // Update the specified product in storage
     public function update(Request $request, $id)
     {
+        // dd($request->file('gallery_images'));
         $product = Product::findOrFail($id);
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -152,7 +161,8 @@ class ProductController extends Controller
             'meta_title' => 'nullable|string',
             'meta_description' => 'nullable|string',
             'main_image' => 'nullable|file|image',
-            'category_id' => 'required|exists:categories,id',
+            'category_ids' => 'required|array',
+            'category_ids.*' => 'exists:categories,id',
             'brand_id' => 'required|exists:brands,id',
             'min_order_qty' => 'nullable|integer',
             'max_order_qty' => 'nullable|integer',
@@ -163,7 +173,18 @@ class ProductController extends Controller
         if ($request->hasFile('main_image')) {
             $validated['main_image'] = $request->file('main_image')->store('products', 'public');
         }
-        $product->update($validated);
+        $productData = $validated;
+        unset($productData['category_ids']);
+        $product->update($productData);
+        // Sync categories
+        $product->categories()->sync($validated['category_ids']);
+        // Handle gallery images upload
+        if ($request->hasFile('gallery_images')) {
+            foreach ($request->file('gallery_images') as $galleryImage) {
+                $path = $galleryImage->store('products', 'public');
+                $product->images()->create(['image_path' => $path]);
+            }
+        }
         if ($request->has('tags')) {
             $product->tags()->sync($request->input('tags'));
         } else {
@@ -187,7 +208,7 @@ class ProductController extends Controller
         if (empty($fields)) {
             return back()->with('error', 'Please select at least one field to export.');
         }
-        $products = Product::with(['category', 'brand'])->get();
+        $products = Product::with(['categories', 'brand'])->get();
         $csvData = [];
         // Prepare header
         $header = [];
@@ -200,7 +221,7 @@ class ProductController extends Controller
             $row = [];
             foreach ($fields as $field) {
                 if ($field === 'category') {
-                    $row[] = $product->category->name ?? '';
+                    $row[] = $product->categories && $product->categories->count() ? $product->categories->pluck('name')->join(', ') : '';
                 } elseif ($field === 'brand') {
                     $row[] = $product->brand->name ?? '';
                 } else {
@@ -222,6 +243,19 @@ class ProductController extends Controller
             'Content-Type' => 'text/csv',
             'Content-Disposition' => "attachment; filename=$filename"
         ]);
+    }
+      // API: Show product by slug
+    public function showBySlug($slug)
+    {
+        $product = Product::with(['category', 'brand', 'images', 'tags', 'attributes'])
+            ->where('slug', $slug)
+            ->first();
+
+        if (!$product) {
+            return response()->json(['success' => false, 'product' => null, 'error' => 'Product not found'], 404);
+        }
+
+        return response()->json(['success' => true, 'product' => $product]);
     }
 
     public function bulkImport()

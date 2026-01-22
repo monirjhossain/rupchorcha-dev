@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
-import Sidebar from "../components/Sidebar";
-import Header from "../components/Header";
+import Sidebar from "@/app/components/Sidebar";
+import Header from "@/app/components/Header";
 import Image from "next/image";
 
 // Remove all mock brand icons and product data. Only use backend data.

@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Mail\OrderConfirmationMail;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class OrderController extends Controller
 {
@@ -36,12 +38,13 @@ class OrderController extends Controller
      */
     public function index()
     {
-        $query = Order::with(['user', 'shippingAddress', 'billingAddress']);
+        $query = Order::with(['user', 'items', 'courier']);
 
         // Search by order ID or user name/email
         if ($search = request('search')) {
             $query->where(function($q) use ($search) {
-                $q->where('id', $search)
+                $q->where('id', 'like', "%$search%")
+                  ->orWhere('tracking_number', 'like', "%$search%")
                   ->orWhereHas('user', function($uq) use ($search) {
                       $uq->where('name', 'like', "%$search%")
                          ->orWhere('email', 'like', "%$search%");
@@ -57,6 +60,19 @@ class OrderController extends Controller
         // Filter by payment status
         if ($payment = request('payment_status')) {
             $query->where('payment_status', $payment);
+        }
+
+        // Filter by courier
+        if ($courier_id = request('courier_id')) {
+            $query->where('courier_id', $courier_id);
+        }
+
+        // Filter by date range
+        if ($date_from = request('date_from')) {
+            $query->whereDate('created_at', '>=', $date_from);
+        }
+        if ($date_to = request('date_to')) {
+            $query->whereDate('created_at', '<=', $date_to);
         }
 
         $orders = $query->latest()->paginate(20)->appends(request()->query());
@@ -138,9 +154,10 @@ class OrderController extends Controller
                 $orderProducts = $order->items()->with('product')->get();
                 foreach ($orderProducts as $item) {
                     $product = $item->product;
+                    $productCategoryIds = $product->categories ? $product->categories->pluck('id')->toArray() : [];
                     if (
                         (is_array($coupon->product_ids) && in_array($product->id, $coupon->product_ids)) ||
-                        (is_array($coupon->category_ids) && in_array($product->category_id, $coupon->category_ids)) ||
+                        (is_array($coupon->category_ids) && count(array_intersect($productCategoryIds, $coupon->category_ids))) ||
                         (is_array($coupon->brand_ids) && in_array($product->brand_id, $coupon->brand_ids))
                     ) {
                         $applies = true;
@@ -157,6 +174,15 @@ class OrderController extends Controller
             }
         }
 
+        // Send order confirmation email
+        try {
+            Mail::to($order->customer_email)
+                ->queue(new OrderConfirmationMail($order));
+        } catch (\Exception $e) {
+            \Log::error('Failed to send order confirmation email: ' . $e->getMessage());
+            // Don't fail the order creation if email fails
+        }
+
         return redirect()->route('orders.index')->with('success', 'Order created successfully.');
     }
 
@@ -165,7 +191,7 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        $order->load(['items.product', 'user', 'shippingAddress', 'billingAddress', 'payments', 'statusHistories.changedBy']);
+        $order->load(['items.product', 'user', 'payments', 'statusHistories']);
         return view('admin.orders.show', compact('order'));
     }
 
@@ -184,10 +210,12 @@ class OrderController extends Controller
     public function update(Request $request, Order $order)
     {
             $validated = $request->validate([
-                'status' => 'required|string',
-                'payment_status' => 'required|string',
+                'status' => 'nullable|string',
+                'payment_status' => 'nullable|string',
                 'payment_method' => 'nullable|string',
                 'courier_id' => 'nullable|exists:couriers,id',
+                'tracking_number' => 'nullable|string',
+                'admin_note' => 'nullable|string',
             ]);
 
             // If send_to_courier is set, assign a courier (first available if not set)
@@ -200,9 +228,12 @@ class OrderController extends Controller
                 $order->courier_id = $request->courier_id;
             }
 
-            $order->status = $validated['status'];
-            $order->payment_status = $validated['payment_status'];
-            $order->payment_method = $validated['payment_method'] ?? $order->payment_method;
+            if ($request->filled('status')) $order->status = $validated['status'];
+            if ($request->filled('payment_status')) $order->payment_status = $validated['payment_status'];
+            if ($request->filled('payment_method')) $order->payment_method = $validated['payment_method'];
+            if ($request->filled('tracking_number')) $order->tracking_number = $validated['tracking_number'];
+            if ($request->filled('admin_note')) $order->admin_note = $validated['admin_note'];
+            
             $order->save();
             return redirect()->route('orders.index')->with('success', 'Order updated successfully.');
     }

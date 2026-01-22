@@ -2,6 +2,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Models\ShippingMethod;
+use App\Services\ShippingCalculator;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -50,12 +51,24 @@ class ShippingController extends Controller
     // Calculate shipping cost
     public function calculate(Request $request)
     {
-        $request->validate([
-            'address' => 'required|string',
-            'cart_id' => 'required|integer',
+        $validated = $request->validate([
+            'district' => 'required|string',
+            'area' => 'required|string',
         ]);
-        // Dummy calculation
-        $cost = 100; // Replace with actual logic
-        return response()->json(['success' => true, 'cost' => $cost, 'method' => 'Standard']);
+        
+        $cost = ShippingCalculator::getShippingCost(
+            $validated['district'],
+            $validated['area']
+        );
+        
+        $method = ShippingCalculator::getShippingMethod($validated['district']);
+        
+        return response()->json([
+            'success' => true,
+            'cost' => $cost,
+            'method' => $method,
+            'district' => $validated['district'],
+            'area' => $validated['area'],
+        ]);
     }
 }

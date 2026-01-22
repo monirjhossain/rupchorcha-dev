@@ -171,13 +171,13 @@
                     <div class="card-header bg-success text-white"><i class="fas fa-list-alt mr-2"></i> Category & Brand</div>
                     <div class="card-body">
                         <div class="form-group">
-                            <label>Category <span class="text-danger">*</span></label>
-                            <select name="category_id" class="form-control" required>
-                                <option value="">Select Category</option>
+                            <label>Categories <span class="text-danger">*</span></label>
+                            <select name="category_ids[]" class="form-control select2" multiple="multiple" required>
                                 @foreach($categories as $category)
                                     <option value="{{ $category->id }}">{{ $category->name }}</option>
                                 @endforeach
                             </select>
+                            <small class="form-text text-muted">You can select multiple categories for this product.</small>
                         </div>
                         <div class="form-group">
                             <label>Brand <span class="text-danger">*</span></label>
@@ -204,8 +204,10 @@
                     <div class="card-header bg-success text-white"><i class="fas fa-images mr-2"></i> Gallery Images</div>
                     <div class="card-body">
                         <div class="form-group mb-0">
-                            <input type="file" name="gallery_images[]" class="form-control" multiple>
+                            <input type="file" name="gallery_images[]" class="form-control" id="gallery_images_input" multiple style="display:none;">
+                            <button type="button" id="add-gallery-image" class="btn btn-outline-primary mb-2">Add Images</button>
                             <small class="form-text text-muted">You can select multiple images for the product gallery.</small>
+                            <div id="gallery-preview" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;"></div>
                         </div>
                     </div>
                 </div>
@@ -237,14 +239,75 @@
                 slugInput.value = slug;
             });
         }
-        // Initialize Select2 for tags
+        // Initialize Select2 for tags and categories
         if (window.jQuery) {
-            $('#tags').select2({
+            $('.select2').select2({
+                placeholder: 'Select categories',
+                allowClear: true,
+                width: '100%'
+            });
+            $('.select2-tags').select2({
                 placeholder: 'Select tags',
                 allowClear: true,
                 width: '100%'
             });
         }
     });
+
+    // Gallery image preview and remove
+    const galleryInput = document.getElementById('gallery_images_input');
+    const preview = document.getElementById('gallery-preview');
+    const addBtn = document.getElementById('add-gallery-image');
+    let filesArr = [];
+
+    if (addBtn && galleryInput) {
+        addBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            galleryInput.click();
+        });
+    }
+
+    if (galleryInput) {
+        galleryInput.addEventListener('change', function(e) {
+            // Add new files to filesArr (avoid duplicates)
+            const newFiles = Array.from(galleryInput.files);
+            newFiles.forEach(f => {
+                if (!filesArr.some(existing => existing.name === f.name && existing.size === f.size)) {
+                    filesArr.push(f);
+                }
+            });
+            renderPreview();
+        });
+    }
+
+    function renderPreview() {
+        preview.innerHTML = '';
+        filesArr.forEach((file, idx) => {
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                const div = document.createElement('div');
+                div.style.position = 'relative';
+                div.style.display = 'inline-block';
+                div.innerHTML = `
+                    <img src="${ev.target.result}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:1px solid #ccc;"/>
+                    <button type="button" data-idx="${idx}" style="position:absolute;top:0;right:0;background:#e53935;color:#fff;border:none;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:14px;">&times;</button>
+                `;
+                preview.appendChild(div);
+
+                // Remove button
+                div.querySelector('button').onclick = function() {
+                    filesArr.splice(idx, 1);
+                    renderPreview();
+                };
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Update input files to match filesArr
+        const dt = new DataTransfer();
+        filesArr.forEach(f => dt.items.add(f));
+        galleryInput.files = dt.files;
+    }
+
 </script>
 @endsection

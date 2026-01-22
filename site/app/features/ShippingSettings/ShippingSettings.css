@@ -1,0 +1,88 @@
+/* Shipping Settings Page Styles */
+.shipping-settings-container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 2rem;
+}
+
+.shipping-settings-header {
+  margin-bottom: 2rem;
+}
+
+.shipping-settings-header h1 {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.shipping-methods {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.shipping-method-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.method-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.method-name {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.method-status {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.status-active {
+  background: #e8f5e9;
+  color: #4caf50;
+}
+
+.status-inactive {
+  background: #ffebee;
+  color: #f44336;
+}
+
+.method-details {
+  color: #666;
+  line-height: 1.6;
+}
+
+.method-actions {
+  margin-top: 1rem;
+  display: flex;
+  gap: 1rem;
+}
+
+.btn {
+  padding: 0.5rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-edit {
+  background: #2196f3;
+  color: white;
+}
+
+.btn-delete {
+  background: #f44336;
+  color: white;
+}

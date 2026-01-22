@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import Header from "../components/Header";
+import Header from "@/app/components/Header";
 
 // Mock data for demonstration
 const product = {

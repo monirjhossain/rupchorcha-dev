@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Clear Cache</title>
+    <script>
+        // Clear all caches
+        if ('caches' in window) {
+            caches.keys().then(names => {
+                names.forEach(name => caches.delete(name));
+            });
+        }
+        
+        // Unregister service workers
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(registrations => {
+                registrations.forEach(registration => registration.unregister());
+            });
+        }
+        
+        // Clear localStorage
+        localStorage.clear();
+        
+        alert('Cache cleared! Page will reload.');
+        window.location.href = '/';
+    </script>
+</head>
+<body>
+    <h1>Clearing cache...</h1>
+</body>
+</html>

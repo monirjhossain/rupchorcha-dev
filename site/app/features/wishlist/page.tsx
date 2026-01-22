@@ -1,7 +1,7 @@
 
 "use client";
 import React, { useState, useEffect } from "react";
-import Header from "../components/Header";
+import Header from "@/app/components/Header";
 import Link from "next/link";
 import { wishlistStorage } from "../../utils/wishlistStorage";
 import { cartStorage } from "../../utils/cartStorage";
@@ -73,7 +73,7 @@ const WishlistPage = ({ updateCartCount, updateWishlistCount }: { updateCartCoun
 
   if (wishlistItems.length === 0) {
     return (
-      <>
+      <div>
         <Header />
         <div className="wishlist-page">
           <div className="container">
@@ -86,12 +86,12 @@ const WishlistPage = ({ updateCartCount, updateWishlistCount }: { updateCartCoun
             </div>
           </div>
         </div>
-      </>
+      </div>
     );
   }
 
   return (
-    <>
+    <div>
       <Header />
       <div className="wishlist-page">
         {showToast && <div className="toast-notification">{toastMessage}</div>}
@@ -130,7 +130,9 @@ const WishlistPage = ({ updateCartCount, updateWishlistCount }: { updateCartCoun
           ))}
         </div>
       </div>
+      </div>
     </div>
   );
-};
+}
+
 export default WishlistPage;

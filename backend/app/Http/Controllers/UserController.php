@@ -10,83 +10,181 @@ class UserController extends Controller
     // Send OTP to user's email or phone
     public function sendOtp(Request $request)
     {
-        $request->validate([
-            'email' => 'required_without:phone|email|exists:users,email',
-            'phone' => 'required_without:email|string|exists:users,phone',
-        ]);
+        try {
+            $request->validate([
+                'phone' => 'required|string',
+            ]);
 
-        // Find user by email or phone
-        $user = User::where('email', $request->email)
-            ->orWhere('phone', $request->phone)
-            ->first();
-        if (!$user) {
-            return response()->json(['success' => false, 'message' => 'User not found.'], 404);
-        }
+            // Find or create user by phone
+            $user = User::where('phone', $request->phone)->first();
+            if (!$user) {
+                // Create test user if doesn't exist (for development)
+                $user = User::create([
+                    'name' => 'Test User',
+                    'email' => 'test_' . time() . '@example.com',
+                    'phone' => $request->phone,
+                    'password' => bcrypt('password'),
+                ]);
+            }
 
-        // Generate OTP (6 digit)
-        $otp = rand(100000, 999999);
-        $user->otp_code = $otp;
-        $user->otp_expires_at = now()->addMinutes(5);
-        $user->save();
+            // Generate OTP (6 digit)
+            $otp = rand(100000, 999999);
+            $user->otp_code = $otp;
+            $user->otp_expires_at = now()->addMinutes(5);
+            $user->save();
 
-        // Send OTP via email if email is provided
-        if ($user->email) {
-            \Mail::raw('Your OTP code is: ' . $otp, function($mail) use ($user) {
-                $mail->to($user->email)
-                    ->subject('Your OTP Code');
-            });
-        }
-
-        // Send OTP via SMS if phone is provided
-        if ($user->phone) {
-            $smsApiKey = config('services.sms_api_key'); // Set this in config/services.php
-            $smsApiUrl = config('services.sms_api_url'); // Set this in config/services.php
-            if ($smsApiKey && $smsApiUrl) {
-                $message = 'Your OTP code is: ' . $otp;
-                // Simple example using GuzzleHttp
+            // Send OTP via email if email is provided
+            if ($user->email) {
                 try {
-                    $client = new \GuzzleHttp\Client();
-                    $client->post($smsApiUrl, [
-                        'form_params' => [
-                            'api_key' => $smsApiKey,
-                            'to' => $user->phone,
-                            'message' => $message,
-                        ]
-                    ]);
+                    \Mail::raw('Your OTP code is: ' . $otp, function($mail) use ($user) {
+                        $mail->to($user->email)
+                            ->subject('Your OTP Code');
+                    });
                 } catch (\Exception $e) {
-                    // Log SMS error
+                    \Log::error('Email sending failed: ' . $e->getMessage());
+                }
+            }
+
+            // Send OTP via SMS if phone is provided
+            if ($user->phone) {
+                try {
+                    \App\Services\SmsService::send($user->phone, 'Your OTP code is: ' . $otp);
+                } catch (\Exception $e) {
                     \Log::error('SMS sending failed: ' . $e->getMessage());
                 }
             }
-        }
 
-        return response()->json(['success' => true, 'message' => 'OTP sent to your email/SMS.']);
+            return response()->json(['success' => true, 'message' => 'OTP sent to your email/SMS.', 'otp_code' => $otp]);
+        } catch (\Exception $e) {
+            \Log::error('SendOtp error: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
+        }
     }
 
     // Verify OTP and log in
     public function verifyOtp(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email|exists:users,email',
-            'otp' => 'required|digits:6',
-        ]);
+        try {
+            $request->validate([
+                'phone' => 'required|string|exists:users,phone',
+                'otp' => 'required|digits:6',
+            ]);
 
-        $user = User::where('email', $request->email)->first();
-        if (!$user || !$user->otp_code || !$user->otp_expires_at) {
-            return response()->json(['success' => false, 'message' => 'OTP not found.'], 404);
+            \Log::info('OTP Verification Attempt', ['phone' => $request->phone, 'otp_input' => $request->otp]);
+
+            $user = User::where('phone', $request->phone)->first();
+            if (!$user || !$user->otp_code || !$user->otp_expires_at) {
+                \Log::warning('OTP Verification Failed: OTP not found', ['phone' => $request->phone]);
+                return response()->json(['success' => false, 'message' => 'OTP not found.'], 404);
+            }
+            if ($user->otp_code != $request->otp || now()->gt($user->otp_expires_at)) {
+                \Log::warning('OTP Verification Failed: Invalid or expired OTP', [
+                    'phone' => $request->phone,
+                    'stored_otp' => $user->otp_code,
+                    'input_otp' => $request->otp,
+                    'expired' => now()->gt($user->otp_expires_at)
+                ]);
+                return response()->json(['success' => false, 'message' => 'Invalid or expired OTP.'], 401);
+            }
+
+            // Clear OTP after successful verification
+            $user->otp_code = null;
+            $user->otp_expires_at = null;
+            $user->save();
+
+            // Check if user needs to complete profile (first time user)
+            $needsProfileCompletion = str_starts_with($user->name, 'Test User') || 
+                                       str_starts_with($user->email, 'test_');
+            
+            if ($needsProfileCompletion) {
+                \Log::info('OTP Verified - Profile Completion Required', [
+                    'user_id' => $user->id,
+                    'phone' => $user->phone
+                ]);
+                
+                return response()->json([
+                    'success' => true, 
+                    'message' => 'OTP verified. Please complete your profile.',
+                    'requires_profile_completion' => true,
+                    'temp_token' => $user->createToken('temp_token')->plainTextToken,
+                    'user' => [
+                        'id' => $user->id,
+                        'phone' => $user->phone,
+                    ]
+                ]);
+            }
+
+            // Existing user - direct login
+            Auth::login($user);
+            $token = $user->createToken('auth_token')->plainTextToken;
+            
+            \Log::info('OTP Login Successful', [
+                'user_id' => $user->id,
+                'phone' => $user->phone,
+                'email' => $user->email,
+                'name' => $user->name
+            ]);
+
+            return response()->json([
+                'success' => true, 
+                'message' => 'Login successful.', 
+                'token' => $token, 
+                'user' => $user,
+                'requires_profile_completion' => false
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('OTP Verification Error: ' . $e->getMessage(), ['exception' => $e]);
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
-        if ($user->otp_code != $request->otp || now()->gt($user->otp_expires_at)) {
-            return response()->json(['success' => false, 'message' => 'Invalid or expired OTP.'], 401);
-        }
-
-        // Clear OTP after successful login
-        $user->otp_code = null;
-        $user->otp_expires_at = null;
-        $user->save();
-
-        Auth::login($user);
-        return response()->json(['success' => true, 'message' => 'Login successful.', 'user' => $user]);
     }
+
+    // Complete Profile after OTP verification
+    public function completeProfile(Request $request)
+    {
+        try {
+            $request->validate([
+                'name' => 'required|string|min:2|max:255',
+                'password' => 'required|string|min:6|confirmed',
+            ]);
+
+            $user = $request->user();
+            
+            if (!$user) {
+                return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+            }
+
+            // Update user profile
+            $user->name = $request->name;
+            $user->password = bcrypt($request->password);
+            
+            // Generate proper email if it's a test email
+            if (str_starts_with($user->email, 'test_')) {
+                $user->email = 'user_' . $user->id . '_' . time() . '@rupchorcha.com';
+            }
+            
+            $user->save();
+
+            Auth::login($user);
+            $token = $user->createToken('auth_token')->plainTextToken;
+
+            \Log::info('Profile Completed', [
+                'user_id' => $user->id,
+                'name' => $user->name,
+                'phone' => $user->phone
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Profile completed successfully',
+                'token' => $token,
+                'user' => $user
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Complete Profile Error: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
             // Password reset API: set new password using token
             public function resetPassword(Request $request)
             {

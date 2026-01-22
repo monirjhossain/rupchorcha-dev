@@ -1,0 +1,139 @@
+.badges {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.badgeNew {
+  background: #00c853;
+  color: #fff;
+  font-weight: 700;
+  font-size: 13px;
+  border-radius: 6px;
+  padding: 3px 12px;
+}
+.badgeOffer {
+  background: #a004b0;
+  color: #fff;
+  font-weight: 700;
+  font-size: 13px;
+  border-radius: 6px;
+  padding: 3px 12px;
+}
+.breadcrumbs {
+  font-size: 13px;
+  color: #888;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.breadcrumbLink {
+  color: #a004b0;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.15s;
+}
+.breadcrumbLink:hover {
+  color: #e53935;
+  text-decoration: underline;
+}
+.breadcrumbSeparator {
+  color: #bbb;
+  margin: 0 2px;
+}
+.breadcrumbText {
+  color: #a004b0;
+  font-weight: 600;
+}
+.breadcrumbCurrent {
+  color: #222;
+  font-weight: 700;
+}
+.title {
+  font-size: 26px;
+  font-weight: 800;
+  margin: 0;
+  color: #222;
+  line-height: 1.2;
+}
+.brand {
+  color: #a004b0;
+  font-weight: 700;
+  margin: 4px 0 16px 0;
+  font-size: 16px;
+  letter-spacing: 0.2px;
+}
+.priceRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.price {
+  font-size: 40px;
+  font-weight: 800;
+  color: #e53935;
+  line-height: 1;
+}
+.oldPrice {
+  text-decoration: line-through;
+  color: #888;
+  font-size: 22px;
+  font-weight: 600;
+  margin-left: 8px;
+  margin-bottom: 3px;
+  display: inline-block;
+}
+.discount {
+  background: #e0ffe0;
+  color: #00c853;
+  font-weight: 700;
+  font-size: 15px;
+  border-radius: 6px;
+  padding: 2px 10px;
+  margin-left: 8px;
+}
+.colorRow {
+  margin: 18px 0 10px 0;
+}
+.colorLabel {
+  font-weight: 600;
+  margin-bottom: 6px;
+  font-size: 15px;
+}
+.colorOptions {
+  display: flex;
+  gap: 12px;
+}
+.colorCircle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid #eee;
+  display: inline-block;
+  cursor: pointer;
+}
+.colorCircleActive {
+  border: 3px solid #a004b0;
+  box-shadow: 0 2px 8px #a004b033;
+  outline: 2px solid #a004b0;
+}
+.ratingRow {
+  color: #e53935;
+  font-weight: 700;
+  font-size: 16px;
+  margin: 10px 0 0 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.star {
+  font-size: 18px;
+}
+.reviewCount {
+  color: #888;
+  font-weight: 500;
+  font-size: 14px;
+}

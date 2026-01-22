@@ -1,7 +1,7 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Link from "next/link";
-import { cartStorage } from "@/app/utils/cartStorage";
+import { useCart } from "../common/CartContext";
 import styles from "./CartSidebar.module.css";
 
 interface CartSidebarProps {
@@ -10,106 +10,103 @@ interface CartSidebarProps {
   updateCartCount?: () => void;
 }
 
-interface CartItem {
-  id: number;
-  name: string;
-  price: number;
-  quantity: number;
-  image?: string;
-}
+const backendBase = "http://127.0.0.1:8000";
 
-const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose, updateCartCount }) => {
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [subtotal, setSubtotal] = useState(0);
-
-  useEffect(() => {
-    if (isOpen) {
-      fetchCart();
+const getImageUrl = (product: any): string => {
+  // Check if images array exists and has items
+  if (product?.images?.length) {
+    const img = product.images[0].url || product.images[0].path || product.images[0];
+    if (typeof img === "string" && img) {
+      return img.startsWith("http") ? img : `${backendBase}/storage/${img.replace(/^storage[\\/]/, "")}`;
     }
-  }, [isOpen]);
+  }
+  
+  // Check main_image
+  if (typeof product?.main_image === "string" && product.main_image) {
+    return product.main_image.startsWith("http")
+      ? product.main_image
+      : `${backendBase}/storage/${product.main_image.replace(/^storage[\\/]/, "")}`;
+  }
+  
+  // Check image field
+  if (typeof product?.image === "string" && product.image) {
+    return product.image.startsWith("http")
+      ? product.image
+      : `${backendBase}/storage/${product.image.replace(/^storage[\\/]/, "")}`;
+  }
+  
+  return "https://via.placeholder.com/64x64?text=No+Image";
+};
 
-  useEffect(() => {
-    calculateSubtotal();
-  }, [cartItems]);
 
-  const fetchCart = () => {
-    const cart = cartStorage.getCart();
-    if (cart.items && Array.isArray(cart.items)) {
-      setCartItems(cart.items);
-    }
-  };
-
-  const calculateSubtotal = () => {
-    const total = cartItems.reduce((sum, item) => {
-      const price = parseFloat(item.price as any || 0);
-      const quantity = parseInt(item.quantity as any || 0);
-      return sum + price * quantity;
-    }, 0);
-    setSubtotal(total);
-  };
-
-  const removeItem = (itemId: number) => {
-    try {
-      cartStorage.removeItem(itemId);
-      setCartItems(prevItems => prevItems.filter(item => item.id !== itemId));
-      if (updateCartCount) updateCartCount();
-    } catch (error) {
-      console.error("Error removing item:", error);
-    }
-  };
-
-  const updateQuantity = (itemId: number, newQuantity: number) => {
-    if (newQuantity < 1) return;
-    try {
-      cartStorage.updateQuantity(itemId, newQuantity);
-      setCartItems(prevItems =>
-        prevItems.map(item =>
-          item.id === itemId ? { ...item, quantity: newQuantity } : item
-        )
-      );
-      if (updateCartCount) updateCartCount();
-    } catch (error) {
-      console.error("Error updating quantity:", error);
-    }
-  };
-
+const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
+  const { items, updateCart, removeFromCart } = useCart();
+  const subtotal = items.reduce((sum, item) => {
+    const price = parseFloat(item.product?.sale_price || item.product?.price || item.price || 0);
+    const quantity = parseInt(item.quantity as any || 0);
+    return sum + price * quantity;
+  }, 0);
   if (!isOpen) return null;
 
   return (
-    <aside className={styles.cartSidebar} style={{position:'fixed',top:0,right:0,width:370,maxWidth:'100vw',height:'100vh',background:'#fff',boxShadow:'-4px 0 24px #0002',zIndex:9999,display:'flex',flexDirection:'column',borderLeft:'1px solid #f2f2f2',transition:'right 0.2s'}}>
-      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'2rem 1.5rem 1.2rem 1.5rem',borderBottom:'1px solid #eee',boxShadow:'0 2px 8px #0001'}}>
-        <h2 style={{fontSize:'1.3rem',fontWeight:800,color:'#222'}}>Your Cart</h2>
-        <button onClick={onClose} style={{background:'none',border:'none',fontSize:'1.7rem',cursor:'pointer',color:'#e91e63',fontWeight:700,lineHeight:1}}>×</button>
-      </div>
-      <div style={{flex:1,overflowY:'auto',padding:'1.2rem 1.5rem 1.2rem 1.5rem'}}>
-        {cartItems.length === 0 ? (
-          <div style={{color:'#888',fontSize:'1.1rem',textAlign:'center',marginTop:'3rem'}}>Your cart is empty.</div>
-        ) : (
-          cartItems.map(item => (
-            <div key={item.id} style={{display:'flex',alignItems:'center',gap:'1rem',marginBottom:'1.5rem',background:'#fafafd',borderRadius:12,padding:'0.9rem 1.1rem',boxShadow:'0 2px 8px #0001',border:'1px solid #f2f2f2',position:'relative'}}>
-              <img src={item.image} alt={item.name} style={{width:64,height:64,borderRadius:10,objectFit:'cover',boxShadow:'0 2px 8px #0001',border:'1.5px solid #eee'}} />
-              <div style={{flex:1}}>
-                <div style={{fontWeight:700,color:'#222',fontSize:'1.08rem',marginBottom:'0.3rem'}}>{item.name}</div>
-                <div style={{fontWeight:700,color:'#e91e63',fontSize:'1.12rem',marginBottom:'0.2rem'}}>৳ {item.price}</div>
-                <div style={{display:'flex',alignItems:'center',gap:'0.5rem'}}>
-                  <button onClick={() => updateQuantity(item.id, item.quantity - 1)} style={{background:'#fff',border:'1.5px solid #e91e63',color:'#e91e63',borderRadius:6,width:28,height:28,fontWeight:700,fontSize:'1.1rem',cursor:'pointer',boxShadow:'0 1px 4px #e91e6322'}}>–</button>
-                  <span style={{fontWeight:700,fontSize:'1.08rem',color:'#222',minWidth:24,textAlign:'center'}}>{item.quantity}</span>
-                  <button onClick={() => updateQuantity(item.id, item.quantity + 1)} style={{background:'#fff',border:'1.5px solid #e91e63',color:'#e91e63',borderRadius:6,width:28,height:28,fontWeight:700,fontSize:'1.1rem',cursor:'pointer',boxShadow:'0 1px 4px #e91e6322'}}>+</button>
-                </div>
-              </div>
-              <button onClick={() => removeItem(item.id)} style={{background:'none',border:'none',color:'#e91e63',fontWeight:700,fontSize:'1.3rem',cursor:'pointer',position:'absolute',top:10,right:10}}>×</button>
-            </div>
-          ))
-        )}
-      </div>
-      <div style={{borderTop:'1px solid #eee',padding:'1.5rem',background:'#fff',boxShadow:'0 -2px 8px #0001',position:'sticky',bottom:0}}>
-        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',fontWeight:800,fontSize:'1.18rem',marginBottom:'1.2rem'}}>
-          <span>Total</span>
-          <span style={{color:'#e91e63'}}>৳ {subtotal}</span>
+    <>
+      <div className={styles.overlay} onClick={onClose} aria-hidden="true" />
+      <aside className={styles.cartSidebar} role="complementary" aria-label="Shopping cart">
+        <div className={styles.cartSidebarHeader}>
+          <h2 className={styles.title}>Your Cart</h2>
+          <button aria-label="Close cart" className={styles.closeBtn} onClick={onClose}>×</button>
         </div>
-        <Link href="/cart" style={{width:'100%',display:'block',background:'#e91e63',color:'#fff',fontWeight:800,padding:'1rem 0',borderRadius:10,border:'none',fontSize:'1.18rem',cursor:'pointer',boxShadow:'0 2px 8px #e91e6322',textAlign:'center',transition:'all 0.2s',textDecoration:'none'}}>Checkout</Link>
-      </div>
-    </aside>
+        <div className={styles.cartSidebarBody}>
+          {items.length === 0 ? (
+            <div className={styles.emptyCart}>Your cart is empty.</div>
+          ) : (
+            items.map((item) => (
+              <div key={item.product_id} className={styles.cartItem}>
+                <img
+                  className={styles.cartItemImg}
+                  src={getImageUrl(item.product)}
+                  alt={item.product?.name || "No Image"}
+                />
+                <div className={styles.cartItemInfo}>
+                  <div className={styles.cartItemName}>{item.product?.name}</div>
+                  <div className={styles.cartItemPrice}>৳ {item.product?.sale_price || item.product?.price || item.price}</div>
+                  <div className={styles.cartItemQtyWrap}>
+                    <button
+                      className={styles.qtyBtn}
+                      onClick={() => updateCart(item.product_id, Math.max(1, item.quantity - 1))}
+                    >
+                      –
+                    </button>
+                    <span className={styles.qtyValue}>{item.quantity}</span>
+                    <button
+                      className={styles.qtyBtn}
+                      onClick={() => updateCart(item.product_id, item.quantity + 1)}
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+                <button
+                  aria-label="Remove item"
+                  className={styles.removeBtn}
+                  onClick={() => removeFromCart(item.product_id)}
+                >
+                  ×
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+        <div className={styles.cartSidebarFooter}>
+          <div className={styles.subtotal}>
+            <span>Total</span>
+            <span className={styles.subtotalValue}>৳ {subtotal}</span>
+          </div>
+          <Link href="/checkout" onClick={onClose} className={styles.checkoutBtn}>Checkout</Link>
+          <Link href="/cart" onClick={onClose} className={styles.secondaryBtn}>View Cart</Link>
+        </div>
+      </aside>
+    </>
   );
 };
 

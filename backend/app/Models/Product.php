@@ -57,9 +57,10 @@ class Product extends Model
     }
 
     // Relationships
-    public function category()
+    // Many-to-many: A product can belong to multiple categories
+    public function categories()
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsToMany(Category::class, 'category_product');
     }
 
     public function brand()

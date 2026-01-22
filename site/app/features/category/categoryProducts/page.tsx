@@ -6,7 +6,7 @@ import ProductCard from "../../../components/ProductCard";
 // import styles from "./page.module.css";
 import GlobalSortBar from "../../../components/GlobalSortBar";
 import { productsAPI, categoriesAPI } from "../../../services/api";
-import { cartStorage } from "../../../utils/cartStorage";
+import { useCart } from "@/app/common/CartContext";
 import Link from "next/link";
 
 const CategoryProductsPage = ({ params }: { params?: { slug?: string } }) => {
@@ -121,20 +121,11 @@ const CategoryProductsPage = ({ params }: { params?: { slug?: string } }) => {
 
   // fetchProducts is not used, so no update needed
 
+  const { addToCart } = useCart();
   const handleAddToCart = async (product: Product) => {
     setAddingToCart((prev) => ({ ...prev, [product.id]: true }));
     try {
-      // Add item to cart manually since cartStorage.addItem does not exist
-      const cart = cartStorage.getCart();
-      const existing = cart.items.find((item: Product) => item.id === product.id);
-      if (existing) {
-        existing.quantity = (existing.quantity || 1) + 1;
-      } else {
-        cart.items.push({ ...product, quantity: 1 });
-      }
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('cart', JSON.stringify(cart));
-      }
+      addToCart({ product_id: product.id, quantity: 1, product });
       setToastMessage(`${product.name} added to cart!`);
       setShowToast(true);
       setTimeout(() => setShowToast(false), 3000);
@@ -178,7 +169,7 @@ const CategoryProductsPage = ({ params }: { params?: { slug?: string } }) => {
                   {products.map((product) => (
                     <ProductCard
                       key={product.id}
-                      product={product}
+                      product={{ ...product, images: Array.isArray(product.images) ? product.images : [] }}
                       onAddToCart={handleAddToCart}
                       isAddingToCart={!!addingToCart[product.id]}
                     />

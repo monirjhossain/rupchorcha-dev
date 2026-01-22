@@ -7,6 +7,7 @@ import BrandOfferSection from "./Home/sections/BrandOfferSection";
 import styles from "./Home/Home.module.css";
 import Image from "next/image";
 import Link from "next/link";
+import { usePrefetchRoutes } from "./hooks/usePrefetchRoutes";
 
 interface Product {
   id: number;
@@ -18,6 +19,9 @@ interface Product {
 const Home: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Prefetch routes for instant navigation
+  usePrefetchRoutes();
 
   useEffect(() => {
     const cachedProducts = typeof window !== "undefined" ? localStorage.getItem("products_cache") : null;

@@ -26,7 +26,8 @@ class UserController extends Controller
             'phone' => $request->phone,
             'password' => Hash::make($request->password),
         ]);
-        return response()->json(['success' => true, 'message' => 'Registration successful.', 'user' => $user]);
+        $token = $user->createToken('auth_token')->plainTextToken;
+        return response()->json(['success' => true, 'message' => 'Registration successful.', 'user' => $user, 'token' => $token]);
     }
 
     // User login
@@ -115,4 +116,55 @@ class UserController extends Controller
             return response()->json(['success' => false, 'message' => 'Invalid token or unable to reset password.'], 400);
         }
     }
+
+    // Logout - Revoke token
+    public function logout(Request $request)
+    {
+        try {
+            $user = $request->user();
+            if (!$user) {
+                return response()->json(['success' => false, 'message' => 'Not authenticated'], 401);
+            }
+
+            // Revoke the current token
+            $user->currentAccessToken()->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Logged out successfully.'
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Logout error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Logout failed'
+            ], 500);
+        }
+    }
+
+    // Logout all devices - Revoke all tokens
+    public function logoutAll(Request $request)
+    {
+        try {
+            $user = $request->user();
+            if (!$user) {
+                return response()->json(['success' => false, 'message' => 'Not authenticated'], 401);
+            }
+
+            // Revoke all tokens for this user
+            $user->tokens()->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Logged out from all devices.'
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Logout all error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Logout failed'
+            ], 500);
+        }
+    }
 }
+

@@ -34,4 +34,21 @@ return [
     // SMS API configuration
     'sms_api_key' => env('SMS_API_KEY'),
     'sms_api_url' => env('SMS_API_URL'),
+
+    'sms' => [
+        'driver' => env('SMS_DRIVER', 'firebase'),
+        'firebase' => [
+            'api_key' => env('FIREBASE_SMS_API_KEY'),
+            'endpoint' => env('FIREBASE_SMS_ENDPOINT'),
+        ],
+        'twilio' => [
+            'account_sid' => env('TWILIO_ACCOUNT_SID'),
+            'auth_token' => env('TWILIO_AUTH_TOKEN'),
+            'verify_sid' => env('TWILIO_VERIFY_SID'),
+        ],
+        'nexmo' => [
+            'api_key' => env('NEXMO_API_KEY'),
+            'api_secret' => env('NEXMO_API_SECRET'),
+        ],
+    ],
 ];

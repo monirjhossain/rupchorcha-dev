@@ -11,7 +11,8 @@ class Category extends Model
     protected $fillable = ['name', 'slug', 'parent_id', 'description'];
     public function parent() { return $this->belongsTo(Category::class, 'parent_id'); }
     public function children() { return $this->hasMany(Category::class, 'parent_id'); }
-    public function products() { return $this->hasMany(Product::class); }
+    // Many-to-many: A category can have multiple products
+    public function products() { return $this->belongsToMany(Product::class, 'category_product'); }
 
     protected static function boot()
     {

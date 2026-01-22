@@ -11,6 +11,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\DashboardReportController;
 use App\Http\Controllers\BulkEmailController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\PackingSlipController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\BrandController;
@@ -152,6 +154,23 @@ Route::middleware(['auth', 'role:admin,super_admin'])->group(function () {
     Route::resource('/admin/orders', OrderController::class);
         Route::get('/admin/orders/bulk-assign-courier', [OrderController::class, 'bulkAssignCourierForm'])->name('orders.bulkAssignCourierForm');
         Route::post('/admin/orders/bulk-assign-courier', [OrderController::class, 'bulkAssignCourier'])->name('orders.bulkAssignCourier');
+    
+    // Invoice routes
+    Route::get('/admin/invoices', [InvoiceController::class, 'index'])->name('invoices.index');
+    Route::get('/admin/invoices/{invoice}', [InvoiceController::class, 'show'])->name('invoices.show');
+    Route::get('/admin/invoices/{invoice}/download', [InvoiceController::class, 'download'])->name('invoices.download');
+    Route::post('/admin/invoices/{invoice}/send', [InvoiceController::class, 'send'])->name('invoices.send');
+    Route::post('/admin/invoices/{invoice}/mark-as-paid', [InvoiceController::class, 'markAsPaid'])->name('invoices.mark-as-paid');
+    Route::post('/admin/invoices/{invoice}/mark-as-unpaid', [InvoiceController::class, 'markAsUnpaid'])->name('invoices.mark-as-unpaid');
+    Route::post('/admin/orders/{order}/create-invoice', [InvoiceController::class, 'createFromOrder'])->name('orders.create-invoice');
+    Route::delete('/admin/invoices/{invoice}', [InvoiceController::class, 'destroy'])->name('invoices.destroy');
+    
+    // Packing Slip routes
+    Route::get('/admin/orders/{order}/packing-slip', [PackingSlipController::class, 'preview'])->name('packing-slips.preview');
+    Route::get('/admin/orders/{order}/packing-slip/download', [PackingSlipController::class, 'download'])->name('packing-slips.download');
+    Route::post('/admin/orders/{order}/packing-slip/generate', [PackingSlipController::class, 'generate'])->name('packing-slips.generate');
+    Route::get('/admin/packing-slips/{packingSlip}', [PackingSlipController::class, 'show'])->name('packing-slips.show');
+    
     Route::resource('/admin/products', ProductController::class);
     Route::resource('/admin/categories', CategoryController::class);
     Route::resource('/admin/brands', BrandController::class);

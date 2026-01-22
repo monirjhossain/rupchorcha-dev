@@ -1,9 +1,9 @@
-
-
 <?php
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\API\TagController;
+use App\Http\Controllers\API\WishlistController;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,8 +15,25 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+// Tags API routes
+Route::get('tags/{slug}', [TagController::class, 'showBySlug']);
+
+// Cart API routes
+Route::get('/cart', [\App\Http\Controllers\API\CartController::class, 'index']);
+Route::post('/cart/add', [\App\Http\Controllers\API\CartController::class, 'add']);
+Route::post('/cart/update', [\App\Http\Controllers\API\CartController::class, 'update']);
+Route::post('/cart/remove', [\App\Http\Controllers\API\CartController::class, 'remove']);
+
+// Coupon API routes
+Route::post('/coupons/validate', [\App\Http\Controllers\API\CouponController::class, 'validateCoupon']);
+
+// Shipping Options API routes (Best Practice - Dynamic)
+Route::get('/shipping/zones-with-methods', [\App\Http\Controllers\API\ShippingOptionsController::class, 'getZonesWithMethods']);
+Route::post('/shipping/methods-by-location', [\App\Http\Controllers\API\ShippingOptionsController::class, 'getMethodsByLocation']);
+Route::get('/shipping/all-methods', [\App\Http\Controllers\API\ShippingOptionsController::class, 'getAllMethods']);
 
 // Discount API routes (Best Practice)
+Route::get('/products/slug/{slug}', [\App\Http\Controllers\API\ProductController::class, 'showBySlug']);
 Route::get('/discounts', [\App\Http\Controllers\API\DiscountController::class, 'index']);
 Route::get('/discounts/{id}', [\App\Http\Controllers\API\DiscountController::class, 'show']);
 Route::middleware('auth:sanctum')->post('/discounts', [\App\Http\Controllers\API\DiscountController::class, 'store']);
@@ -24,7 +41,7 @@ Route::middleware('auth:sanctum')->put('/discounts/{id}', [\App\Http\Controllers
 Route::middleware('auth:sanctum')->delete('/discounts/{id}', [\App\Http\Controllers\API\DiscountController::class, 'destroy']);
 Route::middleware('auth:sanctum')->get('/orders', [\App\Http\Controllers\API\OrderController::class, 'index']);
 Route::middleware('auth:sanctum')->get('/orders/{id}', [\App\Http\Controllers\API\OrderController::class, 'show']);
-Route::middleware('auth:sanctum')->post('/orders', [\App\Http\Controllers\API\OrderController::class, 'store']);
+Route::post('/orders', [\App\Http\Controllers\API\OrderController::class, 'store']); // Allow guest orders
 Route::middleware('auth:sanctum')->put('/orders/{id}/status', [\App\Http\Controllers\API\OrderController::class, 'updateStatus']);
 Route::middleware('auth:sanctum')->post('/orders/{id}/cancel', [\App\Http\Controllers\API\OrderController::class, 'cancel']);
 Route::get('/shipping-zones', [\App\Http\Controllers\API\ShippingZoneController::class, 'index']);
@@ -126,6 +143,8 @@ Route::middleware('auth:sanctum')->put('/categories/{id}', [\App\Http\Controller
 Route::middleware('auth:sanctum')->delete('/categories/{id}', [\App\Http\Controllers\API\CategoryController::class, 'destroy']);
 Route::get('/products', [\App\Http\Controllers\API\ProductController::class, 'index']);
 Route::get('/products/{id}', [\App\Http\Controllers\API\ProductController::class, 'show']);
+Route::post('/products/related-by-cart', [\App\Http\Controllers\API\ProductController::class, 'getRelatedByCart']);
+Route::post('/products/frequently-bought-together', [\App\Http\Controllers\API\ProductController::class, 'getFrequentlyBoughtTogether']);
 Route::middleware('auth:sanctum')->post('/products', [\App\Http\Controllers\API\ProductController::class, 'store']);
 Route::middleware('auth:sanctum')->put('/products/{id}', [\App\Http\Controllers\API\ProductController::class, 'update']);
 Route::middleware('auth:sanctum')->delete('/products/{id}', [\App\Http\Controllers\API\ProductController::class, 'destroy']);
@@ -141,9 +160,25 @@ Route::middleware('auth:sanctum')->put('/profile', [\App\Http\Controllers\API\Us
 Route::middleware('auth:sanctum')->put('/change-password', [\App\Http\Controllers\API\UserController::class, 'changePassword']);
 Route::post('/forgot-password', [\App\Http\Controllers\API\UserController::class, 'forgotPassword']);
 Route::post('/reset-password', [\App\Http\Controllers\API\UserController::class, 'resetPassword']);
+Route::middleware('auth:sanctum')->post('/logout', [\App\Http\Controllers\API\UserController::class, 'logout']);
+Route::middleware('auth:sanctum')->post('/logout-all', [\App\Http\Controllers\API\UserController::class, 'logoutAll']);
 // OTP login APIs
 Route::post('/send-otp', [\App\Http\Controllers\UserController::class, 'sendOtp']);
 Route::post('/verify-otp', [\App\Http\Controllers\UserController::class, 'verifyOtp']);
+Route::middleware('auth:sanctum')->post('/complete-profile', [\App\Http\Controllers\UserController::class, 'completeProfile']);
+
+// Google OAuth API
+Route::post('/auth/google', [\App\Http\Controllers\GoogleAuthController::class, 'handleGoogleLogin']);
+
+// Test endpoint for debugging
+Route::post('/test-google', function (\Illuminate\Http\Request $request) {
+    return response()->json([
+        'success' => true,
+        'message' => 'Test endpoint working',
+        'received_credential' => !empty($request->input('credential')),
+        'method' => $request->method(),
+    ]);
+});
 
 // Payment Gateway APIs
 Route::get('/payment/gateways', [\App\Http\Controllers\PaymentController::class, 'gateways']);
@@ -154,3 +189,20 @@ Route::post('/payment/callback/{gateway}', [\App\Http\Controllers\PaymentControl
 Route::post('/reset-password', [\App\Http\Controllers\UserController::class, 'resetPassword']);
 // Forgot password API
 Route::post('/forgot-password', [\App\Http\Controllers\UserController::class, 'forgotPassword']);
+// Product image delete route
+Route::delete('/product-images/{id}', [\App\Http\Controllers\API\ProductImageController::class, 'destroy']);
+
+// Wishlist API routes
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/wishlist', [WishlistController::class, 'index']);
+    Route::post('/wishlist', [WishlistController::class, 'store']);
+    Route::delete('/wishlist/{product}', [WishlistController::class, 'destroy']);
+});
+
+// Debug endpoints (development only - remove in production)
+Route::get('/debug/order-schema', [\App\Http\Controllers\API\DebugController::class, 'orderSchema']);
+Route::post('/debug/validate-order', [\App\Http\Controllers\API\DebugController::class, 'validateOrderPayload']);
+
+// Health check endpoints (no auth required for monitoring)
+Route::get('/health', [\App\Http\Controllers\API\HealthController::class, 'check']);
+Route::get('/health/status', [\App\Http\Controllers\API\HealthController::class, 'status']);

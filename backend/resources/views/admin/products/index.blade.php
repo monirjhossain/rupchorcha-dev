@@ -156,7 +156,13 @@
                             </td>
                             <td>{{ $product->sku }}</td>
                             <td>{{ ucfirst($product->status) }}</td>
-                            <td>{{ $product->category->name ?? '-' }}</td>
+                            <td>
+                                @if($product->categories && $product->categories->count())
+                                    {{ $product->categories->pluck('name')->join(', ') }}
+                                @else
+                                    -
+                                @endif
+                            </td>
                             <td>{{ $product->brand->name ?? '-' }}</td>
                             <td>
                                 <a href="{{ route('products.edit', $product->id) }}" class="btn btn-sm btn-info" title="Edit">

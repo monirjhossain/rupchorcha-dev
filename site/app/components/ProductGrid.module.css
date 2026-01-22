@@ -1,0 +1,98 @@
+/* Overlay spinner for grid loading */
+.grid-loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255,255,255,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  border-radius: 12px;
+}
+
+.products-grid-wrapper {
+  position: relative;
+  min-height: 300px;
+}
+/* Universal shop container and main area for sidebar + grid layout */
+.shop-container {
+  display: flex;
+  align-items: flex-start;
+  gap: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.shop-main {
+  flex: 1;
+  min-width: 0;
+}
+/* Universal product grid styles for category, brand, and tag pages */
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.2rem;
+  align-items: stretch;
+  margin: 0 auto;
+  max-width: 1200px;
+}
+
+.productCard {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px #a004b022;
+  padding: 18px 12px 16px 12px;
+  text-align: center;
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+.productCard:hover {
+  box-shadow: 0 6px 24px #a004b044;
+  transform: translateY(-2px) scale(1.03);
+}
+.productLink {
+  color: inherit;
+  text-decoration: none;
+  display: block;
+}
+.productImage {
+  width: 100%;
+  max-width: 160px;
+  height: 160px;
+  object-fit: contain;
+  margin: 0 auto 12px auto;
+  background: #fafafd;
+  border-radius: 8px;
+}
+.productName {
+  font-size: 1.08rem;
+  font-weight: 600;
+  color: #3a2950;
+  margin-bottom: 6px;
+}
+.productPrice {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #a004b0;
+}
+.salePrice {
+  color: #e53935;
+  font-weight: 700;
+  margin-right: 8px;
+}
+.regularPrice {
+  color: #888;
+  text-decoration: line-through;
+  font-weight: 500;
+  font-size: 0.98rem;
+}
+.noProducts {
+  grid-column: 1/-1;
+  color: #888;
+  font-size: 1.1rem;
+  text-align: center;
+  padding: 32px 0;
+}

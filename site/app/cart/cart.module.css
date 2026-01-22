@@ -1,0 +1,155 @@
+.cartPageContainer {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* Breadcrumb */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  color: #666;
+}
+
+.breadcrumb a {
+  color: #666;
+  text-decoration: none;
+}
+
+.breadcrumb a:hover {
+  color: #e91e63;
+}
+
+.separator {
+  color: #999;
+}
+
+/* Free Gift Banner */
+.freeGiftBanner {
+  background: linear-gradient(135deg, #5b21b6 0%, #7c3aed 100%);
+  color: white;
+  padding: 18px 30px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 12px rgba(91, 33, 182, 0.3);
+}
+
+.bannerContent {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+}
+
+.bannerText {
+  font-weight: 400;
+}
+
+.freeGift {
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.giftIcon {
+  font-size: 32px;
+}
+
+/* Main Content Layout */
+.mainContent {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 30px;
+  margin-bottom: 40px;
+}
+
+/* Cart Section */
+.cartSection {
+  background: white;
+}
+
+.cartHeader {
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.cartTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: #222;
+  margin: 0;
+}
+
+.cartItems {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Popular Searches */
+.popularSearches {
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  margin-top: 40px;
+  border: 1px solid #f0f0f0;
+}
+
+.popularTitle {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 20px 0;
+  color: #222;
+}
+
+.searchLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  font-size: 14px;
+}
+
+.searchLinks a {
+  color: #666;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.searchLinks a:hover {
+  color: #e91e63;
+}
+
+.searchLinks span {
+  color: #ddd;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .mainContent {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .cartPageContainer {
+    padding: 15px;
+  }
+
+  .freeGiftBanner {
+    padding: 15px 20px;
+  }
+
+  .popularSearches {
+    padding: 20px 15px;
+  }
+}

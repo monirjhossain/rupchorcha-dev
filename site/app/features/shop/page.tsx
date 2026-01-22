@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
-import Header from "../components/Header";
-import Sidebar from "../components/Sidebar";
+import Header from "@/app/components/Header";
+import Sidebar from "@/app/components/Sidebar";
 import Image from "next/image";
 
 const shopBanner = "/shop/shop-banner.png";
@@ -13,6 +13,24 @@ const shopInfo = {
   followers: 35000,
 };
 // Remove all mock product data. Only use products from backend API.
+
+function ShopPage() {
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const perPage = 20;
+  const [categories, setCategories] = useState<any[]>([]);
+  const [brands, setBrands] = useState<any[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
+  const [selectedBrands, setSelectedBrands] = useState<number[]>([]);
+  const [priceRange, setPriceRange] = useState<number[]>([0, 10000]);
+  const [sortBy, setSortBy] = useState<string>("default");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [addingToCart, setAddingToCart] = useState<{[key: number]: boolean}>({});
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
 
   useEffect(() => {
     // Load categories and brands with caching
@@ -170,7 +188,7 @@ const shopInfo = {
   }, [handleScroll]);
 
   return (
-    <>
+    <div>
       <Header />
       <div style={{display:'flex',gap:'2rem',alignItems:'flex-start',maxWidth:1400,margin:'2rem auto',padding:'0 1rem'}}>
         <Sidebar />
@@ -207,8 +225,8 @@ const shopInfo = {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
-};
+}
 
 export default ShopPage;

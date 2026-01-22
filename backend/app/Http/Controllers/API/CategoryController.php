@@ -17,8 +17,30 @@ class CategoryController extends Controller
     // Show category details
     public function show($id)
     {
-        $category = Category::findOrFail($id);
-        return response()->json(['success' => true, 'category' => $category]);
+        $category = Category::with(['products.categories'])->findOrFail($id);
+        // Format products to include their categories (id, name, slug)
+        $products = $category->products->map(function($product) {
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+                'slug' => $product->slug,
+                'categories' => $product->categories->map(function($cat) {
+                    return [
+                        'id' => $cat->id,
+                        'name' => $cat->name,
+                        'slug' => $cat->slug,
+                    ];
+                }),
+            ];
+        });
+        $data = [
+            'id' => $category->id,
+            'name' => $category->name,
+            'slug' => $category->slug,
+            'description' => $category->description,
+            'products' => $products,
+        ];
+        return response()->json(['success' => true, 'category' => $data]);
     }
 
     // Create category (admin)

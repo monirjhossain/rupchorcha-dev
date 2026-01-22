@@ -1,0 +1,113 @@
+import { Metadata } from 'next';
+import ProductGallery from "./ProductGallery";
+import ProductInfo from "./ProductInfo";
+import ProductActions from "./ProductActions";
+import ProductDeliveryInfo from "./ProductDeliveryInfo";
+import FrequentlyBoughtTogether from "./FrequentlyBoughtTogether";
+import { notFound } from "next/navigation";
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
+// Fetch product by slug from backend API
+async function getProduct(slug: string) {
+  try {
+    const res = await fetch(`${API_BASE}/products/slug/${slug}`, { 
+      cache: "force-cache",
+      next: { revalidate: 3600 } // Cache for 1 hour
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.product || null;
+  } catch {
+    return null;
+  }
+}
+
+// Generate dynamic metadata for SEO
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const product = await getProduct(slug);
+
+  if (!product) {
+    return {
+      title: 'Product Not Found',
+      description: 'The product you are looking for does not exist.',
+    };
+  }
+
+  const brandName = typeof product.brand === 'object' ? product.brand?.name : product.brand || 'Rupchorcha';
+  const price = product.sale_price || product.price;
+  const imageUrl = product.images?.[0]?.url || product.main_image || '';
+  const fullImageUrl = imageUrl.startsWith('http') 
+    ? imageUrl 
+    : `${API_BASE.replace('/api', '')}/storage/${imageUrl}`;
+
+  return {
+    title: `${product.name} - ${brandName}`,
+    description: product.description?.substring(0, 160) || `Buy ${product.name} from ${brandName} at Rupchorcha. Price: ৳${price}`,
+    keywords: [product.name, brandName, 'buy online', 'Bangladesh', 'e-commerce', 'Rupchorcha'].join(', '),
+    
+    openGraph: {
+      title: `${product.name} - ${brandName}`,
+      description: product.description?.substring(0, 160) || `Buy ${product.name} at ৳${price}`,
+      images: [fullImageUrl],
+      url: `${SITE_URL}/product/${slug}`,
+      type: 'website',
+      siteName: 'Rupchorcha',
+    },
+    
+    twitter: {
+      card: 'summary_large_image',
+      title: `${product.name} - ${brandName}`,
+      description: product.description?.substring(0, 160) || `Buy ${product.name} at ৳${price}`,
+      images: [fullImageUrl],
+    },
+    
+    alternates: {
+      canonical: `${SITE_URL}/product/${slug}`,
+    },
+    
+    robots: {
+      index: true,
+      follow: true,
+    },
+  };
+}
+
+export default async function ProductDetailsPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const product = await getProduct(slug);
+  if (!product) return notFound();
+
+  return (
+    <>
+      <main style={{ display: "flex", justifyContent: "center", background: "#fafafd", minHeight: "100vh", padding: "2rem 0" }}>
+        <div style={{ display: "flex", gap: 48, maxWidth: 1200, width: "100%", background: "#fff", borderRadius: 18, boxShadow: "0 4px 24px #0002", padding: 32 }}>
+          {/* Left: Gallery */}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <ProductGallery
+              images={
+                Array.isArray(product.images)
+                  ? product.images
+                  : product.image
+                    ? [product.image]
+                    : []
+              }
+              name={product.name}
+            />
+          </div>
+          {/* Right: Info & Actions */}
+          <div style={{ flex: 1.2, minWidth: 0, display: "flex", flexDirection: "column", gap: 24 }}>
+            <ProductInfo product={product} />
+            <ProductActions product={product} />
+            <ProductDeliveryInfo product={product} />
+          </div>
+        </div>
+      </main>
+      
+      {/* Frequently Bought Together Section */}
+      <FrequentlyBoughtTogether productId={product.id} />
+    </>
+  );
+}

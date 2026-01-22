@@ -23,184 +23,70 @@
                         </div>
                     </div>
                 </div>
-                <!-- Shipping Address Section -->
+                <!-- Customer Information -->
                 <div class="card mb-4 shadow-sm">
-                    <div class="card-header bg-info text-white"><i class="fas fa-shipping-fast mr-2"></i> Shipping Address</div>
+                    <div class="card-header bg-info text-white"><i class="fas fa-user-circle mr-2"></i> Customer Information</div>
                     <div class="card-body">
                         <div class="form-group">
-                            <label for="shipping_address_select">Select Saved Shipping Address</label>
-                            <select id="shipping_address_select" class="form-control">
-                                <option value="">-- Select address --</option>
-                            </select>
-                            <small class="form-text text-muted">Or fill in manually below.</small>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label>First name</label>
-                                <input type="text" name="shipping_first_name" class="form-control">
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label>Last name</label>
-                                <input type="text" name="shipping_last_name" class="form-control">
-                            </div>
+                            <label for="customer_name">Full Name <span class="text-danger">*</span></label>
+                            <input type="text" name="customer_name" id="customer_name" class="form-control" required>
                         </div>
                         <div class="form-group">
-                            <label>Company</label>
-                            <input type="text" name="shipping_company" class="form-control">
+                            <label for="customer_email">Email Address <span class="text-danger">*</span></label>
+                            <input type="email" name="customer_email" id="customer_email" class="form-control" required>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label>Address line 1</label>
-                                <input type="text" name="shipping_address_1" class="form-control">
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label>Address line 2</label>
-                                <input type="text" name="shipping_address_2" class="form-control">
-                            </div>
+                        <div class="form-group">
+                            <label for="customer_phone">Phone Number <span class="text-danger">*</span></label>
+                            <input type="text" name="customer_phone" id="customer_phone" class="form-control" required>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label>City</label>
-                                <input type="text" name="shipping_city" class="form-control">
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label>Postcode / ZIP</label>
-                                <input type="text" name="shipping_postcode" class="form-control">
-                            </div>
+                        <div class="form-group">
+                            <label for="shipping_address">Address <span class="text-danger">*</span></label>
+                            <input type="text" name="shipping_address" id="shipping_address" class="form-control" required>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label>Country / Region</label>
-                                <input type="text" name="shipping_country" class="form-control">
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label>State / County</label>
-                                <input type="text" name="shipping_state" class="form-control">
-                            </div>
+                        <div class="form-group">
+                            <label for="city">City / District <span class="text-danger">*</span></label>
+                            <select name="city" id="city" class="form-control" required>
+                                <option value="">Select City / District</option>
+                            </select>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label>Email address</label>
-                                <input type="email" name="shipping_email" class="form-control">
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label>Phone</label>
-                                <input type="text" name="shipping_phone" class="form-control">
-                            </div>
+                        <div class="form-group">
+                            <label for="area">Area <span class="text-danger">*</span></label>
+                            <select name="area" id="area" class="form-control" required>
+                                <option value="">Select Area</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="notes">Order Notes</label>
+                            <textarea name="notes" id="notes" class="form-control" rows="3"></textarea>
                         </div>
                     </div>
                 </div>
-                <!-- Billing Address Section -->
+                <!-- Payment & Shipping -->
                 <div class="card mb-4 shadow-sm">
-                    <div class="card-header bg-secondary text-white"><i class="fas fa-file-invoice mr-2"></i> Billing Address</div>
+                    <div class="card-header bg-secondary text-white"><i class="fas fa-credit-card mr-2"></i> Payment & Shipping</div>
                     <div class="card-body">
                         <div class="form-group">
-                            <label for="billing_address_select">Select Saved Billing Address</label>
-                            <select id="billing_address_select" class="form-control">
-                                <option value="">-- Select address --</option>
+                            <label for="payment_method">Payment Method <span class="text-danger">*</span></label>
+                            <select name="payment_method" id="payment_method" class="form-control" required>
+                                <option value="cod">Cash on Delivery</option>
+                                <option value="bkash">Bkash</option>
+                                <option value="nagad">Nagad</option>
                             </select>
-                            <small class="form-text text-muted">Or fill in manually below.</small>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label>First name</label>
-                                <input type="text" name="billing_first_name" class="form-control">
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label>Last name</label>
-                                <input type="text" name="billing_last_name" class="form-control">
-                            </div>
                         </div>
                         <div class="form-group">
-                            <label>Company</label>
-                            <input type="text" name="billing_company" class="form-control">
+                            <label for="shipping_method">Shipping Method <span class="text-danger">*</span></label>
+                            <select name="shipping_method" id="shipping_method" class="form-control" required>
+                                <option value="inside_dhaka">Inside Dhaka</option>
+                                <option value="outside_dhaka">Outside Dhaka</option>
+                            </select>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label>Address line 1</label>
-                                <input type="text" name="billing_address_1" class="form-control">
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label>Address line 2</label>
-                                <input type="text" name="billing_address_2" class="form-control">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label>City</label>
-                                <input type="text" name="billing_city" class="form-control">
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label>Postcode / ZIP</label>
-                                <input type="text" name="billing_postcode" class="form-control">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label>Country / Region</label>
-                                <input type="text" name="billing_country" class="form-control">
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label>State / County</label>
-                                <input type="text" name="billing_state" class="form-control">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label>Email address</label>
-                                <input type="email" name="billing_email" class="form-control">
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label>Phone</label>
-                                <input type="text" name="billing_phone" class="form-control">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label>Payment method</label>
-                                <select name="payment_method" class="form-control" required>
-                                    <option value="Bkash">Bkash</option>
-                                    <option value="Cash">Cash</option>
-                                    <option value="Nagad">Nagad</option>
-                                    <option value="Bank">Bank</option>
-                                    <option value="Master Card">Master Card</option>
-                                </select>
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label>Transaction ID</label>
-                                <input type="text" name="transaction_id" class="form-control">
-                            </div>
+                        <div class="form-group">
+                            <label for="shipping_cost">Shipping Cost (৳) <span class="text-danger">*</span></label>
+                            <input type="number" name="shipping_cost" id="shipping_cost" class="form-control" step="0.01" required>
                         </div>
                     </div>
                 </div>
-                <!-- Payment Section -->
-                <div class="card mb-4 shadow-sm">
-                    <div class="card-header bg-success text-white"><i class="fas fa-credit-card mr-2"></i> Payment</div>
-                    <div class="card-body">
-                        <div class="form-group">
-                            <label for="payment_status">Payment Status</label>
-                            <select name="payment_status" id="payment_status" class="form-control" required>
-                                <option value="unpaid">Unpaid</option>
-                                <option value="paid">Paid</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <!-- Courier Selection -->
-                <div class="card mb-4 shadow-sm">
-                    <div class="card-header bg-dark text-white"><i class="fas fa-truck mr-2"></i> Courier</div>
-                    <div class="card-body">
-                        <div class="form-group">
-                            <label for="courier_id">Select Courier <span class="text-danger">*</span></label>
-                            <select name="courier_id" id="courier_id" class="form-control select2" required>
-                                <option value="">Select courier</option>
-                                @foreach(App\Models\Courier::orderBy('name')->get() as $courier)
-                                    <option value="{{ $courier->id }}">{{ $courier->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                </div>
+
             </div>
             <!-- Order Items Section -->
             <div class="col-lg-8">
@@ -327,13 +213,7 @@ $(document).ready(function() {
         });
 
         // Update total when products change
-        const oldAddRow = $('#product-search-list').data('events')?.click?.[0]?.handler;
-        $('#product-search-list').off('click').on('click', 'button', function() {
-            // ...existing code for adding row...
-            // Optionally update total
-            updateTotalWithCoupon();
-            // ...existing code...
-        });
+        // This handler was causing duplicate events - removed to prevent double-add
 
         // Also update total if a row is removed
         $('#added-products-table').on('click', '.remove-row', function() {
@@ -373,11 +253,21 @@ $(document).ready(function() {
         const row = `<tr data-product-id="${id}">
             <td>
                 <input type="hidden" name="product_id[]" value="${id}">
-                <input type="hidden" name="quantity[]" value="${qty}">
+                <input type="hidden" name="quantity[]" class="quantity-hidden" value="${qty}">
                 <input type="hidden" name="unit_price[]" value="${price}">
                 ${name}
             </td>
-            <td>${qty}</td>
+            <td class="quantity-cell">
+                <div class="input-group input-group-sm" style="width: 120px;">
+                    <div class="input-group-prepend">
+                        <button class="btn btn-outline-secondary qty-decrease" type="button" title="Decrease">−</button>
+                    </div>
+                    <input type="text" class="form-control text-center quantity-input" value="${qty}" readonly>
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary qty-increase" type="button" title="Increase">+</button>
+                    </div>
+                </div>
+            </td>
             <td>৳${price.toFixed(2)}</td>
             <td class="row-subtotal">${subtotal}</td>
             <td><button type="button" class="btn btn-sm btn-danger remove-row"><i class="fas fa-trash"></i></button></td>
@@ -397,74 +287,6 @@ $(document).ready(function() {
         $('#product-search-list').hide();
         $('#input-quantity').val('1');
     });
-    });
-
-    // Hide dropdown on blur (with delay for click)
-    $('#product-search').on('blur', function() {
-        setTimeout(() => $('#product-search-list').hide(), 200);
-});
-</script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<script>
-if (typeof jQuery === 'undefined') {
-    alert('jQuery not loaded!');
-}
-$(document).ready(function() {
-    function updateTotalWithCoupon() {
-        let total = 0;
-        $('#added-products-table tbody tr').each(function() {
-            total += parseFloat($(this).find('.row-subtotal').text()) || 0;
-        });
-        let coupon = parseFloat($('#coupon-amount').val()) || 0;
-        let grandTotal = total - coupon;
-        if (grandTotal < 0) grandTotal = 0;
-        $('#total').val(total.toFixed(2));
-        $('#grand-total').val(grandTotal.toFixed(2));
-    }
-
-    // Apply coupon only when button is clicked
-    $('#apply-coupon-btn').on('click', function() {
-        let code = $('#coupon_code').val().trim();
-        let couponValue = 0;
-        if (code === 'User123') {
-            couponValue = 100; // Example: 100 off
-        } else {
-            couponValue = 0;
-        }
-        $('#coupon-amount').val(couponValue);
-        updateTotalWithCoupon();
-    });
-
-    // Add product row (from autocomplete/typeahead)
-    $('#product-search-list').on('click', 'button', function() {
-        const id = $(this).data('id');
-        const name = $(this).data('name');
-        const price = $(this).data('price');
-        const qty = parseInt($('#input-quantity').val()) || 1;
-        const subtotal = (qty * price).toFixed(2);
-        const row = `<tr data-product-id="${id}">
-            <td>
-                <input type="hidden" name="product_id[]" value="${id}">
-                <input type="hidden" name="quantity[]" value="${qty}">
-                <input type="hidden" name="unit_price[]" value="${price}">
-                ${name}
-            </td>
-            <td>${qty}</td>
-            <td>৳${price.toFixed(2)}</td>
-            <td class="row-subtotal">${subtotal}</td>
-            <td><button type="button" class="btn btn-sm btn-danger remove-row"><i class="fas fa-trash"></i></button></td>
-        </tr>`;
-        $('#added-products-table tbody').append(row);
-        updateTotalWithCoupon();
-        // Clear input fields
-        $('#product-search').val('');
-        $('#product-id').val('');
-        $('#input-unit-price').val('');
-        $('#input-subtotal').val('');
-        $('#product-search-list').hide();
-        $('#input-quantity').val('1');
-    });
 
     // Remove product row
     $('#added-products-table').on('click', '.remove-row', function() {
@@ -472,8 +294,166 @@ $(document).ready(function() {
         updateTotalWithCoupon();
     });
 
+    // Handle quantity increase
+    $('#added-products-table').on('click', '.qty-increase', function() {
+        const $row = $(this).closest('tr');
+        const $quantityInput = $row.find('.quantity-input');
+        const $hiddenQuantity = $row.find('.quantity-hidden');
+        const $unitPrice = parseFloat($row.find('td:eq(2)').text().replace('৳', ''));
+        const currentQty = parseInt($quantityInput.val()) || 1;
+        const newQty = currentQty + 1;
+        
+        $quantityInput.val(newQty);
+        $hiddenQuantity.val(newQty);
+        
+        // Update subtotal
+        const subtotal = (newQty * $unitPrice).toFixed(2);
+        $row.find('.row-subtotal').text(subtotal);
+        
+        // Update total
+        updateTotalWithCoupon();
+    });
+
+    // Handle quantity decrease
+    $('#added-products-table').on('click', '.qty-decrease', function() {
+        const $row = $(this).closest('tr');
+        const $quantityInput = $row.find('.quantity-input');
+        const $hiddenQuantity = $row.find('.quantity-hidden');
+        const $unitPrice = parseFloat($row.find('td:eq(2)').text().replace('৳', ''));
+        const currentQty = parseInt($quantityInput.val()) || 1;
+        const newQty = Math.max(1, currentQty - 1);
+        
+        $quantityInput.val(newQty);
+        $hiddenQuantity.val(newQty);
+        
+        // Update subtotal
+        const subtotal = (newQty * $unitPrice).toFixed(2);
+        $row.find('.row-subtotal').text(subtotal);
+        
+        // Update total
+        updateTotalWithCoupon();
+    });
+
     // Initial total
     updateTotalWithCoupon();
+
+    // Bangladesh Districts and Areas Data
+    const bdLocations = {
+        'Dhaka': ['Dhaka Sadar','Dhamrai','Dohar','Keraniganj','Nawabganj','Savar'],
+        'Faridpur': ['Faridpur Sadar','Alfadanga','Bhanga','Boalmari','Madhukhali','Nagarkanda','Sadarpur','Saltha'],
+        'Gazipur': ['Gazipur Sadar','Tongi','Kaliakair','Kapasia','Sreepur','Konabari'],
+        'Gopalganj': ['Gopalganj Sadar','Kashiani','Kotalipara','Muksudpur','Tungipara'],
+        'Kishoreganj': ['Kishoreganj Sadar','Bhairab','Hossainpur','Karimganj','Katiadi','Mithamain','Nikli','Austagram','Tarail','Itna','Pakundia','Bajitpur'],
+        'Madaripur': ['Madaripur Sadar','Kalkini','Rajoir','Shibchar'],
+        'Manikganj': ['Manikganj Sadar','Singair','Saturia','Shivalaya','Harirampur','Ghior','Daulatpur'],
+        'Munshiganj': ['Munshiganj Sadar','Tongibari','Louhajang','Sirajdikhan','Sreenagar','Gazaria'],
+        'Narayanganj': ['Narayanganj Sadar','Bandar','Rupganj','Sonargaon'],
+        'Narsingdi': ['Narsingdi Sadar','Belabo','Monohardi','Palash','Raipura','Shibpur'],
+        'Rajbari': ['Rajbari Sadar','Goalanda','Pangsha','Baliakandi','Kalukhali'],
+        'Shariatpur': ['Shariatpur Sadar','Bhedarganj','Damudya','Gosairhat','Naria','Zanjira'],
+        'Tangail': ['Tangail Sadar','Mirzapur','Sakhipur','Basail','Kalihati','Bhuapur','Gopalpur','Madhupur','Dhanbari','Delduar','Nagarpur'],
+        'Bandarban': ['Bandarban Sadar','Thanchi','Ruma','Naikhongchhari','Rowangchhari','Lama','Alikadam'],
+        'Brahmanbaria': ['Brahmanbaria Sadar','Ashuganj','Bancharampur','Bijoynagar','Kasba','Nabinagar','Nasirnagar','Sarail'],
+        'Chandpur': ['Chandpur Sadar','Faridganj','Hajiganj','Kachua','Matlab North','Matlab South','Shahrasti'],
+        'Chattogram': ['Kotwali','Chawkbazar','Pahartali','Halishahar','Bayazid','Chandgaon','Double Mooring','Khulshi','Bakalia','Patenga','Agrabad'],
+        "Cox's Bazar": ["Cox's Bazar Sadar",'Chakaria','Kutubdia','Maheshkhali','Ramu','Teknaf','Ukhiya','Pekua'],
+        'Feni': ['Feni Sadar','Chhagalnaiya','Daganbhuiyan','Parshuram','Sonagazi','Fulgazi'],
+        'Khagrachhari': ['Khagrachhari Sadar','Dighinala','Matiranga','Panchhari','Mahalchhari','Manikchhari','Ramgarh','Lakshmichhari'],
+        'Lakshmipur': ['Lakshmipur Sadar','Ramganj','Ramgati','Komolnagar','Raipur'],
+        'Noakhali': ['Noakhali Sadar','Begumganj','Chatkhil','Companiganj','Hatia','Senbagh','Sonaimuri','Kabirhat','Subarnachar'],
+        'Rangamati': ['Rangamati Sadar','Belaichhari','Borka','Juraichhari','Kawkhali','Langadu','Naniarchar','Rajasthali','Kaptai'],
+        'Cumilla': ['Cumilla Sadar','Kotwali','Burichang','Daudkandi','Chandina','Laksam','Debidwar','Muradnagar','Homna','Meghna','Titas','Nangalkot'],
+        'Bogura': ['Bogura Sadar','Adamdighi','Dhunat','Gabtali','Kahaloo','Nandigram','Sariakandi','Sherpur','Shibganj','Sonatola','Shajahanpur'],
+        'Joypurhat': ['Joypurhat Sadar','Akkelpur','Kalai','Khetlal','Panchbibi'],
+        'Naogaon': ['Naogaon Sadar','Atrai','Badalgachhi','Dhamoirhat','Manda','Mohadevpur','Niamatpur','Porsha','Raninagar','Sapahar'],
+        'Natore': ['Natore Sadar','Bagatipara','Baraigram','Gurudaspur','Lalpur','Naldanga','Singra'],
+        'Chapainawabganj': ['Chapainawabganj Sadar','Bholahat','Gomastapur','Nachole','Shibganj'],
+        'Pabna': ['Pabna Sadar','Aminpur','Atgharia','Bera','Chatmohar','Faridpur','Ishwardi','Santhia','Sujanagar'],
+        'Rajshahi': ['Rajshahi Sadar','Bagha','Charghat','Durgapur','Godagari','Mohanpur','Paba','Putia','Tanore'],
+        'Sirajganj': ['Sirajganj Sadar','Belkuchi','Chauhali','Kamarkhanda','Kazipur','Raiganj','Shahjadpur','Tarash','Ullahpara'],
+        'Bagerhat': ['Bagerhat Sadar','Chitalmari','Fakirhat','Kachua','Mongla','Morrelganj','Rampal','Sharankhola'],
+        'Chuadanga': ['Chuadanga Sadar','Alamdanga','Damurhuda','Jibannagar'],
+        'Jashore': ['Jessore Sadar','Abhaynagar','Bagherpara','Chaugachha','Jhikargachha','Keshabpur','Manirampur','Sharsha'],
+        'Jhenaidah': ['Jhenaidah Sadar','Harinakunda','Kaliganj','Kotchandpur','Maheshpur','Shailkupa'],
+        'Khulna': ['Khulna Sadar','Dighalia','Koyra','Paikgachha','Phultala','Rupsha','Terokhada','Batiaghata','Dakop'],
+        'Kushtia': ['Kushtia Sadar','Bheramara','Daulatpur','Khoksa','Mirpur','Sheikhpara'],
+        'Magura': ['Magura Sadar','Mohammadpur','Shalikha','Sreepur'],
+        'Meherpur': ['Meherpur Sadar','Gangni','Mujibnagar'],
+        'Narail': ['Narail Sadar','Kalia','Lohagara'],
+        'Satkhira': ['Satkhira Sadar','Assasuni','Debhata','Kalaroa','Kaliganj','Shyamnagar','Tala'],
+        'Barguna': ['Barguna Sadar','Amtali','Bamna','Betagi','Patharghata','Taltali'],
+        'Barishal': ['Barishal Sadar','Agailjhara','Babuganj','Bakerganj','Banaripara','Gournadi','Hijla','Mehendiganj','Muladi','Wazirpur'],
+        'Bhola': ['Bhola Sadar','Borhanuddin','Char Fasson','Daulatkhan','Lalmohan','Manpura','Tazumuddin'],
+        'Jhalokati': ['Jhalokati Sadar','Kathalia','Nalchity','Rajapur'],
+        'Patuakhali': ['Patuakhali Sadar','Bauphal','Dashmina','Dumki','Galachipa','Kalapara','Mirzaganj','Rangabali'],
+        'Pirojpur': ['Pirojpur Sadar','Bhandaria','Kawkhali','Mathbaria','Nesarabad','Nazirpur'],
+        'Habiganj': ['Habiganj Sadar','Ajmiriganj','Bahubal','Baniachang','Chunarughat','Lakhai','Madhabpur','Nabiganj','Shayestaganj'],
+        'Maulvibazar': ['Maulvibazar Sadar','Barlekha','Juri','Kamalganj','Kulaura','Rajnagar','Sreemangal'],
+        'Sunamganj': ['Sunamganj Sadar','Bishwamvarpur','Chhatak','Derai','Dharampasha','Dowarabazar','Jagannathpur','Jamalganj','Sullah','Tahirpur','Shalla'],
+        'Sylhet': ['Sylhet Sadar','Balaganj','Beanibazar','Bishwanath','Companiganj','Dakshin Surma','Fenchuganj','Golapganj','Gowainghat','Jaintiapur','Kanaighat','Osmani Nagar'],
+        'Jamalpur': ['Jamalpur Sadar','Bakshiganj','Dewanganj','Islampur','Madarganj','Melandaha','Sarishabari'],
+        'Mymensingh': ['Mymensingh Sadar','Bhaluka','Dhobaura','Fulbaria','Gaffargaon','Gouripur','Haluaghat','Ishwarganj','Muktagacha','Nandail','Phulpur','Trishal'],
+        'Netrokona': ['Netrokona Sadar','Atpara','Barhatta','Durgapur','Kalmakanda','Kendua','Madan','Mohanganj','Purbadhala'],
+        'Sherpur': ['Sherpur Sadar','Jhenaigati','Nakla','Nalitabari','Sreebardi'],
+        'Dinajpur': ['Dinajpur Sadar','Birampur','Birganj','Birol','Bochaganj','Chirirbandar','Fulbari','Ghoraghat','Hakimpur','Kaharole','Khansama','Nawabganj','Parbatipur'],
+        'Gaibandha': ['Gaibandha Sadar','Fulchhari','Gobindaganj','Palashbari','Sadullapur','Saghata','Sundarganj'],
+        'Kurigram': ['Kurigram Sadar','Bhurungamari','Chilmari','Phulbari','Nageshwari','Rajarhat','Raomari','Ulipur'],
+        'Lalmonirhat': ['Lalmonirhat Sadar','Aditmari','Hatibandha','Kaliganj','Patgram'],
+        'Nilphamari': ['Nilphamari Sadar','Dimla','Domar','Jaldhaka','Kishoreganj','Saidpur'],
+        'Panchagarh': ['Panchagarh Sadar','Atwari','Boda','Debiganj','Tetulia'],
+        'Rangpur': ['Rangpur Sadar','Badarganj','Gangachara','Kaunia','Mithapukur','Pirgachha','Pirganj','Taraganj'],
+        'Thakurgaon': ['Thakurgaon Sadar','Baliadangi','Haripur','Pirganj','Ranishankail']
+    };
+
+    // Populate City dropdown
+    const citySelect = $('#city');
+    const districtList = Object.keys(bdLocations).sort();
+    districtList.forEach(district => {
+        citySelect.append(`<option value="${district}">${district}</option>`);
+    });
+
+    // Handle City change to populate Area dropdown
+    $('#city').on('change', function() {
+        const selectedCity = $(this).val();
+        const areaSelect = $('#area');
+        areaSelect.html('<option value="">Select Area</option>');
+        
+        if (selectedCity && bdLocations[selectedCity]) {
+            bdLocations[selectedCity].forEach(area => {
+                areaSelect.append(`<option value="${area}">${area}</option>`);
+            });
+        }
+
+        // Auto-calculate shipping cost based on city and area
+        updateShippingCost();
+    });
+
+    // Update shipping cost when area changes
+    $('#area').on('change', function() {
+        updateShippingCost();
+    });
+
+    function updateShippingCost() {
+        const city = $('#city').val();
+        const area = $('#area').val();
+        
+        if (city && area) {
+            let shippingCost = 150; // Default: Outside Dhaka
+            let shippingMethod = 'outside_dhaka';
+            
+            if (city === 'Dhaka') {
+                if (area === 'Dhaka Sadar') {
+                    shippingCost = 60;
+                } else {
+                    shippingCost = 120;
+                }
+                shippingMethod = 'inside_dhaka';
+            }
+            
+            $('#shipping_cost').val(shippingCost);
+            $('#shipping_method').val(shippingMethod);
+        }
+    }
 });
 </script>
 @endpush

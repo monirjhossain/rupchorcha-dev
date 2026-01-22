@@ -1,0 +1,93 @@
+.steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 0;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+}
+
+.stepIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #f5f5f5;
+  color: #999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  transition: all 0.3s;
+  border: 2px solid #e0e0e0;
+}
+
+.step.active .stepIcon {
+  background: #e91e63;
+  color: #fff;
+  border-color: #e91e63;
+  box-shadow: 0 4px 12px rgba(233, 30, 99, 0.3);
+}
+
+.step.completed .stepIcon {
+  background: #27ae60;
+  color: #fff;
+  border-color: #27ae60;
+}
+
+.stepLabel {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #999;
+  text-align: center;
+}
+
+.step.active .stepLabel {
+  color: #e91e63;
+  font-weight: 600;
+}
+
+.step.completed .stepLabel {
+  color: #27ae60;
+}
+
+.stepLine {
+  flex: 1;
+  height: 2px;
+  background: #e0e0e0;
+  margin: 0 1rem;
+  min-width: 80px;
+  transition: all 0.3s;
+}
+
+.stepLine.completed {
+  background: #27ae60;
+}
+
+@media (max-width: 640px) {
+  .steps {
+    padding: 1rem 0;
+  }
+  
+  .stepIcon {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+  
+  .stepLabel {
+    font-size: 0.8rem;
+  }
+  
+  .stepLine {
+    min-width: 40px;
+    margin: 0 0.5rem;
+  }
+}
