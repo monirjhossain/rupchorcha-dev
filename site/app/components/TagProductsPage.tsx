@@ -1,21 +1,21 @@
 
 "use client";
 import React, { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import ProductCard from "./ProductCard";
 import GlobalSortBar from "./GlobalSortBar";
 import Sidebar from "./Sidebar";
 import { useCart } from "../common/CartContext";
-import { useSearchParams } from "next/navigation";
 import gridStyles from "./ProductGrid.module.css";
+import { usePaginationSort } from "../hooks/usePaginationSort";
 
 const TagProductsPage = ({ params }: { params?: { slug?: string } }) => {
   const searchParams = useSearchParams();
   const slug = params?.slug || "";
   const [products, setProducts] = useState<any[]>([]);
   const [tag, setTag] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
-  const [sortBy, setSortBy] = useState("default");
-  const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const { currentPage, sortBy, handlePageChange, handleSortChange } = usePaginationSort();
   const [totalPages, setTotalPages] = useState(1);
   const [perPage] = useState(12);
   const { addToCart } = useCart();
@@ -69,9 +69,36 @@ const TagProductsPage = ({ params }: { params?: { slug?: string } }) => {
     };
   }, [slug, currentPage, sortBy, perPage]);
 
+  // Generate smart pagination numbers (first, last, and around current)
+  const getPageNumbers = () => {
+    const pages: (number | string)[] = [];
+    const showPages = 3; // Pages on each side of current
+    const start = Math.max(1, currentPage - showPages);
+    const end = Math.min(totalPages, currentPage + showPages);
+
+    if (start > 1) {
+      pages.push(1);
+      if (start > 2) pages.push('...');
+    }
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+
+    if (end < totalPages) {
+      if (end < totalPages - 1) pages.push('...');
+      pages.push(totalPages);
+    }
+
+    return pages;
+  };
+
   return (
     <div className="shop-page">
-      <GlobalSortBar sortBy={sortBy} setSortBy={setSortBy} />
+      <GlobalSortBar 
+        sortBy={sortBy} 
+        setSortBy={(value) => handleSortChange(value, `/tags/${slug}`)}
+      />
       <div className={gridStyles["shop-container"]}>
         <Sidebar />
         <main className={gridStyles["shop-main"]}>
@@ -109,15 +136,38 @@ const TagProductsPage = ({ params }: { params?: { slug?: string } }) => {
                         </div>
                 {totalPages > 1 && (
                   <div className="pagination">
-                    <button className="pagination-btn" onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))} disabled={currentPage === 1}>Previous</button>
+                    <button 
+                      className="pagination-btn" 
+                      onClick={() => handlePageChange(Math.max(1, currentPage - 1), `/tags/${slug}`)} 
+                      disabled={currentPage === 1 || loading}
+                    >
+                      {loading ? '⏳' : '← Previous'}
+                    </button>
                     <div className="pagination-numbers">
-                      {Array.from({ length: totalPages }).map((_, index) => (
-                        <button key={index + 1} className={`pagination-number ${currentPage === index + 1 ? "active" : ""}`} onClick={() => setCurrentPage(index + 1)}>
-                          {index + 1}
-                        </button>
-                      ))}
+                      {getPageNumbers().map((page, idx) =>
+                        typeof page === 'string' ? (
+                          <span key={`dots-${idx}`} style={{ padding: '0.5rem 0.25rem', color: '#999' }}>
+                            {page}
+                          </span>
+                        ) : (
+                          <button 
+                            key={page} 
+                            className={`pagination-number ${currentPage === page ? "active" : ""}`} 
+                            onClick={() => handlePageChange(page as number, `/tags/${slug}`)}
+                            disabled={loading}
+                          >
+                            {page}
+                          </button>
+                        )
+                      )}
                     </div>
-                    <button className="pagination-btn" onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))} disabled={currentPage === totalPages}>Next</button>
+                    <button 
+                      className="pagination-btn" 
+                      onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1), `/tags/${slug}`)} 
+                      disabled={currentPage === totalPages || loading}
+                    >
+                      {loading ? '⏳' : 'Next →'}
+                    </button>
                   </div>
                 )}
               </>

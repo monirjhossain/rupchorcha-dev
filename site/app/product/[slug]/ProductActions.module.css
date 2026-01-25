@@ -23,7 +23,7 @@
   background: #fff;
   color: #a004b0;
   border: 2px solid #a004b0;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 16px;
   border-radius: 8px;
   padding: 12px 24px;
@@ -31,10 +31,14 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  transition: background 0.15s, color 0.15s;
+  transition: background 0.15s, color 0.15s, opacity 0.15s;
 }
 .appPriceBtn:hover {
   background: #f3e6f7;
+}
+.appPriceBtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
 }
 .iconBtn {
   background: #fff;

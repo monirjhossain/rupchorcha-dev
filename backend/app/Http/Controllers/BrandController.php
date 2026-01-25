@@ -23,6 +23,7 @@ class BrandController extends Controller
         $validated = $request->validate([
             'name' => 'required',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'banner_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
         // Generate slug from name
@@ -30,6 +31,10 @@ class BrandController extends Controller
 
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')->store('brands', 'public');
+        }
+
+        if ($request->hasFile('banner_image')) {
+            $validated['banner_image'] = $request->file('banner_image')->store('brands/banners', 'public');
         }
 
         try {
@@ -55,7 +60,17 @@ class BrandController extends Controller
         $validated = $request->validate([
             'name' => 'required',
             'slug' => 'required|unique:brands,slug,' . $brand->id,
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'banner_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
+
+        if ($request->hasFile('image')) {
+            $validated['image'] = $request->file('image')->store('brands', 'public');
+        }
+
+        if ($request->hasFile('banner_image')) {
+            $validated['banner_image'] = $request->file('banner_image')->store('brands/banners', 'public');
+        }
         $brand->update($validated);
         return redirect()->route('brands.index')->with('success', 'Brand updated.');
     }

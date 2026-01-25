@@ -46,11 +46,15 @@ class CategoryController extends Controller
     // Create category (admin)
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'banner_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
-        $category = Category::create($request->all());
+        if ($request->hasFile('banner_image')) {
+            $validated['banner_image'] = $request->file('banner_image')->store('categories/banners', 'public');
+        }
+        $category = Category::create($validated);
         return response()->json(['success' => true, 'message' => 'Category added.', 'category' => $category]);
     }
 
@@ -58,11 +62,15 @@ class CategoryController extends Controller
     public function update(Request $request, $id)
     {
         $category = Category::findOrFail($id);
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'string|max:255',
             'description' => 'nullable|string',
+            'banner_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
-        $category->update($request->all());
+        if ($request->hasFile('banner_image')) {
+            $validated['banner_image'] = $request->file('banner_image')->store('categories/banners', 'public');
+        }
+        $category->update($validated);
         return response()->json(['success' => true, 'message' => 'Category updated.', 'category' => $category]);
     }
 

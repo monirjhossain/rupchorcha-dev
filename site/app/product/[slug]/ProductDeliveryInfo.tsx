@@ -18,6 +18,7 @@ export default function ProductDeliveryInfo({ product }: { product: Product }) {
 
   return (
     <div className={styles.deliveryInfo}>
+
       <div className={styles.infoRow}>
         <span className={styles.icon}>
           <svg width="20" height="20" fill="none" viewBox="0 0 20 20"><path d="M3 10.5V7.8A2.8 2.8 0 0 1 5.8 5h8.4A2.8 2.8 0 0 1 17 7.8v2.7" stroke="#a004b0" strokeWidth="1.5" strokeLinecap="round"/></svg>

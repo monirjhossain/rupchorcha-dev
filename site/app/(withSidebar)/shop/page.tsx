@@ -1,11 +1,10 @@
 "use client";
 import React, { Suspense } from "react";
-import { useParams } from "next/navigation";
 import dynamic from "next/dynamic";
 
-// Lazy load with loading state
-const CategoryProductsPage = dynamic(
-  () => import("../../../components/CategoryProductsPage"),
+// Lazy load with SSR enabled and loading skeleton
+const ShopProductsClient = dynamic(
+  () => import("./ShopProductsClient"),
   {
     ssr: true,
     loading: () => (
@@ -30,19 +29,15 @@ const CategoryProductsPage = dynamic(
   }
 );
 
-const CategoryPage = () => {
-  const params = useParams();
-  const category = params.category as string;
-  const displayName = category.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-
+const ShopPage = () => {
   return (
     <>
-      {/* <div style={{fontSize:'1.7rem',fontWeight:'bold',color:'#222',marginBottom:'0.5rem',marginTop:'0.5rem',textAlign:'center'}}>{displayName} Products</div> */}
+      {/* <div style={{fontSize:'1.7rem',fontWeight:'bold',color:'#222',marginBottom:'0.5rem',marginTop:'0.5rem',textAlign:'center'}}>All Products</div> */}
       <Suspense fallback={<div style={{textAlign:'center',padding:'2rem'}}>Loading...</div>}>
-        <CategoryProductsPage params={{ slug: category }} />
+        <ShopProductsClient />
       </Suspense>
     </>
   );
 };
 
-export default CategoryPage;
+export default ShopPage;

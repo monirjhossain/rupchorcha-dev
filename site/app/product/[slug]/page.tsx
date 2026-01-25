@@ -4,6 +4,7 @@ import ProductInfo from "./ProductInfo";
 import ProductActions from "./ProductActions";
 import ProductDeliveryInfo from "./ProductDeliveryInfo";
 import FrequentlyBoughtTogether from "./FrequentlyBoughtTogether";
+import ProductTabs from "./ProductTabs";
 import { notFound } from "next/navigation";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
@@ -80,8 +81,76 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
   const product = await getProduct(slug);
   if (!product) return notFound();
 
+  // Generate breadcrumb structured data
+  const brandName = typeof product.brand === 'object' ? product.brand?.name : product.brand || 'Rupchorcha';
+  const categoryName = product.category?.name || product.category_name || 'Products';
+  const price = product.sale_price || product.price;
+  const imageUrl = product.images?.[0]?.url || product.main_image || '';
+  const fullImageUrl = imageUrl.startsWith('http') 
+    ? imageUrl 
+    : `${API_BASE.replace('/api', '')}/storage/${imageUrl}`;
+
+  // Breadcrumb structured data for SEO
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": SITE_URL
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": categoryName,
+        "item": `${SITE_URL}/category/${product.category_slug || categoryName.toLowerCase().replace(/\s+/g, '-')}`
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": product.name,
+        "item": `${SITE_URL}/product/${slug}`
+      }
+    ]
+  };
+
+  // Product structured data for SEO
+  const productSchema = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": product.name,
+    "description": product.description || product.short_description,
+    "image": fullImageUrl,
+    "brand": {
+      "@type": "Brand",
+      "name": brandName
+    },
+    "offers": {
+      "@type": "Offer",
+      "priceCurrency": "BDT",
+      "price": Math.round(price),
+      "priceCurrency": "BDT"
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": product.rating || 0,
+      "reviewCount": product.reviews_count || 0
+    }
+  };
+
   return (
     <>
+      {/* Structured Data for SEO */}
+      <script 
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+      <script 
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
+      />
       <main style={{ display: "flex", justifyContent: "center", background: "#fafafd", minHeight: "100vh", padding: "2rem 0" }}>
         <div style={{ display: "flex", gap: 48, maxWidth: 1200, width: "100%", background: "#fff", borderRadius: 18, boxShadow: "0 4px 24px #0002", padding: 32 }}>
           {/* Left: Gallery */}
@@ -105,6 +174,9 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
           </div>
         </div>
       </main>
+      
+      {/* Product Information Tabs */}
+      <ProductTabs product={product} />
       
       {/* Frequently Bought Together Section */}
       <FrequentlyBoughtTogether productId={product.id} />

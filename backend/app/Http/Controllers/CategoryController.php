@@ -18,7 +18,11 @@ class CategoryController extends Controller
             'slug'=>'required|unique:categories',
             'parent_id'=>'nullable|exists:categories,id',
             'description'=>'nullable|string',
+            'banner_image'=>'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
+        if ($request->hasFile('banner_image')) {
+            $validated['banner_image'] = $request->file('banner_image')->store('categories/banners', 'public');
+        }
         Category::create($validated);
         return redirect()->route('categories.index')->with('success','Category created.');
     }
@@ -30,7 +34,11 @@ class CategoryController extends Controller
             'slug'=>'required|unique:categories,slug,'.$category->id,
             'parent_id'=>'nullable|exists:categories,id',
             'description'=>'nullable|string',
+            'banner_image'=>'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
+        if ($request->hasFile('banner_image')) {
+            $validated['banner_image'] = $request->file('banner_image')->store('categories/banners', 'public');
+        }
         $category->update($validated);
         return redirect()->route('categories.index')->with('success','Category updated.');
     }

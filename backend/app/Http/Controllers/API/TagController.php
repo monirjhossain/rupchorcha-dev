@@ -8,14 +8,40 @@ use App\Http\Controllers\Controller;
 class TagController extends Controller
 {
     // Show tag details and products by tag slug
-    public function showBySlug($slug)
+    public function showBySlug(Request $request, $slug)
     {
         $tag = Tag::where('slug', $slug)->first();
         if (!$tag) {
             return response()->json(['error' => 'Tag not found'], 404);
         }
-        $perPage = request('per_page', 12);
-        $products = $tag->products()->with(['brand', 'categories', 'images'])->paginate($perPage);
+        
+        $query = $tag->products()->with(['brand', 'categories', 'images']);
+        
+        // Handle sorting
+        $sort = $request->input('sort', 'default');
+        switch ($sort) {
+            case 'price_low':
+                $query->orderBy('price', 'asc');
+                break;
+            case 'price_high':
+                $query->orderBy('price', 'desc');
+                break;
+            case 'name_asc':
+                $query->orderBy('name', 'asc');
+                break;
+            case 'name_desc':
+                $query->orderBy('name', 'desc');
+                break;
+            case 'newest':
+                $query->orderBy('created_at', 'desc');
+                break;
+            default:
+                $query->orderBy('id', 'desc');
+                break;
+        }
+        
+        $perPage = $request->input('per_page', 12);
+        $products = $query->paginate($perPage);
         $products->getCollection()->transform(function($product) {
             $data = $product->toArray();
             $data['images'] = [];

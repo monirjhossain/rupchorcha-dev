@@ -40,6 +40,7 @@ const getImageUrl = (product: any, idx = 0): string => {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, isAddingToCart = false }) => {
   const [hovered, setHovered] = useState(false);
+  const [wishlistLoading, setWishlistLoading] = useState(false);
   const router = useRouter();
   const { canAccessWishlist } = useFeatureAccess();
   const images = Array.isArray(product.images) ? product.images : [];
@@ -58,7 +59,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, isAddin
 
   const isNew = product.is_new || false;
 
-  const { isInWishlist, addToWishlist, removeFromWishlist, loading: wishlistLoading, isAuthenticated } = useWishlist();
+  const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlist();
   const [wishlistError, setWishlistError] = useState<string | null>(null);
 
   const handleWishlist = async (e: React.MouseEvent) => {
@@ -72,19 +73,28 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, isAddin
       return;
     }
 
+    // Optimistic update - update UI immediately
     try {
       if (isInWishlist(product.id)) {
-        await removeFromWishlist(product.id);
+        removeFromWishlist(product.id).catch((err: any) => {
+          const message = err.message || "Failed to remove from wishlist";
+          setWishlistError(message);
+          console.error("Wishlist error:", err);
+        });
       } else {
-        await addToWishlist(product.id);
+        addToWishlist(product.id).catch((err: any) => {
+          const message = err.message || "Failed to add to wishlist";
+          setWishlistError(message);
+          console.error("Wishlist error:", err);
+          if (message.includes("Please login") || message.includes("login")) {
+            setTimeout(() => openLoginModal(), 2000);
+          }
+        });
       }
     } catch (err: any) {
       const message = err.message || "Wishlist action failed. Please login or try again.";
       setWishlistError(message);
       console.error("Wishlist error:", err);
-      if (message.includes("Please login") || message.includes("login")) {
-        setTimeout(() => openLoginModal(), 2000);
-      }
     }
   };
 
@@ -97,12 +107,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, isAddin
         className={styles.wishlistBtn}
         aria-label={isInWishlist(product.id) ? "Remove from wishlist" : "Add to wishlist"}
         onClick={handleWishlist}
-        disabled={wishlistLoading}
         style={{ position: "absolute", top: 14, right: 14, background: "none", border: "none", cursor: "pointer", zIndex: 2 }}
       >
-        {wishlistLoading ? (
-          <span className="spinner" />
-        ) : isInWishlist(product.id) ? (
+        {isInWishlist(product.id) ? (
           <FaHeart color="#e91e63" size={24} />
         ) : (
           <FaRegHeart color="#e91e63" size={24} />
@@ -152,9 +159,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, isAddin
         {/* Rating */}
         <div className={styles.rating}>
           {Array.from({ length: 5 }).map((_, i) => (
-            <svg key={i} width="16" height="16" viewBox="0 0 20 20" fill={i < Math.round(rating) ? '#ffb400' : '#eee'}><polygon points="10,1.5 12.6,7.2 18.8,7.6 14,12 15.2,18.2 10,15 4.8,18.2 6,12 1.2,7.6 7.4,7.2"/></svg>
+            <svg key={i} width="14" height="14" viewBox="0 0 20 20" fill={i < Math.round(rating) ? '#ffb400' : '#eee'}><polygon points="10,1.5 12.6,7.2 18.8,7.6 14,12 15.2,18.2 10,15 4.8,18.2 6,12 1.2,7.6 7.4,7.2"/></svg>
           ))}
-          {ratingCount > 0 && <span className={styles.ratingCount}>({ratingCount})</span>}
         </div>
         {/* Price: always show both if sale price exists */}
         <div className={styles.productPrice}>

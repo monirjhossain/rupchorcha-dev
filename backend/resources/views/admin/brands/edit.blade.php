@@ -8,7 +8,7 @@
             <div class="card shadow mb-4">
                 <div class="card-header bg-primary text-white">Brand Information</div>
                 <div class="card-body">
-                    <form action="{{ route('brands.update', $brand->id) }}" method="POST">
+                    <form action="{{ route('brands.update', $brand->id) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
                         <div class="form-row">
@@ -19,6 +19,24 @@
                             <div class="form-group col-md-6">
                                 <label>Slug</label>
                                 <input type="text" name="slug" class="form-control" value="{{ $brand->slug }}" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label>Brand Image</label>
+                                <input type="file" name="image" id="imageInput" class="form-control">
+                                @if($brand->image)
+                                    <small class="form-text text-muted">Current image exists</small>
+                                @endif
+                                <img id="imagePreview" src="" alt="Brand Image Preview" style="max-width: 200px; max-height: 200px; margin-top: 10px; display: none; border-radius: 5px;">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label>Banner Image</label>
+                                <input type="file" name="banner_image" id="bannerInput" class="form-control">
+                                @if($brand->banner_image)
+                                    <small class="form-text text-muted">Current banner exists</small>
+                                @endif
+                                <img id="bannerPreview" src="" alt="Banner Image Preview" style="max-width: 200px; max-height: 200px; margin-top: 10px; display: none; border-radius: 5px;">
                             </div>
                         </div>
                         <div class="text-right mt-3">
@@ -32,3 +50,46 @@
     </div>
 </div>
 @endsection
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Image preview functionality
+        const imageInput = document.getElementById('imageInput');
+        const imagePreview = document.getElementById('imagePreview');
+        if(imageInput) {
+            imageInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if(file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        imagePreview.src = event.target.result;
+                        imagePreview.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    imagePreview.style.display = 'none';
+                }
+            });
+        }
+
+        // Banner preview functionality
+        const bannerInput = document.getElementById('bannerInput');
+        const bannerPreview = document.getElementById('bannerPreview');
+        if(bannerInput) {
+            bannerInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if(file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        bannerPreview.src = event.target.result;
+                        bannerPreview.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    bannerPreview.style.display = 'none';
+                }
+            });
+        }
+    });
+</script>
+@endpush

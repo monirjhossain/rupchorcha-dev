@@ -25,31 +25,33 @@ interface Category {
 
 type Brand = string;
 
-// Example API functions (replace with your real API calls)
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+
+// API functions
 async function searchProducts(query: string) {
 	try {
-		const res = await fetch(`http://localhost:8000/api/products?name=${encodeURIComponent(query)}`);
+		const res = await fetch(`${API_BASE}/products?search=${encodeURIComponent(query)}&per_page=8`);
 		if (!res.ok) {
 			console.error('API error:', res.status, res.statusText);
 			return { success: false, products: [] };
 		}
-		const contentType = res.headers.get('content-type');
-		if (contentType && contentType.includes('application/json')) {
-			return await res.json();
-		} else {
-			const text = await res.text();
-			console.error('Non-JSON response:', text);
-			return { success: false, products: [] };
-		}
+		const data = await res.json();
+		return data;
 	} catch (err) {
 		console.error('Fetch error:', err);
 		return { success: false, products: [] };
 	}
 }
+
 async function fetchCategories() {
-	// Use full backend URL to avoid 404 and CORS issues
-	const res = await fetch("http://localhost:8000/api/categories");
-	return res.json();
+	try {
+		const res = await fetch(`${API_BASE}/categories`);
+		if (!res.ok) return { categories: [] };
+		return await res.json();
+	} catch (err) {
+		console.error('Categories fetch error:', err);
+		return { categories: [] };
+	}
 }
 
 const SearchBox = () => {
@@ -110,7 +112,7 @@ const SearchBox = () => {
 			}
 			// Search categories
 			const categoryResponse = await fetchCategories();
-			const allCategories = categoryResponse.data?.data || categoryResponse.data || [];
+			const allCategories = categoryResponse.categories || categoryResponse.data?.data || categoryResponse.data || [];
 			const filteredCategories = allCategories.filter((cat: any) =>
 				cat.name?.toLowerCase().includes(query.toLowerCase())
 			);
@@ -132,7 +134,8 @@ const SearchBox = () => {
 	};
 
 	const handleProductClick = (product: any) => {
-		router.push(`/product/${product.slug}`);
+		const identifier = product.slug || product.id;
+		router.push(`/product/${identifier}`);
 		setIsDropdownOpen(false);
 		setSearchQuery("");
 	};
@@ -203,7 +206,7 @@ const SearchBox = () => {
 									<div className={styles.searchSuggestionThumb}>
 										{product.main_image ? (
 											<img
-												src={product.main_image.startsWith('http') ? product.main_image : `http://127.0.0.1:8000/storage/${product.main_image}`}
+												src={product.main_image.startsWith('http') ? product.main_image : `${API_BASE.replace('/api', '')}/storage/${product.main_image.replace(/^storage[\\/]/, '')}`}
 												alt={product.name}
 												style={{width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px'}}
 											/>

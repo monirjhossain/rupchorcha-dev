@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import styles from './CartItemRow.module.css';
 
 interface CartItemRowProps {
@@ -87,7 +88,13 @@ const CartItemRow: React.FC<CartItemRowProps> = ({
       {/* Product Details */}
       <div className={styles.productDetails}>
         <div className={styles.brandName}>{brandName}</div>
-        <div className={styles.productName}>{productName}</div>
+        <Link 
+          href={`/product/${product?.slug || item.product_id}`}
+          className={styles.productName}
+          style={{ textDecoration: 'none', color: 'inherit' }}
+        >
+          {productName}
+        </Link>
       </div>
 
       {/* Price */}

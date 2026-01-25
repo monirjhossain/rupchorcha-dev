@@ -84,7 +84,32 @@ class ProductController extends Controller
             $query->where('price', '<=', $request->input('price_max'));
         }
 
-        $products = $query->paginate(20);
+        // Handle sorting
+        $sort = $request->input('sort', 'default');
+        switch ($sort) {
+            case 'price_low':
+                $query->orderBy('price', 'asc');
+                break;
+            case 'price_high':
+                $query->orderBy('price', 'desc');
+                break;
+            case 'name_asc':
+                $query->orderBy('name', 'asc');
+                break;
+            case 'name_desc':
+                $query->orderBy('name', 'desc');
+                break;
+            case 'newest':
+                $query->orderBy('created_at', 'desc');
+                break;
+            default:
+                // Default sorting
+                $query->orderBy('id', 'desc');
+                break;
+        }
+
+        $perPage = $request->input('per_page', 20);
+        $products = $query->paginate($perPage);
         // Map each product to array with merged images and categories
         $productsData = [];
         foreach ($products->items() as $product) {

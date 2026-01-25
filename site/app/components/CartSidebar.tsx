@@ -68,7 +68,13 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
                   alt={item.product?.name || "No Image"}
                 />
                 <div className={styles.cartItemInfo}>
-                  <div className={styles.cartItemName}>{item.product?.name}</div>
+                  <Link 
+                    href={`/product/${item.product?.slug || item.product_id}`}
+                    className={styles.cartItemName}
+                    onClick={onClose}
+                  >
+                    {item.product?.name}
+                  </Link>
                   <div className={styles.cartItemPrice}>৳ {item.product?.sale_price || item.product?.price || item.price}</div>
                   <div className={styles.cartItemQtyWrap}>
                     <button

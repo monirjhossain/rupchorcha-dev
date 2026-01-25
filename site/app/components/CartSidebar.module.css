@@ -83,6 +83,14 @@
   margin-bottom: 0.2rem;
   color: #222;
   font-size: 0.9rem;
+  text-decoration: none;
+  display: block;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.cartItemName:hover {
+  color: #e91e63;
 }
 .cartItemPrice {
   color: #e91e63;

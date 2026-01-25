@@ -1,0 +1,108 @@
+.container {
+  max-width: 1000px;
+}
+
+.heading {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 0.5rem;
+}
+
+.intro {
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 2rem;
+}
+
+.badgeGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.badgeCard {
+  background: linear-gradient(135deg, #f9f9f9 0%, #ffffff 100%);
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.badgeCard:hover {
+  border-color: #e91e63;
+  box-shadow: 0 4px 16px rgba(233, 30, 99, 0.15);
+  transform: translateY(-3px);
+}
+
+.badgeIcon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+}
+
+.badgeTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.badgeDescription {
+  font-size: 0.9rem;
+  color: #666;
+  line-height: 1.5;
+}
+
+.paymentSection {
+  background: #fafafa;
+  border-radius: 12px;
+  padding: 2rem;
+  border: 1px solid #e0e0e0;
+}
+
+.subheading {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.paymentMethods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.paymentBadge {
+  background: #fff;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #333;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.paymentBadge:hover {
+  border-color: #e91e63;
+  background: #fff5f8;
+  transform: scale(1.05);
+}
+
+@media (max-width: 768px) {
+  .badgeGrid {
+    grid-template-columns: 1fr;
+  }
+}

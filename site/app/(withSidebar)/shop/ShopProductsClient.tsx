@@ -3,48 +3,43 @@ import React, { useState } from "react";
 import { useCart } from "@/app/common/CartContext";
 import ProductList from "@/app/components/ProductList";
 import toast from "react-hot-toast";
-import { useBrandProducts } from "@/app/services/useBrandProducts";
+import { useShopProducts } from "@/app/services/useShopProducts";
 import GlobalSortBar from "@/app/components/GlobalSortBar";
 import { usePaginationSort } from "@/app/hooks/usePaginationSort";
 
 // Banner component
-const BrandBanner = ({ imageUrl }: { imageUrl: string }) => {
-  if (!imageUrl) return null;
+const ShopBanner = ({ imageUrl }: { imageUrl: string }) => (
+  <div style={{
+    width: "100%",
+    height: "200px",
+    borderRadius: "12px",
+    overflow: "hidden",
+    marginBottom: "1.5rem",
+    boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
+  }}>
+    <img
+      src={imageUrl}
+      alt="Shop Banner"
+      style={{
+        width: "100%",
+        height: "100%",
+        objectFit: "cover"
+      }}
+    />
+  </div>
+);
 
-  const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
-  const fullUrl = imageUrl.startsWith('http') 
-    ? imageUrl 
-    : `${API_BASE.replace('/api', '')}/storage/${imageUrl}`;
-
-  return (
-    <div style={{
-      width: "100%",
-      height: "200px",
-      borderRadius: "12px",
-      overflow: "hidden",
-      marginBottom: "1.5rem",
-      boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
-    }}>
-      <img
-        src={fullUrl}
-        alt="Brand Banner"
-        style={{
-          width: "100%",
-          height: "100%",
-          objectFit: "cover"
-        }}
-      />
-    </div>
-  );
-};
-
-export default function BrandProductsClient({ slug }: { slug: string }) {
+export default function ShopProductsClient() {
   const [isAddingToCart, setIsAddingToCart] = useState<{ [key: number]: boolean }>({});
   const { currentPage, sortBy, handlePageChange, handleSortChange } = usePaginationSort();
-  const perPage = 12;
+  
+  // Banner image URL - Change this to update banner
+  const bannerImageUrl = "https://images.unsplash.com/photo-1556740738-b6a63e27c4df?w=1200&h=200&fit=crop";
+  
+  const perPage = 20;
 
   const { addToCart } = useCart();
-  const { products, brand, isLoading, isError, meta } = useBrandProducts(slug, currentPage, perPage, sortBy);
+  const { products, isLoading, isError, meta } = useShopProducts(currentPage, perPage, sortBy);
 
   const handleAddToCart = (product: any) => {
     setIsAddingToCart((prev) => ({ ...prev, [product.id]: true }));
@@ -81,33 +76,68 @@ export default function BrandProductsClient({ slug }: { slug: string }) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-      {/* Brand Banner */}
-      {brand?.banner_image && <BrandBanner imageUrl={brand.banner_image} />}
+      {/* Banner */}
+      <ShopBanner imageUrl={bannerImageUrl} />
 
       <GlobalSortBar
         sortBy={sortBy}
-        setSortBy={(value) => handleSortChange(value, `/brands/${slug}`)}
+        setSortBy={(value) => handleSortChange(value, "/shop")}
       />
 
       {isError && <div style={{ color: "#d33" }}>Failed to load products.</div>}
 
-      {isLoading && products.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "2rem" }}>Loading products...</div>
+      {products.length === 0 && isLoading ? (
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+          gap: '1.5rem'
+        }}>
+          {Array.from({ length: 20 }).map((_, i) => (
+            <div key={i} style={{
+              background: '#f5f5f5',
+              borderRadius: '12px',
+              height: '380px',
+              animation: 'pulse 1.5s ease-in-out infinite'
+            }} />
+          ))}
+        </div>
       ) : products.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "2rem", color: "#666" }}>No products found for this brand.</div>
+        <div style={{ textAlign: "center", padding: "2rem", color: "#666" }}>No products found.</div>
       ) : (
-        <ProductList
-          products={products}
-          onAddToCart={handleAddToCart}
-          addingStateMap={isAddingToCart}
-        />
+        <>
+          {isLoading && (
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+              gap: '1.5rem',
+              opacity: 0.6,
+              pointerEvents: 'none'
+            }}>
+              {Array.from({ length: 20 }).map((_, i) => (
+                <div key={i} style={{
+                  background: '#f5f5f5',
+                  borderRadius: '12px',
+                  height: '380px',
+                  animation: 'pulse 1.5s ease-in-out infinite'
+                }} />
+              ))}
+            </div>
+          )}
+          {!isLoading && (
+            <ProductList
+              products={products}
+              onAddToCart={handleAddToCart}
+              addingStateMap={isAddingToCart}
+            />
+          )}
+        </>
       )}
 
       {totalPages > 1 && (
         <div className="pagination">
           <button
             className="pagination-btn"
-            onClick={() => handlePageChange(Math.max(1, currentPage - 1), `/brands/${slug}`)}
+            onClick={() => handlePageChange(Math.max(1, currentPage - 1), "/shop")}
             disabled={currentPage === 1 || isLoading}
           >
             {isLoading ? '⏳' : '← Previous'}
@@ -122,7 +152,7 @@ export default function BrandProductsClient({ slug }: { slug: string }) {
                 <button
                   key={page}
                   className={`pagination-number ${currentPage === page ? "active" : ""}`}
-                  onClick={() => handlePageChange(page as number, `/brands/${slug}`)}
+                  onClick={() => handlePageChange(page as number, "/shop")}
                   disabled={isLoading}
                 >
                   {page}
@@ -132,7 +162,7 @@ export default function BrandProductsClient({ slug }: { slug: string }) {
           </div>
           <button
             className="pagination-btn"
-            onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1), `/brands/${slug}`)}
+            onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1), "/shop")}
             disabled={currentPage === totalPages || isLoading}
           >
             {isLoading ? '⏳' : 'Next →'}

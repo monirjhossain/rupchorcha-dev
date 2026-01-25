@@ -1,139 +1,146 @@
-.badges {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 10px;
-}
-.badgeNew {
-  background: #00c853;
-  color: #fff;
-  font-weight: 700;
-  font-size: 13px;
-  border-radius: 6px;
-  padding: 3px 12px;
-}
-.badgeOffer {
-  background: #a004b0;
-  color: #fff;
-  font-weight: 700;
-  font-size: 13px;
-  border-radius: 6px;
-  padding: 3px 12px;
-}
+/* Minimal & Professional Product Info */
 .breadcrumbs {
-  font-size: 13px;
-  color: #888;
-  margin-bottom: 8px;
+  font-size: 0.85rem;
+  color: #999;
+  margin-bottom: 1rem;
   display: flex;
   align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 .breadcrumbLink {
-  color: #a004b0;
+  color: #e91e63;
   text-decoration: none;
-  font-weight: 600;
-  transition: color 0.15s;
+  font-weight: 500;
+  transition: color 0.2s;
 }
+
 .breadcrumbLink:hover {
-  color: #e53935;
-  text-decoration: underline;
+  color: #c2185b;
 }
 .breadcrumbSeparator {
-  color: #bbb;
-  margin: 0 2px;
+  color: #ccc;
 }
+
 .breadcrumbText {
-  color: #a004b0;
-  font-weight: 600;
+  color: #666;
 }
-.breadcrumbCurrent {
-  color: #222;
-  font-weight: 700;
-}
+
 .title {
-  font-size: 26px;
-  font-weight: 800;
-  margin: 0;
-  color: #222;
-  line-height: 1.2;
-}
-.brand {
-  color: #a004b0;
+  font-size: 1.4rem;
   font-weight: 700;
-  margin: 4px 0 16px 0;
-  font-size: 16px;
-  letter-spacing: 0.2px;
+  margin: 0 0 0.5rem 0;
+  color: #222;
+  line-height: 1.3;
 }
+
+.brandRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.brandLink {
+  color: #e91e63;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: color 0.2s;
+}
+
+.brandLink:hover {
+  color: #c2185b;
+  text-decoration: underline;
+}
+
+.brandName {
+  color: #e91e63;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badgeNew {
+  background: linear-gradient(135deg, #00c853 0%, #00a344 100%);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.7rem;
+  border-radius: 4px;
+  padding: 3px 8px;
+  letter-spacing: 0.5px;
+}
+
 .priceRow {
   display: flex;
-  align-items: flex-end;
-  gap: 12px;
-  margin-bottom: 10px;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
 }
+
 .price {
-  font-size: 40px;
+  font-size: 1.35rem;
   font-weight: 800;
-  color: #e53935;
+  color: #e91e63;
   line-height: 1;
 }
+
 .oldPrice {
   text-decoration: line-through;
-  color: #888;
-  font-size: 22px;
-  font-weight: 600;
-  margin-left: 8px;
-  margin-bottom: 3px;
-  display: inline-block;
+  color: #999;
+  font-size: 1.25rem;
+  font-weight: 500;
 }
+
 .discount {
   background: #e0ffe0;
   color: #00c853;
   font-weight: 700;
-  font-size: 15px;
-  border-radius: 6px;
-  padding: 2px 10px;
-  margin-left: 8px;
+  font-size: 0.85rem;
+  border-radius: 4px;
+  padding: 3px 8px;
+  letter-spacing: 0.3px;
 }
-.colorRow {
-  margin: 18px 0 10px 0;
-}
-.colorLabel {
-  font-weight: 600;
-  margin-bottom: 6px;
-  font-size: 15px;
-}
-.colorOptions {
-  display: flex;
-  gap: 12px;
-}
-.colorCircle {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border: 2px solid #eee;
-  display: inline-block;
-  cursor: pointer;
-}
-.colorCircleActive {
-  border: 3px solid #a004b0;
-  box-shadow: 0 2px 8px #a004b033;
-  outline: 2px solid #a004b0;
-}
+
 .ratingRow {
-  color: #e53935;
-  font-weight: 700;
-  font-size: 16px;
-  margin: 10px 0 0 0;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 0.35rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.95rem;
 }
+
 .star {
-  font-size: 18px;
+  color: #ffb400;
+  font-size: 1.1rem;
 }
+
+.ratingValue {
+  font-weight: 700;
+  color: #333;
+}
+
 .reviewCount {
-  color: #888;
+  color: #999;
   font-weight: 500;
-  font-size: 14px;
+  margin-left: 0.25rem;
+}
+
+.shortDescription {
+  background: linear-gradient(135deg, #fff5f8 0%, #ffffff 100%);
+  border-left: 3px solid #e91e63;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1.5rem;
+  line-height: 1.6;
+  color: #555;
+  font-size: 0.95rem;
+}
+
+.shortDescription p {
+  margin: 0;
 }

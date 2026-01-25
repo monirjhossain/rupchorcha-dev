@@ -13,9 +13,10 @@ interface ProductListProps {
   products: Product[];
   onAddToCart?: (product: Product) => void;
   isAddingToCart?: boolean;
+  addingStateMap?: { [key: number]: boolean };
 }
 
-const ProductList: React.FC<ProductListProps> = ({ products, onAddToCart, isAddingToCart }) => {
+const ProductList: React.FC<ProductListProps> = ({ products, onAddToCart, isAddingToCart, addingStateMap }) => {
   if (!products || products.length === 0) {
     return <div>No products found.</div>;
   }
@@ -26,7 +27,7 @@ const ProductList: React.FC<ProductListProps> = ({ products, onAddToCart, isAddi
           key={product.id}
           product={product}
           onAddToCart={onAddToCart ? onAddToCart : () => {}}
-          isAddingToCart={isAddingToCart}
+          isAddingToCart={addingStateMap ? !!addingStateMap[product.id] : isAddingToCart}
         />
       ))}
     </div>

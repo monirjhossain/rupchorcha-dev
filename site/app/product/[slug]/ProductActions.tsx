@@ -12,16 +12,36 @@ import type { Product } from "./types";
 
 export default function ProductActions({ product }: { product: Product }) {
   const router = useRouter();
-  const { addToCart } = useCart();
+  const { addToCart, items } = useCart();
   const { canAccessWishlist } = useFeatureAccess();
-  const { isInWishlist, addToWishlist, removeFromWishlist, loading: wishlistLoading, isAuthenticated } = useWishlist();
+  const { isInWishlist, addToWishlist, removeFromWishlist, loading: wishlistLoading } = useWishlist();
   const [adding, setAdding] = React.useState(false);
+  const [buying, setBuying] = React.useState(false);
   const [wishlistError, setWishlistError] = React.useState<string | null>(null);
 
   const handleAddToCart = async () => {
     setAdding(true);
-    addToCart({ product_id: product.id, quantity: 1, product });
-    setTimeout(() => setAdding(false), 800); // Simulate feedback
+    try {
+      await addToCart({ product_id: product.id, quantity: 1, product });
+    } finally {
+      setAdding(false);
+    }
+  };
+
+  const handleBuyNow = async () => {
+    if (buying) return;
+    setBuying(true);
+    try {
+      const alreadyInCart = items.some(item => item.product_id === product.id);
+      if (!alreadyInCart) {
+        await addToCart({ product_id: product.id, quantity: 1, product });
+      }
+      router.push("/checkout");
+    } catch (err) {
+      console.error("Buy Now failed", err);
+    } finally {
+      setBuying(false);
+    }
   };
 
   const handleWishlist = async (e: React.MouseEvent) => {
@@ -56,13 +76,17 @@ export default function ProductActions({ product }: { product: Product }) {
         className={styles.addToCartBtn}
         style={adding ? { cursor: "not-allowed", opacity: 0.7 } : {}}
         onClick={handleAddToCart}
-        disabled={adding}
+        disabled={adding || buying}
       >
         {adding ? "Adding..." : "Add to bag"}
       </button>
-      <button className={styles.appPriceBtn}>
-        App Price: ৳{product.app_price || product.price}
-        <span style={{ fontSize: 18, marginLeft: 2 }}>→</span>
+      <button
+        className={styles.appPriceBtn}
+        onClick={handleBuyNow}
+        disabled={buying}
+        aria-label="Buy now"
+      >
+        {buying ? "Processing..." : "Buy Now"}
       </button>
       {/* Wishlist & Share icons */}
       <button

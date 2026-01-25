@@ -8,22 +8,51 @@ import GlobalSortBar from "../../../components/GlobalSortBar";
 import { productsAPI, categoriesAPI } from "../../../services/api";
 import { useCart } from "@/app/common/CartContext";
 import Link from "next/link";
+import { usePaginationSort } from "@/app/hooks/usePaginationSort";
+
+// Banner component
+const CategoryBanner = ({ imageUrl }: { imageUrl: string }) => {
+  if (!imageUrl) return null;
+
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+  const fullUrl = imageUrl.startsWith('http') 
+    ? imageUrl 
+    : `${API_BASE.replace('/api', '')}/storage/${imageUrl}`;
+
+  return (
+    <div style={{
+      width: "100%",
+      height: "200px",
+      borderRadius: "12px",
+      overflow: "hidden",
+      marginBottom: "1.5rem",
+      boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
+    }}>
+      <img
+        src={fullUrl}
+        alt="Category Banner"
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "cover"
+        }}
+      />
+    </div>
+  );
+};
 
 const CategoryProductsPage = ({ params }: { params?: { slug?: string } }) => {
   const searchParams = useSearchParams();
   const slug = params?.slug || "";
   type Product = { id: number; name: string; [key: string]: any };
-  type Category = { id: number; name: string; slug: string };
+  type Category = { id: number; name: string; slug: string; banner_image?: string };
   const [products, setProducts] = useState<Product[]>([]);
   const [category, setCategory] = useState<Category | null>(null);
-  const [loading, setLoading] = useState(false);
-  // Removed unused setInitialLoading
+  const [loading, setLoading] = useState(true);
   const [addingToCart, setAddingToCart] = useState<{ [key: string]: boolean }>({});
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
-  const [sortBy, setSortBy] = useState("default");
-  // Removed unused setSearchQuery
-  const [currentPage, setCurrentPage] = useState(1);
+  const { currentPage, sortBy, handlePageChange, handleSortChange } = usePaginationSort();
   const [totalPages, setTotalPages] = useState(1);
   const [perPage] = useState(12);
 
@@ -136,9 +165,39 @@ const CategoryProductsPage = ({ params }: { params?: { slug?: string } }) => {
     }
   };
 
+  // Generate smart pagination numbers (first, last, and around current)
+  const getPageNumbers = () => {
+    const pages: (number | string)[] = [];
+    const showPages = 3; // Pages on each side of current
+    const start = Math.max(1, currentPage - showPages);
+    const end = Math.min(totalPages, currentPage + showPages);
+
+    if (start > 1) {
+      pages.push(1);
+      if (start > 2) pages.push('...');
+    }
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+
+    if (end < totalPages) {
+      if (end < totalPages - 1) pages.push('...');
+      pages.push(totalPages);
+    }
+
+    return pages;
+  };
+
   return (
     <div className="shop-page">
-      <GlobalSortBar sortBy={sortBy} setSortBy={setSortBy} />
+      {/* Category Banner */}
+      {category?.banner_image && <CategoryBanner imageUrl={category.banner_image} />}
+
+      <GlobalSortBar 
+        sortBy={sortBy} 
+        setSortBy={(value) => handleSortChange(value, `/category/${slug}`)}
+      />
       {showToast && <div className="toast-notification">{toastMessage}</div>}
       <div className="shop-container">
         <aside className="shop-sidebar"></aside>
@@ -179,28 +238,35 @@ const CategoryProductsPage = ({ params }: { params?: { slug?: string } }) => {
                   <div className="pagination">
                     <button
                       className="pagination-btn"
-                      onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-                      disabled={currentPage === 1}
+                      onClick={() => handlePageChange(Math.max(1, currentPage - 1), `/category/${slug}`)}
+                      disabled={currentPage === 1 || loading}
                     >
-                      Previous
+                      {loading ? '⏳' : '← Previous'}
                     </button>
                     <div className="pagination-numbers">
-                      {Array.from({ length: totalPages }).map((_, index) => (
-                        <button
-                          key={index + 1}
-                          className={`pagination-number ${currentPage === index + 1 ? "active" : ""}`}
-                          onClick={() => setCurrentPage(index + 1)}
-                        >
-                          {index + 1}
-                        </button>
-                      ))}
+                      {getPageNumbers().map((page, index) =>
+                        typeof page === 'string' ? (
+                          <span key={`dots-${index}`} style={{ padding: '0.5rem 0.25rem', color: '#999' }}>
+                            {page}
+                          </span>
+                        ) : (
+                          <button
+                            key={page}
+                            className={`pagination-number ${currentPage === page ? "active" : ""}`}
+                            onClick={() => handlePageChange(page as number, `/category/${slug}`)}
+                            disabled={loading}
+                          >
+                            {page}
+                          </button>
+                        )
+                      )}
                     </div>
                     <button
                       className="pagination-btn"
-                      onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
-                      disabled={currentPage === totalPages}
+                      onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1), `/category/${slug}`)}
+                      disabled={currentPage === totalPages || loading}
                     >
-                      Next
+                      {loading ? '⏳' : 'Next →'}
                     </button>
                   </div>
                 )}

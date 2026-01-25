@@ -1,0 +1,169 @@
+.container {
+  max-width: 900px;
+}
+
+.heading {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 0.5rem;
+}
+
+.intro {
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 2rem;
+}
+
+.faqList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.faqItem {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.faqItem:hover {
+  border-color: #e91e63;
+  box-shadow: 0 2px 8px rgba(233, 30, 99, 0.1);
+}
+
+.faqQuestion {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.3s ease;
+}
+
+.faqQuestion:hover {
+  background: #f9f9f9;
+}
+
+.faqQuestion.active {
+  background: linear-gradient(135deg, #fff5f8 0%, #ffffff 100%);
+  border-bottom: 1px solid #ffe4ef;
+}
+
+.questionText {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #333;
+  flex: 1;
+  padding-right: 1rem;
+}
+
+.toggleIcon {
+  font-size: 1.5rem;
+  font-weight: 300;
+  color: #e91e63;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border: 2px solid #e91e63;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+
+.faqQuestion.active .toggleIcon {
+  transform: rotate(180deg);
+  background: #e91e63;
+  color: #fff;
+}
+
+.faqAnswer {
+  padding: 0 1.5rem 1.5rem 1.5rem;
+  animation: slideDown 0.3s ease;
+}
+
+.faqAnswer p {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: #555;
+  margin: 0;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.contactPrompt {
+  background: linear-gradient(135deg, #f9f9f9 0%, #ffffff 100%);
+  border: 2px dashed #e0e0e0;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  margin-top: 3rem;
+}
+
+.promptTitle {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.promptText {
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+.contactButtons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.contactButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%);
+  color: #fff;
+  font-weight: 600;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(233, 30, 99, 0.2);
+}
+
+.contactButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(233, 30, 99, 0.3);
+}
+
+@media (max-width: 768px) {
+  .contactButtons {
+    flex-direction: column;
+  }
+  
+  .contactButton {
+    width: 100%;
+    justify-content: center;
+  }
+}
