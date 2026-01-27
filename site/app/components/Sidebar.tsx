@@ -3,20 +3,35 @@ import Link from "next/link";
 import React, { useState, useRef, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useCategories, useBrands } from "../services/useCategoriesBrands";
+import { usePriceRange } from "../services/usePriceRange";
 
 
 
 const Sidebar = () => {
   const pathname = usePathname();
   const router = useRouter();
-  const [price, setPrice] = useState<[number, number]>([0, 15000]);
-  const minPrice = 0;
-  const maxPrice = 15000;
-  const sliderRef = useRef<HTMLDivElement | null>(null);
-
+  
   // Use SWR hooks for categories and brands
   const { categories, isLoading: categoriesLoading } = useCategories();
   const { brands, isLoading: brandsLoading } = useBrands();
+  const { minPrice, maxPrice, isLoading: priceLoading } = usePriceRange();
+  
+  const [price, setPrice] = useState<[number, number]>([minPrice, maxPrice]);
+  const [hasUserInteracted, setHasUserInteracted] = useState(false);
+  const sliderRef = useRef<HTMLDivElement | null>(null);
+
+  // Sync with backend and URL
+  useEffect(() => {
+    if (!hasUserInteracted && !priceLoading && minPrice !== undefined && maxPrice !== undefined) {
+      const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+      const urlMin = params ? Number(params.get('price_min')) : NaN;
+      const urlMax = params ? Number(params.get('price_max')) : NaN;
+      setPrice([
+        !isNaN(urlMin) && urlMin >= minPrice && urlMin < maxPrice ? urlMin : minPrice,
+        !isNaN(urlMax) && urlMax <= maxPrice && urlMax > minPrice ? urlMax : maxPrice,
+      ]);
+    }
+  }, [minPrice, maxPrice, priceLoading, hasUserInteracted]);
   const [showAllBrands, setShowAllBrands] = useState(false);
   const [brandSearch, setBrandSearch] = useState("");
   const [showAllCategories, setShowAllCategories] = useState(false);
@@ -32,24 +47,16 @@ const Sidebar = () => {
 
   // Slider change handler
   const handleSliderChange = (index: 0 | 1, value: number) => {
-    setPrice(prev => {
-      const newPrice: [number, number] = [...prev] as [number, number];
-      newPrice[index] = value;
-      // Ensure min < max
-      if (newPrice[0] >= newPrice[1]) {
-        if (index === 0) newPrice[0] = newPrice[1] - 1;
-        else newPrice[1] = newPrice[0] + 1;
-      }
-      return newPrice;
-    });
-    // Update URL query params for live filtering (after state update)
+    setHasUserInteracted(true);
+    let newMin = price[0];
+    let newMax = price[1];
+    if (index === 0) newMin = Math.max(minPrice, Math.min(value, price[1] - 1));
+    else newMax = Math.min(maxPrice, Math.max(value, price[0] + 1));
+    setPrice([newMin, newMax]);
     setTimeout(() => {
       const url = new URL(window.location.href);
-      // Use the latest value for each thumb
-      const min = index === 0 ? value : price[0];
-      const max = index === 1 ? value : price[1];
-      url.searchParams.set('price_min', min.toString());
-      url.searchParams.set('price_max', max.toString());
+      url.searchParams.set('price_min', newMin.toString());
+      url.searchParams.set('price_max', newMax.toString());
       router.push(url.pathname + url.search);
     }, 0);
   };
@@ -72,34 +79,56 @@ const Sidebar = () => {
         {showPrice && (
           <>
             {/* Real price range slider */}
-            <div style={{display:'flex',alignItems:'center',gap:'0.5rem',margin:'1.2rem 0 0.7rem 0',position:'relative',height:32}}>
-              <div style={{flex:1,position:'relative',height:8,background:'#eee',borderRadius:4}} ref={sliderRef}>
+            <div style={{margin:'1.2rem 0 0.7rem 0',position:'relative',paddingTop:8,paddingBottom:8}}>
+              <div style={{position:'relative',height:6,background:'#eee',borderRadius:3}} ref={sliderRef}>
                 {/* Active range */}
-                <div style={{position:'absolute',left:`${((price[0]-minPrice)/(maxPrice-minPrice))*100}%`,right:`${100-((price[1]-minPrice)/(maxPrice-minPrice))*100}%`,top:0,bottom:0,background:'#e91e63',borderRadius:4}}></div>
-                {/* Min thumb */}
+                <div style={{
+                  position:'absolute',
+                  left:`${((price[0]-minPrice)/(maxPrice-minPrice))*100}%`,
+                  right:`${100-((price[1]-minPrice)/(maxPrice-minPrice))*100}%`,
+                  top:0,
+                  bottom:0,
+                  background:'linear-gradient(90deg, #e91e63, #f06292)',
+                  borderRadius:3,
+                  zIndex:1
+                }}></div>
+                {/* Min thumb - can go up to just before right thumb */}
                 <input
                   type="range"
                   min={minPrice}
-                  max={maxPrice-1}
+                  max={price[1] - 1}
                   value={price[0]}
-                  onChange={e=>handleSliderChange(0, +e.target.value)}
-                  style={{position:'absolute',left:0,top:-8,width:'100%',height:24,background:'none',WebkitAppearance:'none',zIndex:2,pointerEvents:'auto'}}
+                  onChange={e => handleSliderChange(0, +e.target.value)}
+                  style={{position:'absolute',left:0,top:-6,width:'100%',height:18,background:'transparent',WebkitAppearance:'none',zIndex:4,pointerEvents:'auto',cursor:'pointer'}}
                 />
-                {/* Max thumb */}
                 <input
                   type="range"
-                  min={minPrice+1}
+                  min={price[0] + 1}
                   max={maxPrice}
                   value={price[1]}
-                  onChange={e=>handleSliderChange(1, +e.target.value)}
-                  style={{position:'absolute',left:0,top:-8,width:'100%',height:24,background:'none',WebkitAppearance:'none',zIndex:3,pointerEvents:'auto'}}
+                  onChange={e => handleSliderChange(1, +e.target.value)}
+                  style={{position:'absolute',left:0,top:-6,width:'100%',height:18,background:'transparent',WebkitAppearance:'none',zIndex:5,pointerEvents:'auto',cursor:'pointer'}}
                 />
               </div>
             </div>
             <div style={{display:'flex',alignItems:'center',gap:'0.7rem',marginTop:'1.2rem'}}>
-              <input type="number" value={price[0]} min={minPrice} max={price[1]-1} onChange={e=>handleSliderChange(0, +e.target.value)} style={{width:80,padding:'0.5rem',border:'1px solid #eee',borderRadius:6,textAlign:'center',fontWeight:500}} />
+              <input
+                type="number"
+                value={price[0]}
+                min={minPrice}
+                max={price[1] - 1}
+                onChange={e => handleSliderChange(0, +e.target.value)}
+                style={{width:80,padding:'0.5rem',border:'1px solid #eee',borderRadius:6,textAlign:'center',fontWeight:500}}
+              />
               <span style={{color:'#aaa',fontWeight:600,fontSize:'1.1rem'}}>-</span>
-              <input type="number" value={price[1]} min={price[0]+1} max={maxPrice} onChange={e=>handleSliderChange(1, +e.target.value)} style={{width:80,padding:'0.5rem',border:'1px solid #eee',borderRadius:6,textAlign:'center',fontWeight:500}} />
+              <input
+                type="number"
+                value={price[1]}
+                min={price[0] + 1}
+                max={maxPrice}
+                onChange={e => handleSliderChange(1, +e.target.value)}
+                style={{width:80,padding:'0.5rem',border:'1px solid #eee',borderRadius:6,textAlign:'center',fontWeight:500}}
+              />
             </div>
           </>
         )}

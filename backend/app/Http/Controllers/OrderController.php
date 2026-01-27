@@ -209,33 +209,46 @@ class OrderController extends Controller
      */
     public function update(Request $request, Order $order)
     {
-            $validated = $request->validate([
-                'status' => 'nullable|string',
-                'payment_status' => 'nullable|string',
-                'payment_method' => 'nullable|string',
-                'courier_id' => 'nullable|exists:couriers,id',
-                'tracking_number' => 'nullable|string',
-                'admin_note' => 'nullable|string',
-            ]);
+        $validated = $request->validate([
+            'status' => 'nullable|string',
+            'payment_status' => 'nullable|string',
+            'payment_method' => 'nullable|string',
+            'courier_id' => 'nullable|exists:couriers,id',
+            'tracking_number' => 'nullable|string',
+            'admin_note' => 'nullable|string',
+        ]);
 
-            // If send_to_courier is set, assign a courier (first available if not set)
-            if ($request->has('send_to_courier')) {
-                $courier = $order->courier_id ? $order->courier_id : \App\Models\Courier::first()?->id;
-                if ($courier) {
-                    $order->courier_id = $courier;
-                }
-            } elseif ($request->filled('courier_id')) {
-                $order->courier_id = $request->courier_id;
+        // If send_to_courier is set, assign a courier (first available if not set)
+        if ($request->has('send_to_courier')) {
+            $courier = $order->courier_id ? $order->courier_id : \App\Models\Courier::first()?->id;
+            if ($courier) {
+                $order->courier_id = $courier;
             }
+        } elseif ($request->filled('courier_id')) {
+            $order->courier_id = $request->courier_id;
+        }
 
-            if ($request->filled('status')) $order->status = $validated['status'];
-            if ($request->filled('payment_status')) $order->payment_status = $validated['payment_status'];
-            if ($request->filled('payment_method')) $order->payment_method = $validated['payment_method'];
-            if ($request->filled('tracking_number')) $order->tracking_number = $validated['tracking_number'];
-            if ($request->filled('admin_note')) $order->admin_note = $validated['admin_note'];
-            
-            $order->save();
-            return redirect()->route('orders.index')->with('success', 'Order updated successfully.');
+        $oldStatus = $order->status;
+        if ($request->filled('status')) $order->status = $validated['status'];
+        if ($request->filled('payment_status')) $order->payment_status = $validated['payment_status'];
+        if ($request->filled('payment_method')) $order->payment_method = $validated['payment_method'];
+        if ($request->filled('tracking_number')) $order->tracking_number = $validated['tracking_number'];
+        if ($request->filled('admin_note')) $order->admin_note = $validated['admin_note'];
+
+        $order->save();
+
+        // Decrement stock only when status changes to 'complete'
+        if ($oldStatus !== 'complete' && $order->status === 'complete') {
+            foreach ($order->items as $item) {
+                $product = $item->product;
+                if ($product && $product->manage_stock) {
+                    $product->stock_quantity = max(0, ($product->stock_quantity ?? 0) - $item->quantity);
+                    $product->save();
+                }
+            }
+        }
+
+        return redirect()->route('orders.index')->with('success', 'Order updated successfully.');
     }
 
     /**

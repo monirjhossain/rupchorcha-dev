@@ -36,6 +36,7 @@ class OrderController extends Controller
             $validated = $request->validated();
 
             $user = Auth::user();
+            \Log::info('OrderController@store user', ['user' => $user, 'token' => request()->header('Authorization')]);
             
             // Calculate shipping cost server-side to prevent tampering
             $shippingCost = ShippingCalculator::getShippingCost($validated['city'], $validated['area']);
@@ -110,7 +111,17 @@ class OrderController extends Controller
                 ]);
             }
 
+
             $order->load('items');
+
+            // Decrement product stock for each item
+            foreach ($order->items as $item) {
+                $product = Product::find($item->product_id);
+                if ($product && $product->manage_stock) {
+                    $product->stock_quantity = max(0, ($product->stock_quantity ?? 0) - $item->quantity);
+                    $product->save();
+                }
+            }
 
             // Send order confirmation email
             try {
@@ -121,18 +132,12 @@ class OrderController extends Controller
                 // Don't fail the order creation if email fails
             }
 
+            // Return the full order object (with user and items) as in show()
+            $order = Order::with('user', 'items')->find($order->id);
             return response()->json([
                 'success' => true,
                 'message' => 'Order placed successfully.',
-                'order' => [
-                    'id' => $order->id,
-                    'customer_name' => $order->customer_name,
-                    'city' => $order->city,
-                    'area' => $order->area,
-                    'shipping_cost' => $order->shipping_cost,
-                    'status' => $order->status,
-                    'items' => $order->items,
-                ]
+                'order' => $order,
             ], 201);
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error('Order validation error: ', $e->errors());

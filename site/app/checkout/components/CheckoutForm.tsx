@@ -52,7 +52,10 @@ export default function CheckoutForm() {
 
   // Calculate cart subtotal
   const subtotal = useMemo(() => {
-    return items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    return items.reduce((sum, item) => {
+      const price = item.product?.sale_price ?? item.product?.price ?? 0;
+      return sum + (price * item.quantity);
+    }, 0);
   }, [items]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -132,7 +135,7 @@ export default function CheckoutForm() {
         discount_amount: discountAmount || 0,
         payment_method: paymentMethod,
         items: items.map((item: CartItem) => {
-          const itemPrice = item.product?.sale_price || item.product?.price || 0;
+          const itemPrice = item.product?.sale_price ?? item.product?.price ?? 0;
           console.log(`Item ${item.product_id}: quantity=${item.quantity}, price=${itemPrice}`, item.product);
           return {
             product_id: item.product_id,

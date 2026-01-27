@@ -40,8 +40,8 @@ Route::middleware('auth:sanctum')->post('/discounts', [\App\Http\Controllers\API
 Route::middleware('auth:sanctum')->put('/discounts/{id}', [\App\Http\Controllers\API\DiscountController::class, 'update']);
 Route::middleware('auth:sanctum')->delete('/discounts/{id}', [\App\Http\Controllers\API\DiscountController::class, 'destroy']);
 Route::middleware('auth:sanctum')->get('/orders', [\App\Http\Controllers\API\OrderController::class, 'index']);
-Route::middleware('auth:sanctum')->get('/orders/{id}', [\App\Http\Controllers\API\OrderController::class, 'show']);
-Route::post('/orders', [\App\Http\Controllers\API\OrderController::class, 'store']); // Allow guest orders
+Route::get('/orders/{id}', [\App\Http\Controllers\API\OrderController::class, 'show']);
+Route::post('/orders', [\App\Http\Controllers\API\OrderController::class, 'store'])->middleware('auth:sanctum'); // Allow guest orders (with user detection)
 Route::middleware('auth:sanctum')->put('/orders/{id}/status', [\App\Http\Controllers\API\OrderController::class, 'updateStatus']);
 Route::middleware('auth:sanctum')->post('/orders/{id}/cancel', [\App\Http\Controllers\API\OrderController::class, 'cancel']);
 Route::get('/shipping-zones', [\App\Http\Controllers\API\ShippingZoneController::class, 'index']);
@@ -141,6 +141,7 @@ Route::get('/categories/{id}', [\App\Http\Controllers\API\CategoryController::cl
 Route::middleware('auth:sanctum')->post('/categories', [\App\Http\Controllers\API\CategoryController::class, 'store']);
 Route::middleware('auth:sanctum')->put('/categories/{id}', [\App\Http\Controllers\API\CategoryController::class, 'update']);
 Route::middleware('auth:sanctum')->delete('/categories/{id}', [\App\Http\Controllers\API\CategoryController::class, 'destroy']);
+Route::get('/products/price-range', [\App\Http\Controllers\API\ProductController::class, 'priceRange']);
 Route::get('/products', [\App\Http\Controllers\API\ProductController::class, 'index']);
 Route::get('/products/{id}', [\App\Http\Controllers\API\ProductController::class, 'show']);
 Route::post('/products/related-by-cart', [\App\Http\Controllers\API\ProductController::class, 'getRelatedByCart']);

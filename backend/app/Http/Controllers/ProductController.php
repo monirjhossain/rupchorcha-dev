@@ -1,6 +1,5 @@
 <?php
 namespace App\Http\Controllers;
-
 use App\Models\Product;
 use App\Models\Tag;
 use App\Models\Category;
@@ -8,7 +7,6 @@ use App\Models\Brand;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-
 class ProductController extends Controller
 {
     // Display a listing of the products
@@ -96,6 +94,7 @@ class ProductController extends Controller
             'category_ids' => 'required|array',
             'category_ids.*' => 'exists:categories,id',
             'brand_id' => 'required|exists:brands,id',
+            'warehouse_id' => 'nullable|exists:warehouses,id',
             'min_order_qty' => 'nullable|integer',
             'max_order_qty' => 'nullable|integer',
             'sale_start_date' => 'nullable|date',
@@ -164,6 +163,7 @@ class ProductController extends Controller
             'category_ids' => 'required|array',
             'category_ids.*' => 'exists:categories,id',
             'brand_id' => 'required|exists:brands,id',
+            'warehouse_id' => 'nullable|exists:warehouses,id',
             'min_order_qty' => 'nullable|integer',
             'max_order_qty' => 'nullable|integer',
             'sale_start_date' => 'nullable|date',
@@ -267,9 +267,24 @@ class ProductController extends Controller
         $file = request()->file('import_file');
         $handle = fopen($file->getRealPath(), 'r');
         $header = fgetcsv($handle);
+        $rows = [];
+        while (($row = fgetcsv($handle)) !== false) {
+            $rows[] = $row;
+        }
+        fclose($handle);
+
+        $total = count($rows);
+        session(['product_import_progress' => [
+            'total' => $total,
+            'current' => 0,
+            'percent' => 0,
+            'done' => false,
+            'error' => null,
+        ]]);
+
         $imported = 0;
         $fields = ['name','sku','price','sale_price','cost_price','category','brand','stock_quantity','main_image','type'];
-        while (($row = fgetcsv($handle)) !== false) {
+        foreach ($rows as $i => $row) {
             $data = array_combine($header, $row);
             $productData = array_intersect_key($data, array_flip($fields));
             // Convert category and brand names to IDs
@@ -327,9 +342,36 @@ class ProductController extends Controller
                 ], $productData);
                 $imported++;
             }
+            // Update progress in session
+            session(['product_import_progress' => [
+                'total' => $total,
+                'current' => $imported,
+                'percent' => $total > 0 ? round(($imported / $total) * 100) : 0,
+                'done' => $imported === $total,
+                'error' => null,
+            ]]);
         }
-        fclose($handle);
+        session(['product_import_progress.done' => true]);
+
+        // If AJAX, return JSON, else redirect
+        if (request()->wantsJson() || request()->ajax()) {
+            return response()->json(['success' => true, 'imported' => $imported]);
+        }
         return redirect()->route('products.index')->with('success', "$imported products imported successfully.");
+
+    // Progress API for AJAX polling
+    }
+
+    public function bulkImportProgress()
+    {
+        $progress = session('product_import_progress', [
+            'total' => 0,
+            'current' => 0,
+            'percent' => 0,
+            'done' => false,
+            'error' => null,
+        ]);
+        return response()->json($progress);
     }
 
     public function bulkImportSample()

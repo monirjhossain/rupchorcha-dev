@@ -14,54 +14,7 @@
         <a class="nav-link" href="/admin">
             <i class="fas fa-fw fa-tachometer-alt"></i>
             <span>Dashboard</span></a>
-    </li>
-    <!-- Nav Item - Dashboard Report -->
-    <!-- Nav Item - Report -->
-    <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseReport" aria-expanded="false" aria-controls="collapseReport">
-            <i class="fas fa-chart-bar fa-fw"></i>
-            <span>Report</span>
-        </a>
-        <div id="collapseReport" class="collapse" aria-labelledby="headingReport" data-parent="#accordionSidebar">
-            <div class="bg-white py-2 collapse-inner rounded">
-                <a class="collapse-item" href="{{ route('report.brand') }}">Brand Wise Sales</a>
-                <a class="collapse-item" href="{{ route('report.category') }}">Category Wise Sales</a>
-                <a class="collapse-item" href="{{ route('report.total') }}">Total Sales</a>
-                <a class="collapse-item" href="{{ route('report.max_products') }}">Max Selling Products</a>
-            </div>
-        </div>
-    </li>
-    <!-- Nav Item - Advanced Reports -->
-    <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseAdvancedReports" aria-expanded="false" aria-controls="collapseAdvancedReports">
-            <i class="fas fa-chart-pie fa-fw"></i>
-            <span>Advanced Reports</span>
-        </a>
-        <div id="collapseAdvancedReports" class="collapse" aria-labelledby="headingAdvancedReports" data-parent="#accordionSidebar">
-            <div class="bg-white py-2 collapse-inner rounded">
-                <a class="collapse-item" href="{{ route('reports.index') }}">Reports & Analytics</a>
-                <a class="collapse-item" href="{{ route('reports.sales') }}">Sales Analytics</a>
-                <a class="collapse-item" href="{{ route('reports.revenue') }}">Revenue Analytics</a>
-                <a class="collapse-item" href="{{ route('reports.top_products') }}">Top Products</a>
-                <a class="collapse-item" href="{{ route('reports.customers') }}">Customer Analytics</a>
-            </div>
-        </div>
-    </li>
-    <!-- Divider -->
-    <hr class="sidebar-divider">
-    <!-- Reviews Nav Item -->
-    <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseReviews" aria-expanded="false" aria-controls="collapseReviews">
-            <i class="fas fa-star fa-fw"></i>
-            <span>Reviews</span>
-        </a>
-        <div id="collapseReviews" class="collapse" aria-labelledby="headingReviews" data-parent="#accordionSidebar">
-            <div class="bg-white py-2 collapse-inner rounded">
-                <a class="collapse-item" href="{{ route('reviews.index') }}">Products Reviews</a>
-                
-            </div>
-        </div>
-    </li>
+    </li> 
     <!-- Users Nav Item -->
     <li class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUsers" aria-expanded="false" aria-controls="collapseUsers">
@@ -76,16 +29,15 @@
             </div>
         </div>
     </li>
-    <!-- Inventory Section -->
+    <!-- Products Section (Parent Option) -->
     <hr class="sidebar-divider">
-    <div class="sidebar-heading">Inventory</div>
-    <!-- Inventory Collapse Menu -->
+    <div class="sidebar-heading">Products</div>
     <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseInventory" aria-expanded="true" aria-controls="collapseInventory">
-            <i class="fas fa-warehouse fa-fw"></i>
-            <span>Inventory</span>
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseProducts" aria-expanded="false" aria-controls="collapseProducts">
+            <i class="fas fa-box fa-fw"></i>
+            <span>Products</span>
         </a>
-        <div id="collapseInventory" class="collapse" aria-labelledby="headingInventory" data-parent="#accordionSidebar">
+        <div id="collapseProducts" class="collapse" aria-labelledby="headingProducts" data-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <a class="collapse-item" href="/admin/inventory">Inventory Dashboard</a>
                 <a class="collapse-item" href="/admin/products">All Products</a>
@@ -98,6 +50,30 @@
                 <div class="dropdown-divider"></div>
                 <a class="collapse-item" href="{{ route('suppliers.index') }}">Suppliers</a>
                 <a class="collapse-item" href="{{ route('warehouses.index') }}">Warehouses</a>
+            </div>
+        </div>
+    </li>
+    <!-- Inventory Section -->
+    <hr class="sidebar-divider">
+    <div class="sidebar-heading">Stock Management</div>
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseStockManagement" aria-expanded="false" aria-controls="collapseStockManagement">
+            <i class="fas fa-boxes fa-fw"></i>
+            <span>Stock Management</span>
+        </a>
+        <div id="collapseStockManagement" class="collapse" aria-labelledby="headingStockManagement" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <a class="collapse-item" href="{{ route('inventory.stock_report') }}">Stock Report</a>
+                <a class="collapse-item" href="{{ route('inventory.stock_movement_history') }}">Stock Movement History</a>
+                <a class="collapse-item" href="{{ route('inventory.low_stock_alerts') }}">Low Stock Alerts</a>
+                <a class="collapse-item" href="{{ route('inventory.bulk_stock_update') }}">Bulk Stock Update</a>
+                <a class="collapse-item" href="{{ route('inventory.stock_adjustment') }}">Stock Adjustment</a>
+                <a class="collapse-item" href="{{ route('inventory.valuation') }}">Inventory Valuation</a>
+                <a class="collapse-item" href="{{ route('warehouses.index') }}">Warehouse Management</a>
+                <a class="collapse-item" href="{{ route('inventory.stock_report.export') }}">Export to Excel (XLSX)</a>
+                <a class="collapse-item" href="{{ route('inventory.stock_report.pdf') }}" target="_blank">Download as PDF</a>
+                                <a class="collapse-item" href="{{ route('inventory.stock_aging_report.export') }}">Export Stock Aging (XLSX)</a>
+                                <a class="collapse-item" href="{{ route('inventory.stock_aging_report.print') }}" target="_blank">Printable Stock Aging</a>
             </div>
         </div>
     </li>
@@ -136,6 +112,7 @@
                 <a class="collapse-item" href="{{ route('orders.bulkAssignCourierForm') }}">Bulk Courier Assign</a>
                 <a class="collapse-item" href="{{ route('refunds.index') }}">Refund Policy</a>
                 <a class="collapse-item" href="{{ route('addresses.index') }}">Customer Addresses</a>
+                            <a class="collapse-item" href="{{ route('admin.abandoned_checkouts.index') }}">Abandoned Checkouts</a>
             </div>
         </div>
     </li>
@@ -190,6 +167,53 @@
                 <a class="collapse-item" href="{{ route('payments.summary') }}">Payment Summary</a>
                 <a class="collapse-item" href="{{ route('payment-gateways.index') }}">Payment Gateways</a>
                 <a class="collapse-item" href="{{ route('transactions.index') }}">Transactions</a>
+            </div>
+        </div>
+    </li>
+    <!-- Nav Item - Dashboard Report -->
+    <!-- Nav Item - Report -->
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseReport" aria-expanded="false" aria-controls="collapseReport">
+            <i class="fas fa-chart-bar fa-fw"></i>
+            <span>Report</span>
+        </a>
+        <div id="collapseReport" class="collapse" aria-labelledby="headingReport" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <a class="collapse-item" href="{{ route('report.brand') }}">Brand Wise Sales</a>
+                <a class="collapse-item" href="{{ route('report.category') }}">Category Wise Sales</a>
+                <a class="collapse-item" href="{{ route('report.total') }}">Total Sales</a>
+                <a class="collapse-item" href="{{ route('report.max_products') }}">Max Selling Products</a>
+            </div>
+        </div>
+    </li>
+    <!-- Nav Item - Advanced Reports -->
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseAdvancedReports" aria-expanded="false" aria-controls="collapseAdvancedReports">
+            <i class="fas fa-chart-pie fa-fw"></i>
+            <span>Advanced Reports</span>
+        </a>
+        <div id="collapseAdvancedReports" class="collapse" aria-labelledby="headingAdvancedReports" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <a class="collapse-item" href="{{ route('reports.index') }}">Reports & Analytics</a>
+                <a class="collapse-item" href="{{ route('reports.sales') }}">Sales Analytics</a>
+                <a class="collapse-item" href="{{ route('reports.revenue') }}">Revenue Analytics</a>
+                <a class="collapse-item" href="{{ route('reports.top_products') }}">Top Products</a>
+                <a class="collapse-item" href="{{ route('reports.customers') }}">Customer Analytics</a>
+            </div>
+        </div>
+    </li>
+    <!-- Divider -->
+    <hr class="sidebar-divider">
+    <!-- Reviews Nav Item -->
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseReviews" aria-expanded="false" aria-controls="collapseReviews">
+            <i class="fas fa-star fa-fw"></i>
+            <span>Reviews</span>
+        </a>
+        <div id="collapseReviews" class="collapse" aria-labelledby="headingReviews" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <a class="collapse-item" href="{{ route('reviews.index') }}">Products Reviews</a>
+                
             </div>
         </div>
     </li>

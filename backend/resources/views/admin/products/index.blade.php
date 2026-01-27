@@ -29,6 +29,8 @@
                                 <div class="form-check"><input class="form-check-input" type="checkbox" name="fields[]" value="name" id="field_name" checked><label class="form-check-label" for="field_name">Name</label></div>
                                 <div class="form-check"><input class="form-check-input" type="checkbox" name="fields[]" value="price" id="field_price"><label class="form-check-label" for="field_price">Price</label></div>
                                 <div class="form-check"><input class="form-check-input" type="checkbox" name="fields[]" value="sale_price" id="field_sale_price"><label class="form-check-label" for="field_sale_price">Sale Price</label></div>
+                                <div class="form-check"><input class="form-check-input" type="checkbox" name="fields[]" value="sale_price" id="field_sale_price"><label class="form-check-label" for="field_sale_price">Sale Price</label></div>
+                                <div class="form-check"><input class="form-check-input" type="checkbox" name="fields[]" value="cost_price" id="field_cost_price"><label class="form-check-label" for="field_cost_price">Cost Price</label></div>
                                 <div class="form-check"><input class="form-check-input" type="checkbox" name="fields[]" value="stock_quantity" id="field_stock_quantity"><label class="form-check-label" for="field_stock_quantity">Stock</label></div>
                                 <div class="form-check"><input class="form-check-input" type="checkbox" name="fields[]" value="sku" id="field_sku"><label class="form-check-label" for="field_sku">SKU</label></div>
                             </div>
@@ -36,6 +38,7 @@
                                 <div class="form-check"><input class="form-check-input" type="checkbox" name="fields[]" value="status" id="field_status"><label class="form-check-label" for="field_status">Status</label></div>
                                 <div class="form-check"><input class="form-check-input" type="checkbox" name="fields[]" value="category" id="field_category"><label class="form-check-label" for="field_category">Category</label></div>
                                 <div class="form-check"><input class="form-check-input" type="checkbox" name="fields[]" value="brand" id="field_brand"><label class="form-check-label" for="field_brand">Brand</label></div>
+                                <div class="form-check"><input class="form-check-input" type="checkbox" name="fields[]" value="cost_price" id="field_cost_price"><label class="form-check-label" for="field_cost_price">Cost Price</label></div>
                                 <div class="form-check"><input class="form-check-input" type="checkbox" name="fields[]" value="main_image" id="field_main_image"><label class="form-check-label" for="field_main_image">Image</label></div>
                                 <div class="form-check"><input class="form-check-input" type="checkbox" name="fields[]" value="created_at" id="field_created_at"><label class="form-check-label" for="field_created_at">Created At</label></div>
                                 <div class="form-check"><input class="form-check-input" type="checkbox" name="fields[]" value="updated_at" id="field_updated_at"><label class="form-check-label" for="field_updated_at">Updated At</label></div>

@@ -5,63 +5,92 @@
     <div class="row">
         <div class="col-lg-8">
             <div class="card mb-4">
-                <div class="card-header bg-primary text-white">
-                    <i class="fas fa-box mr-2"></i> Order Information
+                <div class="card-header bg-gradient-primary text-white d-flex align-items-center justify-content-between">
+                    <span><i class="fas fa-box-open mr-2"></i> <strong>Order Information</strong></span>
+                    <span class="badge badge-dark">#{{ $order->id }}</span>
                 </div>
-                <div class="card-body">
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <p><strong>Status:</strong> <span class="badge 
-                                @if($order->status === 'pending') badge-warning
-                                @elseif($order->status === 'processing') badge-info
-                                @elseif($order->status === 'shipped') badge-primary
-                                @elseif($order->status === 'delivered') badge-success
-                                @elseif($order->status === 'cancelled') badge-danger
-                                @endif
-                            ">{{ ucfirst($order->status) }}</span></p>
-                            <p><strong>User:</strong> {{ $order->user ? $order->user->name : 'Guest' }}</p>
-                            <p><strong>Email:</strong> {{ $order->customer_email }}</p>
-                            <p><strong>Phone:</strong> {{ $order->customer_phone }}</p>
+                <div class="card-body p-4 bg-light">
+                    <div class="row align-items-center mb-3">
+                        <div class="col-md-6 mb-3 mb-md-0">
+                            <div class="mb-2">
+                                <i class="fas fa-user mr-1 text-primary"></i> <strong>User:</strong> {{ $order->user ? $order->user->name : 'Guest' }}
+                            </div>
+                            <div class="mb-2">
+                                <i class="fas fa-envelope mr-1 text-primary"></i> <strong>Email:</strong> {{ $order->customer_email }}
+                            </div>
+                            <div class="mb-2">
+                                <i class="fas fa-phone mr-1 text-primary"></i> <strong>Phone:</strong> {{ $order->customer_phone }}
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <p><strong>Total:</strong> <span class="h5">{{ number_format($order->total, 2) }}</span></p>
-                            <p><strong>Payment Status:</strong> <span class="badge 
-                                @if($order->payment_status === 'unpaid') badge-danger
-                                @elseif($order->payment_status === 'paid') badge-success
-                                @else badge-warning
-                                @endif
-                            ">{{ ucfirst($order->payment_status) }}</span></p>
-                            <p><strong>Payment Method:</strong> {{ $order->payment_method ?? 'N/A' }}</p>
+                            <div class="mb-2">
+                                <i class="fas fa-money-bill-wave mr-1 text-success"></i> <strong>Total:</strong> <span class="h5">{{ number_format($order->total, 2) }}</span>
+                            </div>
+                            <div class="mb-2">
+                                <i class="fas fa-credit-card mr-1 text-info"></i> <strong>Payment Status:</strong> <span class="badge 
+                                    @if($order->payment_status === 'unpaid') badge-danger
+                                    @elseif($order->payment_status === 'paid') badge-success
+                                    @else badge-warning
+                                    @endif
+                                ">{{ ucfirst($order->payment_status) }}</span>
+                            </div>
+                            <div class="mb-2">
+                                <i class="fas fa-wallet mr-1 text-secondary"></i> <strong>Payment Method:</strong> {{ $order->payment_method ?? 'N/A' }}
+                            </div>
                         </div>
                     </div>
-                    
                     @if($order->tracking_number)
                     <hr>
-                    <div class="row">
+                    <div class="row align-items-center">
                         <div class="col-md-6">
-                            <p><strong>Tracking Number:</strong> {{ $order->tracking_number }}</p>
+                            <i class="fas fa-barcode mr-1 text-dark"></i> <strong>Tracking Number:</strong> {{ $order->tracking_number }}
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-6 text-md-right">
                             @if($order->courier && $order->courier->tracking_url)
-                            <a href="{{ str_replace('{tracking_number}', $order->tracking_number, $order->courier->tracking_url) }}" target="_blank" class="btn btn-sm btn-info">
+                            <a href="{{ str_replace('{tracking_number}', $order->tracking_number, $order->courier->tracking_url) }}" target="_blank" class="btn btn-info btn-sm shadow-sm">
                                 <i class="fas fa-truck mr-1"></i> Track Shipment
                             </a>
                             @endif
                         </div>
                     </div>
                     @endif
-                    
                     @if($order->courier)
                     <hr>
-                    <div>
-                        <h6>Courier Information</h6>
-                        <p>
-                            <strong>Courier:</strong> {{ $order->courier->name }}<br>
-                            <strong>Contact:</strong> {{ $order->courier->contact_number }} | {{ $order->courier->email }}
-                        </p>
+                    <div class="bg-white rounded p-3 border">
+                        <h6 class="mb-2 text-primary"><i class="fas fa-shipping-fast mr-1"></i> Courier Information</h6>
+                        <div class="mb-1"><strong>Courier:</strong> {{ $order->courier->name }}</div>
+                        <div><strong>Contact:</strong> {{ $order->courier->contact_number }} | {{ $order->courier->email }}</div>
                     </div>
                     @endif
                 </div>
+                        <!-- Status Update Card -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-warning text-dark d-flex align-items-center">
+                                <i class="fas fa-sync-alt mr-2"></i> <strong>Update Order Status</strong>
+                            </div>
+                            <div class="card-body bg-light">
+                                <form method="POST" action="{{ route('orders.update', $order->id) }}" class="mb-0">
+                                    @csrf
+                                    @method('PUT')
+                                    <div class="form-group mb-2">
+                                        <label for="status" class="font-weight-bold">Status:</label>
+                                        <div class="input-group">
+                                            <select name="status" id="status" class="form-control">
+                                                <option value="pending" @if($order->status === 'pending') selected @endif>Pending</option>
+                                                <option value="processing" @if($order->status === 'processing') selected @endif>Processing</option>
+                                                <option value="shipped" @if($order->status === 'shipped') selected @endif>Shipped</option>
+                                                <option value="delivered" @if($order->status === 'delivered') selected @endif>Delivered</option>
+                                                <option value="complete" @if($order->status === 'complete') selected @endif>Complete</option>
+                                                <option value="cancelled" @if($order->status === 'cancelled') selected @endif>Cancelled</option>
+                                            </select>
+                                            <div class="input-group-append">
+                                                <button type="submit" class="btn btn-warning btn-sm">Update</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
             </div>
             
             <div class="card mb-4">

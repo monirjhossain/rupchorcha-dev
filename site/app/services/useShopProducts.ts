@@ -19,10 +19,17 @@ const fetcher = (url: string) =>
     });
 
 export function useShopProducts(page = 1, perPage = 20, sortBy = "default") {
+  // Read URL search params for price filtering
+  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+  const priceMin = searchParams?.get('price_min');
+  const priceMax = searchParams?.get('price_max');
+  
   const query = new URLSearchParams();
   query.set("page", page.toString());
   query.set("per_page", perPage.toString());
   if (sortBy && sortBy !== "default") query.set("sort", sortBy);
+  if (priceMin) query.set("price_min", priceMin);
+  if (priceMax) query.set("price_max", priceMax);
 
   const key = `${API_BASE}/products?${query.toString()}`;
   const { data, error, isLoading } = useSWR(key, fetcher, {

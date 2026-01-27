@@ -40,6 +40,7 @@ class CartController extends Controller
                 'quantity' => $request->quantity,
             ]);
         }
+        $this->saveAbandonedCheckout($request, $cart);
         return $this->index($request);
     }
 
@@ -56,6 +57,7 @@ class CartController extends Controller
             $item->quantity = $request->quantity;
             $item->save();
         }
+        $this->saveAbandonedCheckout($request, $cart);
         return $this->index($request);
     }
 
@@ -69,7 +71,71 @@ class CartController extends Controller
         if ($cart) {
             $cart->items()->where('product_id', $request->product_id)->delete();
         }
+        $this->saveAbandonedCheckout($request, $cart);
         return $this->index($request);
+    }
+
+    // Save or update abandoned checkout record
+    private function saveAbandonedCheckout(Request $request, $cart)
+    {
+        if (!$cart) return;
+        $cartItems = $cart->items()->with('product')->get();
+        if ($cartItems->isEmpty()) {
+            // Optionally: delete abandoned record if cart is empty
+            if ($cart->user_id) {
+                \App\Models\AbandonedCheckout::where('user_id', $cart->user_id)
+                    ->where('status', 'abandoned')
+                    ->delete();
+            } else if ($cart->session_id) {
+                \App\Models\AbandonedCheckout::where('cart_data->cart_id', $cart->id)
+                    ->where('status', 'abandoned')
+                    ->delete();
+            }
+            return;
+        }
+        $userId = $cart->user_id;
+        $email = $userId ? optional($cart->user)->email : $request->input('email');
+        $cartData = [
+            'cart_id' => $cart->id,
+            'session_id' => $cart->session_id ?? null,
+            'items' => $cartItems->map(function($item) {
+                return [
+                    'product_id' => $item->product_id,
+                    'product_name' => $item->product->name ?? '',
+                    'quantity' => $item->quantity,
+                ];
+            }),
+        ];
+        $now = now();
+        if ($userId) {
+            // Save for logged-in user
+            $abandoned = \App\Models\AbandonedCheckout::updateOrCreate(
+                [
+                    'user_id' => $userId,
+                    'status' => 'abandoned',
+                ],
+                [
+                    'email' => $email,
+                    'cart_data' => $cartData,
+                    'started_at' => $cart->created_at ?? $now,
+                    'last_activity_at' => $now,
+                ]
+            );
+        } else if ($email) {
+            // Save for guest with email
+            $abandoned = \App\Models\AbandonedCheckout::updateOrCreate(
+                [
+                    'email' => $email,
+                    'cart_data->cart_id' => $cart->id,
+                    'status' => 'abandoned',
+                ],
+                [
+                    'cart_data' => $cartData,
+                    'started_at' => $cart->created_at ?? $now,
+                    'last_activity_at' => $now,
+                ]
+            );
+        }
     }
 
     // Helper: get or create cart for user/session

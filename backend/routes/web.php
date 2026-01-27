@@ -26,7 +26,6 @@ use App\Http\Controllers\CourierController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DiscountConditionController;
 use App\Http\Controllers\DiscountController;
-use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\PurchaseOrderController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserActivityLogController;
@@ -34,8 +33,17 @@ use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\ShippingMethodController;
 use App\Http\Controllers\ShippingZoneController;
 use App\Http\Controllers\StockMovementController;
+use App\Http\Controllers\Admin\InventoryController as AdminInventoryController;
 
 
+// Abandoned Checkouts Admin
+Route::middleware(['auth', 'role:admin,super_admin'])->group(function () {
+    Route::get('/admin/abandoned-checkouts', [\App\Http\Controllers\Admin\AbandonedCheckoutController::class, 'index'])->name('admin.abandoned_checkouts.index');
+});
+
+// Stock Aging Report Export/Print
+Route::get('/admin/inventory/stock-aging-report/export', [AdminInventoryController::class, 'exportStockAgingReport'])->name('inventory.stock_aging_report.export');
+Route::get('/admin/inventory/stock-aging-report/print', [AdminInventoryController::class, 'printStockAgingReport'])->name('inventory.stock_aging_report.print');
 // Password reset routes
 Route::get('password/reset', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
 Route::post('password/email', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
@@ -45,7 +53,12 @@ Route::post('/admin/products/export', [ProductController::class, 'export'])->nam
 
 // Inventory management UI
 Route::middleware(['auth', 'role:admin,super_admin'])->group(function () {
-    Route::get('/admin/inventory', [InventoryController::class, 'index'])->name('inventory.index');
+    Route::get('/admin/inventory', [AdminInventoryController::class, 'index'])->name('inventory.index');
+
+    // Stock Aging Report
+    Route::get('/admin/inventory/stock-aging-report', [AdminInventoryController::class, 'stockAgingReport'])->name('inventory.stock_aging_report');
+    Route::get('/admin/inventory/stock-aging-report/export', [AdminInventoryController::class, 'exportStockAgingReport'])->name('inventory.stock_aging_report.export');
+    Route::get('/admin/inventory/stock-aging-report/print', [AdminInventoryController::class, 'printStockAgingReport'])->name('inventory.stock_aging_report.print');
 });
 
 // Customer Address Book (admin)
@@ -144,17 +157,21 @@ Route::get('/dashboard-report/export', [DashboardReportController::class, 'expor
 
 // Product module routes
 Route::middleware(['auth', 'role:admin,super_admin'])->group(function () {
+    // Product import related routes (keep above resource route)
     Route::get('/admin/products/bulk-import', [ProductController::class, 'showBulkImportForm'])->name('products.bulkImportForm');
     Route::post('/admin/products/bulk-import', [ProductController::class, 'bulkImport'])->name('products.bulkImport');
     Route::get('/admin/products/bulk-import-sample', [ProductController::class, 'bulkImportSample'])->name('products.bulkImportSample');
+    Route::get('/admin/products/bulk-import/progress', [ProductController::class, 'bulkImportProgress'])->name('products.bulkImportProgress');
+
     // Stock movement routes
     Route::get('/admin/products/{product}/stock-movement', [StockMovementController::class, 'create'])->name('products.stock_movement.create');
     Route::post('/admin/products/{product}/stock-movement', [StockMovementController::class, 'store'])->name('products.stock_movement.store');
 
+    // Orders, invoices, packing slips, etc.
     Route::resource('/admin/orders', OrderController::class);
-        Route::get('/admin/orders/bulk-assign-courier', [OrderController::class, 'bulkAssignCourierForm'])->name('orders.bulkAssignCourierForm');
-        Route::post('/admin/orders/bulk-assign-courier', [OrderController::class, 'bulkAssignCourier'])->name('orders.bulkAssignCourier');
-    
+    Route::get('/admin/orders/bulk-assign-courier', [OrderController::class, 'bulkAssignCourierForm'])->name('orders.bulkAssignCourierForm');
+    Route::post('/admin/orders/bulk-assign-courier', [OrderController::class, 'bulkAssignCourier'])->name('orders.bulkAssignCourier');
+
     // Invoice routes
     Route::get('/admin/invoices', [InvoiceController::class, 'index'])->name('invoices.index');
     Route::get('/admin/invoices/{invoice}', [InvoiceController::class, 'show'])->name('invoices.show');
@@ -164,31 +181,34 @@ Route::middleware(['auth', 'role:admin,super_admin'])->group(function () {
     Route::post('/admin/invoices/{invoice}/mark-as-unpaid', [InvoiceController::class, 'markAsUnpaid'])->name('invoices.mark-as-unpaid');
     Route::post('/admin/orders/{order}/create-invoice', [InvoiceController::class, 'createFromOrder'])->name('orders.create-invoice');
     Route::delete('/admin/invoices/{invoice}', [InvoiceController::class, 'destroy'])->name('invoices.destroy');
-    
+
     // Packing Slip routes
     Route::get('/admin/orders/{order}/packing-slip', [PackingSlipController::class, 'preview'])->name('packing-slips.preview');
     Route::get('/admin/orders/{order}/packing-slip/download', [PackingSlipController::class, 'download'])->name('packing-slips.download');
     Route::post('/admin/orders/{order}/packing-slip/generate', [PackingSlipController::class, 'generate'])->name('packing-slips.generate');
     Route::get('/admin/packing-slips/{packingSlip}', [PackingSlipController::class, 'show'])->name('packing-slips.show');
-    
+
+    // Product resource route (keep after import routes)
+    Route::resource('/admin/products', ProductController::class);
+});
     Route::resource('/admin/products', ProductController::class);
     Route::resource('/admin/categories', CategoryController::class);
     Route::resource('/admin/brands', BrandController::class);
     Route::resource('/admin/attributes', AttributeController::class);
-});
+
 Route::resource('/admin/attribute-values', AttributeValueController::class);
 Route::resource('/admin/coupons', CouponController::class)->names('coupons');
 Route::resource('discounts', DiscountController::class);
 
 
 Route::resource('/admin/tags', TagController::class);
-Route::resource('/admin/product-images', ProductImageController::class)->only(['index','create','store','destroy']);
+// Route::resource('/admin/product-images', ProductImageController::class)->only(['index','create','store','destroy']);
 Route::resource('/admin/product-downloads', ProductDownloadController::class)->only(['index','create','store','destroy']);
 
 // Supplier, Warehouse, and Purchase Order admin routes
 Route::middleware(['auth', 'role:admin,super_admin'])->group(function () {
     Route::resource('/admin/suppliers', SupplierController::class)->names('suppliers');
-    Route::resource('/admin/warehouses', WarehouseController::class)->names('warehouses');
+    Route::resource('/admin/warehouses', \App\Http\Controllers\Admin\WarehouseController::class)->names('warehouses');
     Route::get('/admin/purchase-orders/{purchase_order}/pdf', [PurchaseOrderController::class, 'pdf'])->name('purchase_orders.pdf');
     Route::resource('/admin/purchase-orders',PurchaseOrderController::class)->names('purchase_orders');
 }); 
@@ -249,4 +269,32 @@ Route::get('/', function () {
 });
 
 Route::get('/admin', [DashboardController::class, 'index'])->name('admin.dashboard');
+// Stock Management page (admin)
+Route::middleware(['auth', 'role:admin,super_admin'])->group(function () {
+    Route::get('/admin/inventory/stock-report', [AdminInventoryController::class, 'stockReport'])->name('inventory.stock_report');
+});
+// Stock Management CSV export
+Route::middleware(['auth', 'role:admin,super_admin'])->group(function () {
+    Route::get('/admin/inventory/stock-report/export', [AdminInventoryController::class, 'exportStockReport'])->name('inventory.stock_report.export');
+    Route::get('/admin/inventory/stock-report/print', [AdminInventoryController::class, 'printStockReport'])->name('inventory.stock_report.print');
+    Route::get('/admin/inventory/stock-report/pdf', [AdminInventoryController::class, 'downloadStockReportPdf'])->name('inventory.stock_report.pdf');
+});
+// Stock Movement History page
+Route::middleware(['auth', 'role:admin,super_admin'])->group(function () {
+    Route::get('/admin/inventory/stock-movement-history', [AdminInventoryController::class, 'stockMovementHistory'])->name('inventory.stock_movement_history');
+    // Bulk Stock Update
+    Route::get('/admin/inventory/bulk-stock-update', [\App\Http\Controllers\Admin\BulkStockUpdateController::class, 'showForm'])->name('inventory.bulk_stock_update');
+    Route::post('/admin/inventory/bulk-stock-update', [\App\Http\Controllers\Admin\BulkStockUpdateController::class, 'update'])->name('inventory.bulk_stock_update.submit');
+    // Inventory Valuation
+    Route::get('/admin/inventory/valuation', [\App\Http\Controllers\Admin\InventoryValuationController::class, 'index'])->name('inventory.valuation');
+    // Stock Adjustment
+    Route::get('/admin/inventory/stock-adjustment', [\App\Http\Controllers\Admin\StockAdjustmentController::class, 'index'])->name('inventory.stock_adjustment');
+    Route::post('/admin/inventory/stock-adjustment', [\App\Http\Controllers\Admin\StockAdjustmentController::class, 'adjust'])->name('inventory.stock_adjustment.submit');
+    Route::post('/admin/inventory/stock-adjustment/undo/{product}', [\App\Http\Controllers\Admin\StockAdjustmentController::class, 'undo'])->name('inventory.stock_adjustment.undo');
+});
+
+// Low Stock Alerts page
+Route::middleware(['auth', 'role:admin,super_admin'])->group(function () {
+    Route::get('/admin/inventory/low-stock-alerts', [AdminInventoryController::class, 'lowStockAlerts'])->name('inventory.low_stock_alerts');
+});
 

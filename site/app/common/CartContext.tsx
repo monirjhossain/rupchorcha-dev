@@ -96,7 +96,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   // Add item to cart
   const addToCart = async (item: CartItem) => {
     console.log('[CartContext] Adding to cart:', item);
-    
     // Optimistic update - update UI immediately
     setItems(prev => {
       const found = prev.find(i => i.product_id === item.product_id);
@@ -107,26 +106,17 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       }
       return [...prev, item];
     });
-    
-    if (isLoggedIn()) {
-      try {
-        console.log('[CartContext] User is logged in, posting to API...');
-        await axios.post(`${API_BASE}/cart/add`, { product_id: item.product_id, quantity: item.quantity }, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-        });
-        console.log('[CartContext] API call successful');
-      } catch (error) {
-        console.error('[CartContext] Failed to add to cart:', error);
-        // Revert optimistic update on error
-        await fetchCart();
-        throw error;
-      }
-    } else if (FEATURE_CONFIG.ALLOW_GUEST_CART) {
-      console.log('[CartContext] Guest cart enabled, item already added to localStorage...');
-    } else {
-      console.warn('[CartContext] Cannot add to cart - user not logged in and guest cart disabled');
-      // Revert on error
-      setItems(prev => prev.filter(i => i.product_id !== item.product_id));
+    try {
+      const headers = isLoggedIn()
+        ? { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        : {};
+      await axios.post(`${API_BASE}/cart/add`, { product_id: item.product_id, quantity: item.quantity }, { headers });
+      console.log('[CartContext] Cart API call successful');
+    } catch (error) {
+      console.error('[CartContext] Failed to add to cart:', error);
+      // Revert optimistic update on error
+      await fetchCart();
+      throw error;
     }
   };
 
@@ -136,30 +126,28 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     setItems(prev =>
       prev.map(i => (i.product_id === product_id ? { ...i, quantity } : i))
     );
-    
-    if (isLoggedIn()) {
-      axios.post(`${API_BASE}/cart/update`, { product_id, quantity }, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-      }).catch(() => {
+    const headers = isLoggedIn()
+      ? { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      : {};
+    axios.post(`${API_BASE}/cart/update`, { product_id, quantity }, { headers })
+      .catch(() => {
         // Revert on error by fetching fresh cart
         fetchCart();
       });
-    }
   };
 
   // Remove item
   const removeFromCart = (product_id: number) => {
     // Optimistic update
     setItems(prev => prev.filter(i => i.product_id !== product_id));
-    
-    if (isLoggedIn()) {
-      axios.post(`${API_BASE}/cart/remove`, { product_id }, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-      }).catch(() => {
+    const headers = isLoggedIn()
+      ? { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      : {};
+    axios.post(`${API_BASE}/cart/remove`, { product_id }, { headers })
+      .catch(() => {
         // Revert on error by fetching fresh cart
         fetchCart();
       });
-    }
   };
 
   // Clear cart

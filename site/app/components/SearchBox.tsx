@@ -189,7 +189,7 @@ const SearchBox = () => {
 				)}
 			</form>
 			{isDropdownOpen && (
-				<div className={styles.searchDropdown} style={{maxHeight: '350px', overflowY: 'auto'}}>
+				   <div className={styles.searchDropdown} style={{maxHeight: '650px', overflowY: 'auto'}}>
 					<div className={styles.searchSectionHeader} style={{padding: '12px 16px', fontWeight: 'bold', fontSize: '13px', color: '#666', borderBottom: '1px solid #eee'}}>PRODUCTS</div>
 					{loading ? (
 						<div className={styles.searchLoading}>

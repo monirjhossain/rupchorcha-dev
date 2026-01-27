@@ -56,15 +56,16 @@ class ProductController extends Controller
     {
         $query = Product::with(['brand', 'images', 'categories']);
 
-        // Filter by name (search)
-        if ($request->has('name') && !empty(trim($request->name))) {
-            $name = trim($request->name);
-            $name = mb_strtolower($name, 'UTF8');
-            $query->where(function($q) use ($name) {
-                $q->whereRaw('LOWER(name) LIKE ?', ['%' . $name . '%'])
-                  ->orWhereRaw('LOWER(short_description) LIKE ?', ['%' . $name . '%'])
-                  ->orWhereRaw('LOWER(description) LIKE ?', ['%' . $name . '%'])
-                  ->orWhereRaw('LOWER(sku) LIKE ?', ['%' . $name . '%']);
+        // Filter by name or SKU (search)
+        $search = $request->input('search') ?? $request->input('name');
+        if (!empty($search)) {
+            $search = trim($search);
+            $search = mb_strtolower($search, 'UTF8');
+            $query->where(function($q) use ($search) {
+                $q->whereRaw('LOWER(name) LIKE ?', ['%' . $search . '%'])
+                  ->orWhereRaw('LOWER(short_description) LIKE ?', ['%' . $search . '%'])
+                  ->orWhereRaw('LOWER(description) LIKE ?', ['%' . $search . '%'])
+                  ->orWhereRaw('LOWER(sku) LIKE ?', ['%' . $search . '%']);
             });
         }
 
@@ -347,6 +348,19 @@ class ProductController extends Controller
             'success' => true,
             'data' => $products,
             'type' => 'frequently_bought_together'
+        ]);
+    }
+
+    // Get price range (min and max prices from all products)
+    public function priceRange()
+    {
+        $minPrice = Product::min('price') ?? 0;
+        $maxPrice = Product::max('price') ?? 15000;
+
+        return response()->json([
+            'success' => true,
+            'min_price' => (float) $minPrice,
+            'max_price' => (float) $maxPrice,
         ]);
     }
 }

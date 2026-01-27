@@ -94,6 +94,11 @@ class Product extends Model
         return $this->belongsToMany(Order::class, 'order_items', 'product_id', 'order_id');
     }
 
+    public function warehouse()
+    {
+        return $this->belongsTo(Warehouse::class);
+    }
+
     protected static function boot()
     {
         parent::boot();
