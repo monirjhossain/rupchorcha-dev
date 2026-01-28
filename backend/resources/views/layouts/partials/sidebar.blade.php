@@ -103,7 +103,7 @@
         <div id="collapseOrders" class="collapse" aria-labelledby="headingOrders" data-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <a class="collapse-item" href="{{ route('orders.index') }}">Orders</a>
-                <a class="collapse-item" href="{{ route('invoices.index') }}"><i class="fas fa-file-invoice-dollar mr-1"></i>Invoices</a>
+                <a class="collapse-item" href="{{ route('invoices.index') }}">Invoices</a>
                 <a class="collapse-item" href="{{ route('coupons.index') }}">Coupon</a>
                 <a class="collapse-item" href="{{ route('discounts.index') }}">Discount</a>
                 <a class="collapse-item" href="{{ url('/admin/shipping-methods') }}">Shipping Methods</a>
@@ -112,7 +112,7 @@
                 <a class="collapse-item" href="{{ route('orders.bulkAssignCourierForm') }}">Bulk Courier Assign</a>
                 <a class="collapse-item" href="{{ route('refunds.index') }}">Refund Policy</a>
                 <a class="collapse-item" href="{{ route('addresses.index') }}">Customer Addresses</a>
-                            <a class="collapse-item" href="{{ route('admin.abandoned_checkouts.index') }}">Abandoned Checkouts</a>
+                <a class="collapse-item" href="{{ route('admin.abandoned_checkouts.index') }}">Abandoned Checkouts</a>
             </div>
         </div>
     </li>

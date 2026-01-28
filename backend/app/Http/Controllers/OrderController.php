@@ -103,34 +103,70 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
+        // Fix: If user_id is 0 (Guest), set to null for validation and guest logic
+        if ($request->input('user_id') == 0) {
+            $request->merge(['user_id' => null]);
+        }
         $validated = $request->validate([
             'user_id' => 'nullable|exists:users,id',
-            'shipping_address_id' => 'nullable|exists:addresses,id',
-            'billing_address_id' => 'nullable|exists:addresses,id',
+            'customer_name' => 'required|string',
+            'customer_email' => 'required|email',
+            'customer_phone' => 'required|string',
+            'shipping_address' => 'required|string',
+            'city' => 'required|string',
+            'area' => 'required|string',
+            'notes' => 'nullable|string',
+            'payment_method' => 'required|string',
+            'shipping_method' => 'required|string',
+            'shipping_cost' => 'required|numeric',
             'status' => 'required|string',
             'total' => 'required|numeric',
+            'grand_total' => 'required|numeric',
             'payment_status' => 'required|string',
             'coupon_code' => 'nullable|string',
-            'guest_name' => 'nullable|string',
-            'guest_email' => 'nullable|email',
-            'guest_phone' => 'nullable|string',
-            'guest_address' => 'nullable|string',
         ]);
 
-        // If no user_id, create a guest user
+        // If no user_id, use existing user by email or create a new guest user
         if (empty($validated['user_id'])) {
-            $user = \App\Models\User::create([
-                'name' => $validated['guest_name'] ?? 'Guest',
-                'email' => $validated['guest_email'] ?? 'guest_' . uniqid() . '@example.com',
-                'phone' => $validated['guest_phone'] ?? null,
-                'address' => $validated['guest_address'] ?? null,
-                'role' => 'customer',
-                'password' => bcrypt(Str::random(10)),
-                'active' => true,
-            ]);
-            $validated['user_id'] = $user->id;
+            $existingUser = \App\Models\User::where('email', $validated['customer_email'])->first();
+            if ($existingUser) {
+                $validated['user_id'] = $existingUser->id;
+            } else {
+                $user = \App\Models\User::create([
+                    'name' => $validated['customer_name'] ?? 'Guest',
+                    'email' => $validated['customer_email'] ?? 'guest_' . uniqid() . '@example.com',
+                    'phone' => $validated['customer_phone'] ?? null,
+                    'address' => $validated['shipping_address'] ?? null,
+                    'role' => 'customer',
+                    'password' => bcrypt(Str::random(10)),
+                    'active' => true,
+                ]);
+                $validated['user_id'] = $user->id;
+            }
         }
-        $order = Order::create($validated);
+
+        $orderData = [
+            'user_id' => $validated['user_id'],
+            'customer_name' => $validated['customer_name'],
+            'customer_email' => $validated['customer_email'],
+            'customer_phone' => $validated['customer_phone'],
+            'shipping_address' => $validated['shipping_address'],
+            'city' => $validated['city'],
+            'area' => $validated['area'],
+            'notes' => $validated['notes'] ?? null,
+            'payment_method' => $validated['payment_method'],
+            'shipping_method' => $validated['shipping_method'],
+            'shipping_cost' => $validated['shipping_cost'],
+            'status' => $validated['status'],
+            'total' => $validated['total'],
+            'payment_status' => $validated['payment_status'],
+            'coupon_code' => $validated['coupon_code'] ?? null,
+            'discount_amount' => 0,
+            'grand_total' => $validated['grand_total'],
+            'created_by' => auth()->id(),
+        ];
+
+        $order = Order::create($orderData);
 
         // Store order items
         $products = $request->input('products', []);
@@ -146,7 +182,7 @@ class OrderController extends Controller
             ]);
         }
 
-        // Coupon validation logic
+        // Coupon validation logic (optional, can be expanded)
         if ($request->filled('coupon_code')) {
             $coupon = \App\Models\Coupon::where('code', $request->coupon_code)->where('active', true)->first();
             if ($coupon) {
@@ -179,7 +215,7 @@ class OrderController extends Controller
             Mail::to($order->customer_email)
                 ->queue(new OrderConfirmationMail($order));
         } catch (\Exception $e) {
-            \Log::error('Failed to send order confirmation email: ' . $e->getMessage());
+            // Log::error('Failed to send order confirmation email: ' . $e->getMessage());
             // Don't fail the order creation if email fails
         }
 
@@ -191,7 +227,7 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        $order->load(['items.product', 'user', 'payments', 'statusHistories']);
+        $order->load(['items.product', 'user', 'payments', 'statusHistories', 'creator']);
         return view('admin.orders.show', compact('order'));
     }
 
@@ -201,6 +237,7 @@ class OrderController extends Controller
     public function edit(Order $order)
     {
         // You may want to pass users, addresses, products, etc. for selection
+        $order->load('creator');
         return view('admin.orders.edit', compact('order'));
     }
 
@@ -216,7 +253,31 @@ class OrderController extends Controller
             'courier_id' => 'nullable|exists:couriers,id',
             'tracking_number' => 'nullable|string',
             'admin_note' => 'nullable|string',
+            'coupon_code' => 'nullable|string',
+            // For items
+            'product_id' => 'array',
+            'product_id.*' => 'integer|exists:products,id',
+            'quantity' => 'array',
+            'quantity.*' => 'integer|min:1',
+            'unit_price' => 'array',
+            'unit_price.*' => 'numeric|min:0',
         ]);
+        // Coupon logic
+        $discountAmount = 0;
+        $appliedCouponCode = null;
+        if ($request->filled('coupon_code')) {
+            $coupon = \App\Models\Coupon::where('code', $request->coupon_code)->where('active', true)->first();
+            if ($coupon) {
+                // For simplicity, apply coupon to whole order (customize as needed)
+                if ($coupon->type === 'fixed') {
+                    $discountAmount = $coupon->value;
+                } elseif ($coupon->type === 'percent') {
+                    // Will apply after total is calculated
+                    $appliedCouponCode = $coupon;
+                }
+                $appliedCouponCode = $coupon->code;
+            }
+        }
 
         // If send_to_courier is set, assign a courier (first available if not set)
         if ($request->has('send_to_courier')) {
@@ -235,15 +296,60 @@ class OrderController extends Controller
         if ($request->filled('tracking_number')) $order->tracking_number = $validated['tracking_number'];
         if ($request->filled('admin_note')) $order->admin_note = $validated['admin_note'];
 
+        // Save coupon code and discount (will update grand_total after items)
+        $order->coupon_code = $appliedCouponCode;
+        $order->discount_amount = $discountAmount;
         $order->save();
 
+        // Update order items (products)
+        // Remove old items
+        $order->items()->delete();
+        $productIds = $request->input('product_id', []);
+        $quantities = $request->input('quantity', []);
+        $unitPrices = $request->input('unit_price', []);
+        $total = 0;
+        foreach ($productIds as $idx => $productId) {
+            $qty = $quantities[$idx] ?? 1;
+            $price = $unitPrices[$idx] ?? 0;
+            $subtotal = $qty * $price;
+            \App\Models\OrderItem::create([
+                'order_id' => $order->id,
+                'product_id' => $productId,
+                'product_name' => \App\Models\Product::find($productId)?->name ?? '',
+                'price' => $price,
+                'quantity' => $qty,
+            ]);
+            $total += $subtotal;
+        }
+        // Update order total and grand_total
+        $order->total = $total;
+        // Coupon/discount logic
+        if ($appliedCouponCode && isset($coupon) && $coupon && $coupon->type === 'percent') {
+            $discountAmount = ($coupon->value / 100) * $total;
+            $order->discount_amount = $discountAmount;
+        }
+        $order->grand_total = $total + ($order->shipping_cost ?? 0) - $discountAmount;
+        $order->save();
+
+        // Ensure items and product relations are loaded
+        $order->load('items.product');
+
         // Decrement stock only when status changes to 'complete'
-        if ($oldStatus !== 'complete' && $order->status === 'complete') {
+        if ($oldStatus !== 'complete' && $order->status === 'completed') {
             foreach ($order->items as $item) {
                 $product = $item->product;
                 if ($product && $product->manage_stock) {
+                    // Decrement stock_quantity field
                     $product->stock_quantity = max(0, ($product->stock_quantity ?? 0) - $item->quantity);
                     $product->save();
+                    // Add StockMovement entry
+                    \App\Models\StockMovement::create([
+                        'product_id' => $product->id,
+                        'type' => 'out',
+                        'quantity' => -1 * $item->quantity,
+                        'reason' => 'Order Completed (Order ID: ' . $order->id . ')',
+                        'user_id' => auth()->id() ?? null,
+                    ]);
                 }
             }
         }

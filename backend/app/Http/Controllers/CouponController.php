@@ -2,7 +2,38 @@
 namespace App\Http\Controllers;
 use App\Models\Coupon;
 use Illuminate\Http\Request;
+
 class CouponController extends Controller {
+    // AJAX coupon validation for order edit page
+    public function validateAjax(Request $request) {
+        $code = $request->input('code');
+        // Always use subtotal (product sum) for coupon calculation
+        $subtotal = floatval($request->input('subtotal', 0));
+        $coupon = Coupon::where('code', $code)->where('active', true)
+            ->where(function($q) {
+                $q->whereNull('expires_at')->orWhere('expires_at', '>', now());
+            })->first();
+        if (!$coupon) {
+            return response()->json(['valid' => false, 'discount' => 0]);
+        }
+        // Check min order amount (on subtotal)
+        if ($coupon->min_order_amount && $subtotal < $coupon->min_order_amount) {
+            return response()->json(['valid' => false, 'discount' => 0]);
+        }
+        // Calculate discount (always on subtotal)
+        $discount = 0;
+        if ($coupon->type === 'fixed') {
+            $discount = floatval($coupon->value);
+        } elseif ($coupon->type === 'percent') {
+            $discount = ($coupon->value / 100.0) * $subtotal;
+            if ($coupon->max_discount && $discount > $coupon->max_discount) {
+                $discount = $coupon->max_discount;
+            }
+        }
+        // Don't allow discount more than subtotal
+        if ($discount > $subtotal) $discount = $subtotal;
+        return response()->json(['valid' => true, 'discount' => round($discount, 2)]);
+    }
     public function index() {
         $coupons = Coupon::orderByDesc('id')->paginate(20);
         return view('admin.coupons.index', compact('coupons'));

@@ -2,18 +2,26 @@
 
 @section('content')
 <div class="container-fluid">
-    <h1 class="h3 mb-4 text-gray-800">Create Order</h1>
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul class="mb-0">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+    <h2 class="mb-3" style="font-size:1.5rem;font-weight:600;">Create Order</h2>
     <form action="{{ route('orders.store') }}" method="POST" id="order-create-form">
         @csrf
         <div class="row">
-            <!-- Customer Selection -->
             <div class="col-lg-4">
-                <div class="card mb-4 shadow-sm">
-                    <div class="card-header bg-primary text-white"><i class="fas fa-user mr-2"></i> Customer</div>
-                    <div class="card-body">
-                        <div class="form-group">
-                            <label for="user_id">Select Customer <span class="text-danger">*</span></label>
-                            <select name="user_id" id="user_id" class="form-control select2" required>
+                <div class="card mb-3 shadow-sm">
+                    <div class="card-header bg-white border-bottom-0 p-2" style="font-weight:600;font-size:1.1rem;">Customer & Shipping</div>
+                    <div class="card-body p-2">
+                        <div class="form-group mb-2">
+                            <label for="user_id" class="mb-1">Customer <span class="text-danger">*</span></label>
+                            <select name="user_id" id="user_id" class="form-control form-control-sm select2" required>
                                 <option value="">Select customer</option>
                                 <option value="0">Guest</option>
                                 @foreach(App\Models\User::orderBy('name')->get() as $user)
@@ -21,72 +29,63 @@
                                 @endforeach
                             </select>
                         </div>
-                    </div>
-                </div>
-                <!-- Customer Information -->
-                <div class="card mb-4 shadow-sm">
-                    <div class="card-header bg-info text-white"><i class="fas fa-user-circle mr-2"></i> Customer Information</div>
-                    <div class="card-body">
-                        <div class="form-group">
-                            <label for="customer_name">Full Name <span class="text-danger">*</span></label>
-                            <input type="text" name="customer_name" id="customer_name" class="form-control" required>
+                        <div class="form-group mb-2">
+                            <label for="customer_name" class="mb-1">Full Name <span class="text-danger">*</span></label>
+                            <input type="text" name="customer_name" id="customer_name" class="form-control form-control-sm" required>
                         </div>
-                        <div class="form-group">
-                            <label for="customer_email">Email Address <span class="text-danger">*</span></label>
-                            <input type="email" name="customer_email" id="customer_email" class="form-control" required>
+                        <div class="form-group mb-2">
+                            <label for="customer_email" class="mb-1">Email <span class="text-danger">*</span></label>
+                            <input type="email" name="customer_email" id="customer_email" class="form-control form-control-sm" required>
                         </div>
-                        <div class="form-group">
-                            <label for="customer_phone">Phone Number <span class="text-danger">*</span></label>
-                            <input type="text" name="customer_phone" id="customer_phone" class="form-control" required>
+                        <div class="form-group mb-2">
+                            <label for="customer_phone" class="mb-1">Phone <span class="text-danger">*</span></label>
+                            <input type="text" name="customer_phone" id="customer_phone" class="form-control form-control-sm" required>
                         </div>
-                        <div class="form-group">
-                            <label for="shipping_address">Address <span class="text-danger">*</span></label>
-                            <input type="text" name="shipping_address" id="shipping_address" class="form-control" required>
+                        <div class="form-group mb-2">
+                            <label for="shipping_address" class="mb-1">Address <span class="text-danger">*</span></label>
+                            <input type="text" name="shipping_address" id="shipping_address" class="form-control form-control-sm" required>
                         </div>
-                        <div class="form-group">
-                            <label for="city">City / District <span class="text-danger">*</span></label>
-                            <select name="city" id="city" class="form-control" required>
-                                <option value="">Select City / District</option>
-                            </select>
+                        <div class="form-row">
+                            <div class="form-group col-md-6 mb-2">
+                                <label for="city" class="mb-1">City/District <span class="text-danger">*</span></label>
+                                <select name="city" id="city" class="form-control form-control-sm" required>
+                                    <option value="">Select City / District</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-6 mb-2">
+                                <label for="area" class="mb-1">Area <span class="text-danger">*</span></label>
+                                <select name="area" id="area" class="form-control form-control-sm" required>
+                                    <option value="">Select Area</option>
+                                </select>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="area">Area <span class="text-danger">*</span></label>
-                            <select name="area" id="area" class="form-control" required>
-                                <option value="">Select Area</option>
-                            </select>
+                        <div class="form-group mb-2">
+                            <label for="notes" class="mb-1">Order Notes</label>
+                            <textarea name="notes" id="notes" class="form-control form-control-sm" rows="2"></textarea>
                         </div>
-                        <div class="form-group">
-                            <label for="notes">Order Notes</label>
-                            <textarea name="notes" id="notes" class="form-control" rows="3"></textarea>
+                        <div class="form-row">
+                            <div class="form-group col-md-6 mb-2">
+                                <label for="payment_method" class="mb-1">Payment <span class="text-danger">*</span></label>
+                                <select name="payment_method" id="payment_method" class="form-control form-control-sm" required>
+                                    <option value="cod">Cash on Delivery</option>
+                                    <option value="bkash">Bkash</option>
+                                    <option value="nagad">Nagad</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-6 mb-2">
+                                <label for="shipping_method" class="mb-1">Shipping <span class="text-danger">*</span></label>
+                                <select name="shipping_method" id="shipping_method" class="form-control form-control-sm" required>
+                                    <option value="inside_dhaka">Inside Dhaka</option>
+                                    <option value="outside_dhaka">Outside Dhaka</option>
+                                </select>
+                            </div>
                         </div>
-                    </div>
-                </div>
-                <!-- Payment & Shipping -->
-                <div class="card mb-4 shadow-sm">
-                    <div class="card-header bg-secondary text-white"><i class="fas fa-credit-card mr-2"></i> Payment & Shipping</div>
-                    <div class="card-body">
-                        <div class="form-group">
-                            <label for="payment_method">Payment Method <span class="text-danger">*</span></label>
-                            <select name="payment_method" id="payment_method" class="form-control" required>
-                                <option value="cod">Cash on Delivery</option>
-                                <option value="bkash">Bkash</option>
-                                <option value="nagad">Nagad</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="shipping_method">Shipping Method <span class="text-danger">*</span></label>
-                            <select name="shipping_method" id="shipping_method" class="form-control" required>
-                                <option value="inside_dhaka">Inside Dhaka</option>
-                                <option value="outside_dhaka">Outside Dhaka</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="shipping_cost">Shipping Cost (৳) <span class="text-danger">*</span></label>
-                            <input type="number" name="shipping_cost" id="shipping_cost" class="form-control" step="0.01" required>
+                        <div class="form-group mb-2">
+                            <label for="shipping_cost" class="mb-1">Shipping Cost (৳) <span class="text-danger">*</span></label>
+                            <input type="number" name="shipping_cost" id="shipping_cost" class="form-control form-control-sm" step="0.01" required>
                         </div>
                     </div>
                 </div>
-
             </div>
             <!-- Order Items Section -->
             <div class="col-lg-8">
@@ -145,6 +144,16 @@
                                         <option value="processing">Processing</option>
                                         <option value="completed">Completed</option>
                                         <option value="cancelled">Cancelled</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="payment_status">Payment Status <span class="text-danger">*</span></label>
+                                    <select name="payment_status" id="payment_status" class="form-control" required>
+                                        <option value="">Select status</option>
+                                        <option value="unpaid">Unpaid</option>
+                                        <option value="paid">Paid</option>
+                                        <option value="pending">Pending</option>
+                                        <option value="refunded">Refunded</option>
                                     </select>
                                 </div>
                                 <div class="form-group mt-3">
@@ -252,9 +261,9 @@ $(document).ready(function() {
         // Add row to table with hidden fields
         const row = `<tr data-product-id="${id}">
             <td>
-                <input type="hidden" name="product_id[]" value="${id}">
-                <input type="hidden" name="quantity[]" class="quantity-hidden" value="${qty}">
-                <input type="hidden" name="unit_price[]" value="${price}">
+                <input type="hidden" name="products[]" value="${id}">
+                <input type="hidden" name="quantities[]" class="quantity-hidden" value="${qty}">
+                <input type="hidden" name="prices[]" value="${price}">
                 ${name}
             </td>
             <td class="quantity-cell">
@@ -279,6 +288,7 @@ $(document).ready(function() {
             total += parseFloat($(this).find('.row-subtotal').text()) || 0;
         });
         $('#total').val(total.toFixed(2));
+        updateGrandTotal();
         // Clear input fields
         $('#product-search').val('');
         $('#product-id').val('');
@@ -292,6 +302,7 @@ $(document).ready(function() {
     $('#added-products-table').on('click', '.remove-row', function() {
         $(this).closest('tr').remove();
         updateTotalWithCoupon();
+        updateGrandTotal();
     });
 
     // Handle quantity increase
@@ -334,8 +345,30 @@ $(document).ready(function() {
         updateTotalWithCoupon();
     });
 
+    // Grand total calculation
+    function updateGrandTotal() {
+        let subtotal = parseFloat($('#total').val()) || 0;
+        let shipping = parseFloat($('#shipping_cost').val()) || 0;
+        let coupon = 0;
+        const couponVal = $('#coupon_code').val();
+        if (couponVal && !isNaN(parseFloat(couponVal))) {
+            coupon = parseFloat(couponVal);
+        }
+        let grandTotal = subtotal + shipping - coupon;
+        if (grandTotal < 0) grandTotal = 0;
+        $('#grand-total').val(grandTotal.toFixed(2));
+    }
+
     // Initial total
     updateTotalWithCoupon();
+    updateGrandTotal();
+    // Update grand total on shipping or coupon change
+    $('#shipping_cost').on('input', function() {
+        updateGrandTotal();
+    });
+    $('#coupon_code').on('input', function() {
+        updateGrandTotal();
+    });
 
     // Bangladesh Districts and Areas Data
     const bdLocations = {

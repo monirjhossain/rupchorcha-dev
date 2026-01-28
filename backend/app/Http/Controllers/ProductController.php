@@ -12,7 +12,7 @@ class ProductController extends Controller
     // Display a listing of the products
     public function index(Request $request)
     {
-        $query = Product::with(['categories', 'brand', 'images', 'tags', 'attributes']);
+        $query = Product::with(['categories', 'brand', 'images', 'tags', 'attributes', 'stockMovements']);
         if ($request->filled('name')) {
             $query->where('name', 'like', '%' . $request->name . '%');
         }

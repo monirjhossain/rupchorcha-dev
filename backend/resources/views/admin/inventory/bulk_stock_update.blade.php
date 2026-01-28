@@ -87,10 +87,10 @@
                     @foreach($products as $product)
                         <tr>
                             <td>{{ $product->name }}</td>
-                            <td>{{ $product->stock_quantity }}</td>
+                            <td>{{ $product->current_stock }}</td>
                             <td>
                                 <input type="hidden" name="stocks[{{ $loop->index }}][product_id]" value="{{ $product->id }}">
-                                <input type="number" name="stocks[{{ $loop->index }}][quantity]" class="form-control stock-input" min="0" value="{{ old('stocks.'.$loop->index.'.quantity', $product->stock_quantity) }}">
+                                <input type="number" name="stocks[{{ $loop->index }}][quantity]" class="form-control stock-input" min="0" value="{{ old('stocks.'.$loop->index.'.quantity', $product->current_stock) }}">
                             </td>
                         </tr>
                     @endforeach

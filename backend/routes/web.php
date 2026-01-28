@@ -197,6 +197,8 @@ Route::middleware(['auth', 'role:admin,super_admin'])->group(function () {
     Route::resource('/admin/attributes', AttributeController::class);
 
 Route::resource('/admin/attribute-values', AttributeValueController::class);
+// Coupon AJAX validation
+Route::post('/admin/coupons/validate', [\App\Http\Controllers\CouponController::class, 'validateAjax'])->name('coupons.validate');
 Route::resource('/admin/coupons', CouponController::class)->names('coupons');
 Route::resource('discounts', DiscountController::class);
 
@@ -297,4 +299,7 @@ Route::middleware(['auth', 'role:admin,super_admin'])->group(function () {
 Route::middleware(['auth', 'role:admin,super_admin'])->group(function () {
     Route::get('/admin/inventory/low-stock-alerts', [AdminInventoryController::class, 'lowStockAlerts'])->name('inventory.low_stock_alerts');
 });
+
+// Coupon AJAX validation (for order edit page)
+Route::post('/admin/coupons/validate', [\App\Http\Controllers\CouponController::class, 'validateAjax'])->name('coupons.validate');
 

@@ -3,6 +3,9 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
@@ -36,12 +39,12 @@ class UserController extends Controller
             // Send OTP via email if email is provided
             if ($user->email) {
                 try {
-                    \Mail::raw('Your OTP code is: ' . $otp, function($mail) use ($user) {
+                    Mail::raw('Your OTP code is: ' . $otp, function($mail) use ($user) {
                         $mail->to($user->email)
                             ->subject('Your OTP Code');
                     });
                 } catch (\Exception $e) {
-                    \Log::error('Email sending failed: ' . $e->getMessage());
+                    Log::error('Email sending failed: ' . $e->getMessage());
                 }
             }
 
@@ -50,13 +53,13 @@ class UserController extends Controller
                 try {
                     \App\Services\SmsService::send($user->phone, 'Your OTP code is: ' . $otp);
                 } catch (\Exception $e) {
-                    \Log::error('SMS sending failed: ' . $e->getMessage());
+                    Log::error('SMS sending failed: ' . $e->getMessage());
                 }
             }
 
             return response()->json(['success' => true, 'message' => 'OTP sent to your email/SMS.', 'otp_code' => $otp]);
         } catch (\Exception $e) {
-            \Log::error('SendOtp error: ' . $e->getMessage());
+            Log::error('SendOtp error: ' . $e->getMessage());
             return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
         }
     }
@@ -70,15 +73,15 @@ class UserController extends Controller
                 'otp' => 'required|digits:6',
             ]);
 
-            \Log::info('OTP Verification Attempt', ['phone' => $request->phone, 'otp_input' => $request->otp]);
+            Log::info('OTP Verification Attempt', ['phone' => $request->phone, 'otp_input' => $request->otp]);
 
             $user = User::where('phone', $request->phone)->first();
             if (!$user || !$user->otp_code || !$user->otp_expires_at) {
-                \Log::warning('OTP Verification Failed: OTP not found', ['phone' => $request->phone]);
+                Log::warning('OTP Verification Failed: OTP not found', ['phone' => $request->phone]);
                 return response()->json(['success' => false, 'message' => 'OTP not found.'], 404);
             }
             if ($user->otp_code != $request->otp || now()->gt($user->otp_expires_at)) {
-                \Log::warning('OTP Verification Failed: Invalid or expired OTP', [
+                Log::warning('OTP Verification Failed: Invalid or expired OTP', [
                     'phone' => $request->phone,
                     'stored_otp' => $user->otp_code,
                     'input_otp' => $request->otp,
@@ -97,7 +100,7 @@ class UserController extends Controller
                                        str_starts_with($user->email, 'test_');
             
             if ($needsProfileCompletion) {
-                \Log::info('OTP Verified - Profile Completion Required', [
+                Log::info('OTP Verified - Profile Completion Required', [
                     'user_id' => $user->id,
                     'phone' => $user->phone
                 ]);
@@ -118,7 +121,7 @@ class UserController extends Controller
             Auth::login($user);
             $token = $user->createToken('auth_token')->plainTextToken;
             
-            \Log::info('OTP Login Successful', [
+            Log::info('OTP Login Successful', [
                 'user_id' => $user->id,
                 'phone' => $user->phone,
                 'email' => $user->email,
@@ -133,7 +136,7 @@ class UserController extends Controller
                 'requires_profile_completion' => false
             ]);
         } catch (\Exception $e) {
-            \Log::error('OTP Verification Error: ' . $e->getMessage(), ['exception' => $e]);
+            Log::error('OTP Verification Error: ' . $e->getMessage(), ['exception' => $e]);
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
     }
@@ -167,7 +170,7 @@ class UserController extends Controller
             Auth::login($user);
             $token = $user->createToken('auth_token')->plainTextToken;
 
-            \Log::info('Profile Completed', [
+            Log::info('Profile Completed', [
                 'user_id' => $user->id,
                 'name' => $user->name,
                 'phone' => $user->phone
@@ -180,7 +183,7 @@ class UserController extends Controller
                 'user' => $user
             ]);
         } catch (\Exception $e) {
-            \Log::error('Complete Profile Error: ' . $e->getMessage());
+            Log::error('Complete Profile Error: ' . $e->getMessage());
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
     }
@@ -194,15 +197,15 @@ class UserController extends Controller
                     'password' => 'required|string|min:6|confirmed',
                 ]);
 
-                $status = \Password::reset(
+                $status = Password::reset(
                     $request->only('email', 'password', 'password_confirmation', 'token'),
                     function ($user, $password) {
-                        $user->password = \Hash::make($password);
+                        $user->password = Hash::make($password);
                         $user->save();
                     }
                 );
 
-                if ($status === \Password::PASSWORD_RESET) {
+                if ($status === Password::PASSWORD_RESET) {
                     return response()->json([
                         'success' => true,
                         'message' => 'Password has been reset successfully.'
@@ -221,11 +224,11 @@ class UserController extends Controller
                 'email' => 'required|email|exists:users,email',
             ]);
 
-            $status = \Password::sendResetLink(
+            $status = Password::sendResetLink(
                 $request->only('email')
             );
 
-            if ($status === \Password::RESET_LINK_SENT) {
+            if ($status === Password::RESET_LINK_SENT) {
                 return response()->json([
                     'success' => true,
                     'message' => 'Password reset link sent to your email.'
@@ -288,7 +291,7 @@ class UserController extends Controller
             'message' => 'required|string',
         ]);
         if ($request->message_type === 'email') {
-            \Mail::send([], [], function($mail) use ($user, $request) {
+            Mail::send([], [], function($mail) use ($user, $request) {
                 $mail->to($user->email)
                     ->subject('Message from Admin')
                     ->setBody($request->message, 'text/html');

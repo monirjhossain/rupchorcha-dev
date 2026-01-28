@@ -24,166 +24,45 @@
                         </div>
                     </div>
                 </div>
-                <!-- Shipping Address Section -->
+                <!-- Customer Information (matches create page) -->
                 <div class="card mb-4 shadow-sm">
-                    <div class="card-header bg-info text-white"><i class="fas fa-shipping-fast mr-2"></i> Shipping Address</div>
+                    <div class="card-header bg-info text-white"><i class="fas fa-user-circle mr-2"></i> Customer Information</div>
                     <div class="card-body">
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label>First name</label>
-                                <input type="text" name="shipping_first_name" class="form-control" value="{{ $order->shipping_first_name }}">
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label>Last name</label>
-                                <input type="text" name="shipping_last_name" class="form-control" value="{{ $order->shipping_last_name }}">
-                            </div>
+                        <div class="form-group">
+                            <label for="customer_name">Full Name <span class="text-danger">*</span></label>
+                            <input type="text" name="customer_name" id="customer_name" class="form-control" value="{{ $order->customer_name }}" required>
                         </div>
                         <div class="form-group">
-                            <label>Company</label>
-                            <input type="text" name="shipping_company" class="form-control" value="{{ $order->shipping_company }}">
+                            <label for="customer_email">Email Address <span class="text-danger">*</span></label>
+                            <input type="email" name="customer_email" id="customer_email" class="form-control" value="{{ $order->customer_email }}" required>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label>Address line 1</label>
-                                <input type="text" name="shipping_address_1" class="form-control" value="{{ $order->shipping_address_1 }}">
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label>Address line 2</label>
-                                <input type="text" name="shipping_address_2" class="form-control" value="{{ $order->shipping_address_2 }}">
-                            </div>
+                        <div class="form-group">
+                            <label for="customer_phone">Phone Number <span class="text-danger">*</span></label>
+                            <input type="text" name="customer_phone" id="customer_phone" class="form-control" value="{{ $order->customer_phone }}" required>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label>City</label>
-                                <input type="text" name="shipping_city" class="form-control" value="{{ $order->shipping_city }}">
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label>Postcode / ZIP</label>
-                                <input type="text" name="shipping_postcode" class="form-control" value="{{ $order->shipping_postcode }}">
-                            </div>
+                        <div class="form-group">
+                            <label for="shipping_address">Address <span class="text-danger">*</span></label>
+                            <input type="text" name="shipping_address" id="shipping_address" class="form-control" value="{{ $order->shipping_address }}" required>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label>Country / Region</label>
-                                <select name="shipping_country" class="form-control">
-                                    <option value="Bangladesh" {{ $order->shipping_country == 'Bangladesh' ? 'selected' : '' }}>Bangladesh</option>
-                                </select>
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label>State / County</label>
-                                <select name="shipping_state" class="form-control">
-                                    <option value="">Select an option...</option>
-                                    <option value="Dhaka" {{ $order->shipping_state == 'Dhaka' ? 'selected' : '' }}>Dhaka</option>
-                                    <option value="Chattogram" {{ $order->shipping_state == 'Chattogram' ? 'selected' : '' }}>Chattogram</option>
-                                    <option value="Khulna" {{ $order->shipping_state == 'Khulna' ? 'selected' : '' }}>Khulna</option>
-                                    <option value="Rajshahi" {{ $order->shipping_state == 'Rajshahi' ? 'selected' : '' }}>Rajshahi</option>
-                                    <option value="Barisal" {{ $order->shipping_state == 'Barisal' ? 'selected' : '' }}>Barisal</option>
-                                    <option value="Sylhet" {{ $order->shipping_state == 'Sylhet' ? 'selected' : '' }}>Sylhet</option>
-                                    <option value="Rangpur" {{ $order->shipping_state == 'Rangpur' ? 'selected' : '' }}>Rangpur</option>
-                                    <option value="Mymensingh" {{ $order->shipping_state == 'Mymensingh' ? 'selected' : '' }}>Mymensingh</option>
-                                </select>
-                            </div>
+                        <div class="form-group">
+                            <label for="city">City / District <span class="text-danger">*</span></label>
+                            <select name="city" id="city" class="form-control" required>
+                                <option value="">Select City / District</option>
+                            </select>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label>Email address</label>
-                                <input type="email" name="shipping_email" class="form-control" value="{{ $order->shipping_email }}">
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label>Phone</label>
-                                <input type="text" name="shipping_phone" class="form-control" value="{{ $order->shipping_phone }}">
-                            </div>
+                        <div class="form-group">
+                            <label for="area">Area <span class="text-danger">*</span></label>
+                            <select name="area" id="area" class="form-control" required>
+                                <option value="">Select Area</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="notes">Order Notes</label>
+                            <textarea name="notes" id="notes" class="form-control" rows="3">{{ $order->notes }}</textarea>
                         </div>
                     </div>
                 </div>
-                <!-- Billing Address Section -->
-                <div class="card mb-4 shadow-sm">
-                    <div class="card-header bg-secondary text-white"><i class="fas fa-file-invoice mr-2"></i> Billing Address</div>
-                    <div class="card-body">
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label>First name</label>
-                                <input type="text" name="billing_first_name" class="form-control" value="{{ $order->billing_first_name }}">
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label>Last name</label>
-                                <input type="text" name="billing_last_name" class="form-control" value="{{ $order->billing_last_name }}">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Company</label>
-                            <input type="text" name="billing_company" class="form-control" value="{{ $order->billing_company }}">
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label>Address line 1</label>
-                                <input type="text" name="billing_address_1" class="form-control" value="{{ $order->billing_address_1 }}">
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label>Address line 2</label>
-                                <input type="text" name="billing_address_2" class="form-control" value="{{ $order->billing_address_2 }}">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label>City</label>
-                                <input type="text" name="billing_city" class="form-control" value="{{ $order->billing_city }}">
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label>Postcode / ZIP</label>
-                                <input type="text" name="billing_postcode" class="form-control" value="{{ $order->billing_postcode }}">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label>Country / Region</label>
-                                <select name="billing_country" class="form-control">
-                                    <option value="Bangladesh" {{ $order->billing_country == 'Bangladesh' ? 'selected' : '' }}>Bangladesh</option>
-                                </select>
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label>State / County</label>
-                                <select name="billing_state" class="form-control">
-                                    <option value="">Select an option...</option>
-                                    <option value="Dhaka" {{ $order->billing_state == 'Dhaka' ? 'selected' : '' }}>Dhaka</option>
-                                    <option value="Chattogram" {{ $order->billing_state == 'Chattogram' ? 'selected' : '' }}>Chattogram</option>
-                                    <option value="Khulna" {{ $order->billing_state == 'Khulna' ? 'selected' : '' }}>Khulna</option>
-                                    <option value="Rajshahi" {{ $order->billing_state == 'Rajshahi' ? 'selected' : '' }}>Rajshahi</option>
-                                    <option value="Barisal" {{ $order->billing_state == 'Barisal' ? 'selected' : '' }}>Barisal</option>
-                                    <option value="Sylhet" {{ $order->billing_state == 'Sylhet' ? 'selected' : '' }}>Sylhet</option>
-                                    <option value="Rangpur" {{ $order->billing_state == 'Rangpur' ? 'selected' : '' }}>Rangpur</option>
-                                    <option value="Mymensingh" {{ $order->billing_state == 'Mymensingh' ? 'selected' : '' }}>Mymensingh</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label>Email address</label>
-                                <input type="email" name="billing_email" class="form-control" value="{{ $order->billing_email }}">
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label>Phone</label>
-                                <input type="text" name="billing_phone" class="form-control" value="{{ $order->billing_phone }}">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label>Payment method</label>
-                                <select name="payment_method" class="form-control" required>
-                                    <option value="Bkash" {{ $order->payment_method == 'Bkash' ? 'selected' : '' }}>Bkash</option>
-                                    <option value="Cash" {{ $order->payment_method == 'Cash' ? 'selected' : '' }}>Cash</option>
-                                    <option value="Nagad" {{ $order->payment_method == 'Nagad' ? 'selected' : '' }}>Nagad</option>
-                                    <option value="Bank" {{ $order->payment_method == 'Bank' ? 'selected' : '' }}>Bank</option>
-                                    <option value="Master Card" {{ $order->payment_method == 'Master Card' ? 'selected' : '' }}>Master Card</option>
-                                </select>
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label>Transaction ID</label>
-                                <input type="text" name="transaction_id" class="form-control" value="{{ $order->transaction_id }}">
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <!-- Shipping Section removed as address is collected in Customer Information -->
                 <!-- Payment Section -->
                 <div class="card mb-4 shadow-sm">
                     <div class="card-header bg-success text-white"><i class="fas fa-credit-card mr-2"></i> Payment</div>
@@ -274,45 +153,88 @@
                 </div>
                 <!-- Order Summary -->
                 <div class="card mb-4 shadow-sm">
-                    <div class="card-header bg-light"><i class="fas fa-receipt mr-2"></i> Order Summary</div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="status">Order Status</label>
-                                    <select name="status" id="status" class="form-control" required>
-                                        <option value="pending" {{ $order->status == 'pending' ? 'selected' : '' }}>Pending</option>
-                                        <option value="processing" {{ $order->status == 'processing' ? 'selected' : '' }}>Processing</option>
-                                        <option value="delivered" {{ $order->status == 'delivered' ? 'selected' : '' }}>Delivered</option>
-                                        <option value="completed" {{ $order->status == 'completed' ? 'selected' : '' }}>Completed</option>
-                                        <option value="cancelled" {{ $order->status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
-                                    </select>
-                                </div>
-                                <div class="form-group mt-3">
-                                    <label for="coupon_code">Coupon Code</label>
-                                    <div class="input-group">
-                                        <input type="text" name="coupon_code" id="coupon_code" class="form-control" value="{{ $order->coupon_code }}" placeholder="Enter coupon code">
-                                        <input type="hidden" id="coupon-amount" value="0">
-                                        <div class="input-group-append">
-                                            <button type="button" class="btn btn-outline-secondary" id="apply-coupon-btn">Apply</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="total">Subtotal</label>
-                                    <input type="number" step="0.01" name="total" id="total" class="form-control" value="{{ $order->total }}" readonly required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="grand-total">Grand Total</label>
-                                    <input type="number" step="0.01" name="grand_total" id="grand-total" class="form-control bg-light font-weight-bold" value="{{ $order->grand_total }}" readonly>
-                                </div>
+                    <div class="card-header bg-white border-bottom-0 d-flex flex-column flex-md-row align-items-md-center justify-content-between p-4">
+                        <div class="d-flex align-items-center mb-2 mb-md-0">
+                            <span class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mr-3" style="width:44px;height:44px;font-size:1.5rem;">
+                                <i class="fas fa-receipt"></i>
+                            </span>
+                            <div>
+                                <div class="font-weight-bold h5 mb-0">Order #{{ $order->id }}</div>
+                                <div class="small text-muted">Placed: {{ $order->created_at ? $order->created_at->format('d M Y, h:i A') : '-' }}</div>
                             </div>
                         </div>
-                        <div class="text-right">
-                            <button type="submit" class="btn btn-primary">Update Order</button>
-                            <a href="{{ route('orders.index') }}" class="btn btn-secondary">Cancel</a>
+                        <div class="d-flex align-items-center">
+                            <select name="status" id="status" class="form-control form-control-sm mr-2" style="width:auto;min-width:140px;">
+                                <option value="pending" {{ $order->status == 'pending' ? 'selected' : '' }}>Pending</option>
+                                <option value="processing" {{ $order->status == 'processing' ? 'selected' : '' }}>Processing</option>
+                                <option value="delivered" {{ $order->status == 'delivered' ? 'selected' : '' }}>Delivered</option>
+                                <option value="completed" {{ $order->status == 'completed' ? 'selected' : '' }}>Completed</option>
+                                <option value="cancelled" {{ $order->status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                            </select>
+                            <span id="order-status-badge" class="badge badge-pill px-4 py-2 text-uppercase shadow-sm ml-2 {{
+                                $order->status == 'completed' ? 'badge-success' : (
+                                $order->status == 'cancelled' ? 'badge-danger' : 'badge-info')
+                            }}" style="font-size:1rem;letter-spacing:1px;">{{ ucfirst($order->status) }}</span>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table table-borderless mb-0">
+                            <tbody>
+                                <tr>
+                                    <th class="w-50"><i class="fas fa-money-bill-wave text-success mr-2"></i>Subtotal:</th>
+                                    <td class="text-right font-weight-bold">৳<span id="subtotal-summary">{{ number_format($order->total, 2) }}</span></td>
+                                </tr>
+                                <tr>
+                                    <th><i class="fas fa-shipping-fast text-info mr-2"></i>Shipping Charge:</th>
+                                    <td class="text-right d-flex align-items-center justify-content-end">
+                                        <div class="custom-control custom-checkbox mr-3" style="min-width: 140px;">
+                                            <input class="custom-control-input" type="checkbox" id="free-shipping-checkbox">
+                                            <label class="custom-control-label" for="free-shipping-checkbox" style="font-weight:400;">Free Delivery</label>
+                                        </div>
+                                        <input type="number" step="0.01" name="shipping_cost" id="shipping_cost" class="form-control d-inline-block w-auto text-right" value="{{ $order->shipping_cost }}" required style="max-width:120px;">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th><i class="fas fa-ticket-alt text-warning mr-2"></i>Coupon Code:</th>
+                                    <td class="text-right">
+                                        <div class="input-group input-group-sm w-75 float-right">
+                                            <input type="text" name="coupon_code" id="coupon_code" class="form-control" value="{{ $order->coupon_code }}" placeholder="Enter coupon code">
+                                            <input type="hidden" id="coupon-amount" value="0">
+                                            <div class="input-group-append">
+                                                <button type="button" class="btn btn-outline-secondary" id="apply-coupon-btn">Apply</button>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr id="coupon-discount-row" style="display:none;">
+                                    <th class="h5 text-danger"><i class="fas fa-minus-circle mr-2"></i>Coupon Discount:</th>
+                                    <td class="h5 text-right text-danger"><span id="coupon-discount-sign">-</span>৳<span id="coupon-discount-amount">0.00</span></td>
+                                </tr>
+                                <tr class="bg-light">
+                                    <th class="h5"><i class="fas fa-calculator text-primary mr-2"></i>Total Price:</th>
+                                    <td class="h4 text-right text-primary">৳<span id="grand-total-summary">{{ number_format($order->grand_total, 2) }}</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="px-4 py-3 border-top bg-light d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+                            <div class="d-flex align-items-center mb-2 mb-md-0">
+                                <span class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center mr-2" style="width:32px;height:32px;font-size:1.1rem;">
+                                    <i class="fas fa-user"></i>
+                                </span>
+                                <span class="small"><strong>User:</strong> 
+                                    @if($order->user)
+                                        <span class="text-primary font-weight-bold">{{ $order->user->name }}</span>
+                                    @elseif($order->user_id)
+                                        <span class="text-primary">User#{{ $order->user_id }}</span>
+                                    @else
+                                        <span class="text-danger">(No user info)</span>
+                                    @endif
+                                </span>
+                            </div>
+                            <div>
+                                <button type="submit" class="btn btn-primary shadow-sm font-weight-bold px-4">Update Order</button>
+                                <a href="{{ route('orders.index') }}" class="btn btn-outline-secondary ml-2">Cancel</a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -324,6 +246,68 @@
 
 @push('scripts')
 <script>
+$(function() {
+    // Live update status badge on dropdown change
+    const badge = $('#order-status-badge');
+    const statusMap = {
+        pending: {text: 'Pending', cls: 'badge-info'},
+        processing: {text: 'Processing', cls: 'badge-info'},
+        delivered: {text: 'Delivered', cls: 'badge-info'},
+        completed: {text: 'Completed', cls: 'badge-success'},
+        cancelled: {text: 'Cancelled', cls: 'badge-danger'}
+    };
+    $('#status').on('change', function() {
+        const val = $(this).val();
+        const info = statusMap[val] || statusMap['pending'];
+        badge.text(info.text.toUpperCase());
+        badge.removeClass('badge-info badge-success badge-danger').addClass(info.cls);
+    });
+});
+</script>
+<script>
+$(function() {
+    let prevShipping = $('#shipping_cost').val();
+    $('#free-shipping-checkbox').on('change', function() {
+        if ($(this).is(':checked')) {
+            prevShipping = $('#shipping_cost').val();
+            $('#shipping_cost').val(0).prop('readonly', true);
+        } else {
+            $('#shipping_cost').val(prevShipping).prop('readonly', false);
+        }
+        // Update grand total
+        if (typeof updateGrandTotal === 'function') updateGrandTotal();
+        updateGrandTotalSummary();
+    });
+    // Update grand total summary on relevant input changes
+    // Listen to all relevant changes for live calculation
+    $('#shipping_cost, #coupon_code').on('input', function() {
+        updateGrandTotalSummary();
+    });
+    // Also update when product rows change (add/remove)
+    $('#added-products-table').on('input change', 'input', function() {
+        updateGrandTotalSummary();
+    });
+    function updateGrandTotalSummary() {
+        // Live calculation: subtotal (product price), shipping, coupon
+        let subtotal = 0;
+        $('#added-products-table tbody tr').each(function() {
+            subtotal += parseFloat($(this).find('.row-subtotal').text().replace(/[^\d.\-]/g, '')) || 0;
+        });
+        let shipping = parseFloat($('#shipping_cost').val()) || 0;
+        let coupon = 0;
+        const couponVal = $('#coupon_code').val();
+        if (couponVal && !isNaN(parseFloat(couponVal))) {
+            coupon = parseFloat(couponVal);
+        }
+        let grandTotal = subtotal + shipping - coupon;
+        if (grandTotal < 0) grandTotal = 0;
+        $('#grand-total-summary').text(grandTotal.toFixed(2));
+    }
+    // Initial sync
+    updateGrandTotalSummary();
+});
+</script>
+<script>
 // Product data for autocomplete (server-side rendered)
 const products = [
     @foreach(App\Models\Product::orderBy('name')->get() as $product)
@@ -331,69 +315,239 @@ const products = [
     @endforeach
 ];
 
+// Bangladesh Districts and Areas Data (full, matching create page)
+const bdLocations = {
+    'Dhaka': ['Dhaka Sadar','Dhamrai','Dohar','Keraniganj','Nawabganj','Savar'],
+    'Faridpur': ['Faridpur Sadar','Alfadanga','Bhanga','Boalmari','Madhukhali','Nagarkanda','Sadarpur','Saltha'],
+    'Gazipur': ['Gazipur Sadar','Tongi','Kaliakair','Kapasia','Sreepur','Konabari'],
+    'Gopalganj': ['Gopalganj Sadar','Kashiani','Kotalipara','Muksudpur','Tungipara'],
+    'Kishoreganj': ['Kishoreganj Sadar','Bhairab','Hossainpur','Karimganj','Katiadi','Mithamain','Nikli','Austagram','Tarail','Itna','Pakundia','Bajitpur'],
+    'Madaripur': ['Madaripur Sadar','Kalkini','Rajoir','Shibchar'],
+    'Manikganj': ['Manikganj Sadar','Singair','Saturia','Shivalaya','Harirampur','Ghior','Daulatpur'],
+    'Munshiganj': ['Munshiganj Sadar','Tongibari','Louhajang','Sirajdikhan','Sreenagar','Gazaria'],
+    'Narayanganj': ['Narayanganj Sadar','Bandar','Rupganj','Sonargaon'],
+    'Narsingdi': ['Narsingdi Sadar','Belabo','Monohardi','Palash','Raipura','Shibpur'],
+    'Rajbari': ['Rajbari Sadar','Goalanda','Pangsha','Baliakandi','Kalukhali'],
+    'Shariatpur': ['Shariatpur Sadar','Bhedarganj','Damudya','Gosairhat','Naria','Zanjira'],
+    'Tangail': ['Tangail Sadar','Mirzapur','Sakhipur','Basail','Kalihati','Bhuapur','Gopalpur','Madhupur','Dhanbari','Delduar','Nagarpur'],
+    'Bandarban': ['Bandarban Sadar','Thanchi','Ruma','Naikhongchhari','Rowangchhari','Lama','Alikadam'],
+    'Brahmanbaria': ['Brahmanbaria Sadar','Ashuganj','Bancharampur','Bijoynagar','Kasba','Nabinagar','Nasirnagar','Sarail'],
+    'Chandpur': ['Chandpur Sadar','Faridganj','Hajiganj','Kachua','Matlab North','Matlab South','Shahrasti'],
+    'Chattogram': ['Kotwali','Chawkbazar','Pahartali','Halishahar','Bayazid','Chandgaon','Double Mooring','Khulshi','Bakalia','Patenga','Agrabad'],
+    "Cox's Bazar": ["Cox's Bazar Sadar",'Chakaria','Kutubdia','Maheshkhali','Ramu','Teknaf','Ukhiya','Pekua'],
+    'Feni': ['Feni Sadar','Chhagalnaiya','Daganbhuiyan','Parshuram','Sonagazi','Fulgazi'],
+    'Khagrachhari': ['Khagrachhari Sadar','Dighinala','Matiranga','Panchhari','Mahalchhari','Manikchhari','Ramgarh','Lakshmichhari'],
+    'Lakshmipur': ['Lakshmipur Sadar','Ramganj','Ramgati','Komolnagar','Raipur'],
+    'Noakhali': ['Noakhali Sadar','Begumganj','Chatkhil','Companiganj','Hatia','Senbagh','Sonaimuri','Kabirhat','Subarnachar'],
+    'Rangamati': ['Rangamati Sadar','Belaichhari','Borka','Juraichhari','Kawkhali','Langadu','Naniarchar','Rajasthali','Kaptai'],
+    'Cumilla': ['Cumilla Sadar','Kotwali','Burichang','Daudkandi','Chandina','Laksam','Debidwar','Muradnagar','Homna','Meghna','Titas','Nangalkot'],
+    'Bogura': ['Bogura Sadar','Adamdighi','Dhunat','Gabtali','Kahaloo','Nandigram','Sariakandi','Sherpur','Shibganj','Sonatola','Shajahanpur'],
+    'Joypurhat': ['Joypurhat Sadar','Akkelpur','Kalai','Khetlal','Panchbibi'],
+    'Naogaon': ['Naogaon Sadar','Atrai','Badalgachhi','Dhamoirhat','Manda','Mohadevpur','Niamatpur','Porsha','Raninagar','Sapahar'],
+    'Natore': ['Natore Sadar','Bagatipara','Baraigram','Gurudaspur','Lalpur','Naldanga','Singra'],
+    'Chapainawabganj': ['Chapainawabganj Sadar','Bholahat','Gomastapur','Nachole','Shibganj'],
+    'Pabna': ['Pabna Sadar','Aminpur','Atgharia','Bera','Chatmohar','Faridpur','Ishwardi','Santhia','Sujanagar'],
+    'Rajshahi': ['Rajshahi Sadar','Bagha','Charghat','Durgapur','Godagari','Mohanpur','Paba','Putia','Tanore'],
+    'Sirajganj': ['Sirajganj Sadar','Belkuchi','Chauhali','Kamarkhanda','Kazipur','Raiganj','Shahjadpur','Tarash','Ullahpara'],
+    'Bagerhat': ['Bagerhat Sadar','Chitalmari','Fakirhat','Kachua','Mongla','Morrelganj','Rampal','Sharankhola'],
+    'Chuadanga': ['Chuadanga Sadar','Alamdanga','Damurhuda','Jibannagar'],
+    'Jashore': ['Jessore Sadar','Abhaynagar','Bagherpara','Chaugachha','Jhikargachha','Keshabpur','Manirampur','Sharsha'],
+    'Jhenaidah': ['Jhenaidah Sadar','Harinakunda','Kaliganj','Kotchandpur','Maheshpur','Shailkupa'],
+    'Khulna': ['Khulna Sadar','Dighalia','Koyra','Paikgachha','Phultala','Rupsha','Terokhada','Batiaghata','Dakop'],
+    'Kushtia': ['Kushtia Sadar','Bheramara','Daulatpur','Khoksa','Mirpur','Sheikhpara'],
+    'Magura': ['Magura Sadar','Mohammadpur','Shalikha','Sreepur'],
+    'Meherpur': ['Meherpur Sadar','Gangni','Mujibnagar'],
+    'Narail': ['Narail Sadar','Kalia','Lohagara'],
+    'Satkhira': ['Satkhira Sadar','Assasuni','Debhata','Kalaroa','Kaliganj','Shyamnagar','Tala'],
+    'Barguna': ['Barguna Sadar','Amtali','Bamna','Betagi','Patharghata','Taltali'],
+    'Barishal': ['Barishal Sadar','Agailjhara','Babuganj','Bakerganj','Banaripara','Gournadi','Hijla','Mehendiganj','Muladi','Wazirpur'],
+    'Bhola': ['Bhola Sadar','Borhanuddin','Char Fasson','Daulatkhan','Lalmohan','Manpura','Tazumuddin'],
+    'Jhalokati': ['Jhalokati Sadar','Kathalia','Nalchity','Rajapur'],
+    'Patuakhali': ['Patuakhali Sadar','Bauphal','Dashmina','Dumki','Galachipa','Kalapara','Mirzaganj','Rangabali'],
+    'Pirojpur': ['Pirojpur Sadar','Bhandaria','Kawkhali','Mathbaria','Nesarabad','Nazirpur'],
+    'Habiganj': ['Habiganj Sadar','Ajmiriganj','Bahubal','Baniachang','Chunarughat','Lakhai','Madhabpur','Nabiganj','Shayestaganj'],
+    'Maulvibazar': ['Maulvibazar Sadar','Barlekha','Juri','Kamalganj','Kulaura','Rajnagar','Sreemangal'],
+    'Sunamganj': ['Sunamganj Sadar','Bishwamvarpur','Chhatak','Derai','Dharampasha','Dowarabazar','Jagannathpur','Jamalganj','Sullah','Tahirpur','Shalla'],
+    'Sylhet': ['Sylhet Sadar','Balaganj','Beanibazar','Bishwanath','Companiganj','Dakshin Surma','Fenchuganj','Golapganj','Gowainghat','Jaintiapur','Kanaighat','Osmani Nagar'],
+    'Jamalpur': ['Jamalpur Sadar','Bakshiganj','Dewanganj','Islampur','Madarganj','Melandaha','Sarishabari'],
+    'Mymensingh': ['Mymensingh Sadar','Bhaluka','Dhobaura','Fulbaria','Gaffargaon','Gouripur','Haluaghat','Ishwarganj','Muktagacha','Nandail','Phulpur','Trishal'],
+    'Netrokona': ['Netrokona Sadar','Atpara','Barhatta','Durgapur','Kalmakanda','Kendua','Madan','Mohanganj','Purbadhala'],
+    'Sherpur': ['Sherpur Sadar','Jhenaigati','Nakla','Nalitabari','Sreebardi'],
+    'Dinajpur': ['Dinajpur Sadar','Birampur','Birganj','Birol','Bochaganj','Chirirbandar','Fulbari','Ghoraghat','Hakimpur','Kaharole','Khansama','Nawabganj','Parbatipur'],
+    'Gaibandha': ['Gaibandha Sadar','Fulchhari','Gobindaganj','Palashbari','Sadullapur','Saghata','Sundarganj'],
+    'Kurigram': ['Kurigram Sadar','Bhurungamari','Chilmari','Phulbari','Nageshwari','Rajarhat','Raomari','Ulipur'],
+    'Lalmonirhat': ['Lalmonirhat Sadar','Aditmari','Hatibandha','Kaliganj','Patgram'],
+    'Nilphamari': ['Nilphamari Sadar','Dimla','Domar','Jaldhaka','Kishoreganj','Saidpur'],
+    'Panchagarh': ['Panchagarh Sadar','Atwari','Boda','Debiganj','Tetulia'],
+    'Rangpur': ['Rangpur Sadar','Badarganj','Gangachara','Kaunia','Mithapukur','Pirgachha','Pirganj','Taraganj'],
+    'Thakurgaon': ['Thakurgaon Sadar','Baliadangi','Haripur','Pirganj','Ranishankail']
+};
+
 $(document).ready(function() {
+    // Populate City dropdown
+    const citySelect = $('#city');
+    const areaSelect = $('#area');
+    const districtList = Object.keys(bdLocations).sort();
+    citySelect.html('<option value="">Select City / District</option>');
+    districtList.forEach(district => {
+        citySelect.append(`<option value="${district}">${district}</option>`);
+    });
+    // Set selected city if exists
+    const selectedCity = '{{ $order->city }}';
+    if(selectedCity) {
+        citySelect.val(selectedCity);
+        // Populate area dropdown
+        areaSelect.html('<option value="">Select Area</option>');
+        if(bdLocations[selectedCity]) {
+            bdLocations[selectedCity].forEach(area => {
+                areaSelect.append(`<option value="${area}">${area}</option>`);
+            });
+        }
+        areaSelect.val('{{ $order->area }}');
+    }
+    // On city change, update area dropdown
+    citySelect.on('change', function() {
+        const selected = $(this).val();
+        areaSelect.html('<option value="">Select Area</option>');
+        if(selected && bdLocations[selected]) {
+            bdLocations[selected].forEach(area => {
+                areaSelect.append(`<option value="${area}">${area}</option>`);
+            });
+        }
+        // Optionally reset area
+        areaSelect.val('');
+        updateShippingCost();
+    });
+    // On area change, update shipping cost
+    areaSelect.on('change', function() {
+        updateShippingCost();
+    });
+    // Shipping cost logic
+    function updateShippingCost() {
+        const city = citySelect.val();
+        const area = areaSelect.val();
+        let shippingCost = 150; // Default: Outside Dhaka
+        let shippingMethod = 'outside_dhaka';
+        if(city === 'Dhaka') {
+            if(area === 'Dhaka Sadar') {
+                shippingCost = 60;
+            } else if(area) {
+                shippingCost = 120;
+            }
+            shippingMethod = 'inside_dhaka';
+        }
+        $('#shipping_cost').val(shippingCost);
+        $('#shipping_method').val(shippingMethod);
+        updateGrandTotal();
+    }
+
+    // Coupon and totals logic (sync with create page)
     function updateTotalWithCoupon() {
         let total = 0;
         $('#added-products-table tbody tr').each(function() {
             total += parseFloat($(this).find('.row-subtotal').text()) || 0;
         });
-        let coupon = parseFloat($('#coupon-amount').val()) || 0;
-        let grandTotal = total - coupon;
+        let coupon = 0;
+        const couponVal = $('#coupon_code').val();
+        if (couponVal && !isNaN(parseFloat(couponVal))) {
+            coupon = parseFloat(couponVal);
+        }
+        let finalTotal = total - coupon;
+        if (finalTotal < 0) finalTotal = 0;
+        $('#total').val(finalTotal.toFixed(2));
+    }
+    function updateGrandTotal() {
+        let subtotal = parseFloat($('#total').val()) || 0;
+        let shipping = parseFloat($('#shipping_cost').val()) || 0;
+        let coupon = 0;
+        const couponVal = $('#coupon_code').val();
+        if (couponVal && !isNaN(parseFloat(couponVal))) {
+            coupon = parseFloat(couponVal);
+        }
+        let grandTotal = subtotal + shipping - coupon;
         if (grandTotal < 0) grandTotal = 0;
-        $('#total').val(total.toFixed(2));
         $('#grand-total').val(grandTotal.toFixed(2));
     }
-
-    // Apply coupon only when button is clicked
+    // Coupon apply button
     $('#apply-coupon-btn').on('click', function() {
-        let code = $('#coupon_code').val().trim();
-        let couponValue = 0;
-        if (code === 'User123') {
-            couponValue = 100; // Example: 100 off
-        } else {
-            couponValue = 0;
+        event.preventDefault(); // Prevent form submit
+        let couponVal = $('#coupon_code').val();
+        let subtotal = 0;
+        $('#added-products-table tbody tr').each(function() {
+            subtotal += parseFloat($(this).find('.row-subtotal').text()) || 0;
+        });
+        if (!couponVal) {
+            $('#coupon-discount-row').hide();
+            $('#coupon-discount-amount').text('0.00');
+            $('#coupon-discount-sign').text('-');
+            updateGrandTotalSummary(subtotal, 0);
+            return;
         }
-        $('#coupon-amount').val(couponValue);
-        updateTotalWithCoupon();
+        // AJAX to validate coupon
+        $.ajax({
+            url: '/admin/coupons/validate',
+            method: 'POST',
+            data: {
+                code: couponVal,
+                subtotal: subtotal,
+                _token: $('input[name="_token"]').val()
+            },
+            success: function(res) {
+                if (res.valid && res.discount > 0.009) {
+                    $('#coupon-discount-row').show();
+                    $('#coupon-discount-amount').text(res.discount.toFixed(2));
+                    $('#coupon-discount-sign').text('-');
+                    updateGrandTotalSummary(subtotal, res.discount);
+                } else {
+                    $('#coupon-discount-row').hide();
+                    $('#coupon-discount-amount').text('0.00');
+                    $('#coupon-discount-sign').text('-');
+                    updateGrandTotalSummary(subtotal, 0);
+                }
+            },
+            error: function() {
+                $('#coupon-discount-row').hide();
+                $('#coupon-discount-amount').text('0.00');
+                $('#coupon-discount-sign').text('-');
+                updateGrandTotalSummary(subtotal, 0);
+            }
+        });
+        // Update grand total summary (UI)
+        function updateGrandTotalSummary(subtotal, discount) {
+            let shipping = parseFloat($('#shipping_cost').val()) || 0;
+            let grandTotal = subtotal + shipping - discount;
+            if (grandTotal < 0) grandTotal = 0;
+            $('#grand-total-summary').text(grandTotal.toFixed(2));
+            // Also update subtotal display if you want to keep it live:
+            $("#subtotal-summary").text(subtotal.toFixed(2));
+        }
     });
-
-    // Add product row (from autocomplete/typeahead)
-    $('#product-search-list').on('click', 'button', function() {
-        const id = $(this).data('id');
-        const name = $(this).data('name');
-        const price = $(this).data('price');
-        const qty = parseInt($('#input-quantity').val()) || 1;
-        const subtotal = (qty * price).toFixed(2);
-        const row = `<tr data-product-id="${id}">
-            <td>
-                <input type="hidden" name="product_id[]" value="${id}">
-                <input type="hidden" name="quantity[]" value="${qty}">
-                <input type="hidden" name="unit_price[]" value="${price}">
-                ${name}
-            </td>
-            <td>${qty}</td>
-            <td>৳${price.toFixed(2)}</td>
-            <td class="row-subtotal">${subtotal}</td>
-            <td><button type="button" class="btn btn-sm btn-danger remove-row"><i class="fas fa-trash"></i></button></td>
-        </tr>`;
-        $('#added-products-table tbody').append(row);
-        updateTotalWithCoupon();
-        // Clear input fields
-        $('#product-search').val('');
-        $('#product-id').val('');
-        $('#input-unit-price').val('');
-        $('#input-subtotal').val('');
-        $('#product-search-list').hide();
-        $('#input-quantity').val('1');
+    // Update grand total on shipping or coupon change
+    $('#shipping_cost').on('input', function() {
+        updateGrandTotal();
     });
-
-    // Remove product row
-    $('#added-products-table').on('click', '.remove-row', function() {
-        $(this).closest('tr').remove();
-        updateTotalWithCoupon();
+    $('#coupon_code').on('input', function() {
+        updateGrandTotal();
     });
-
-    // Autocomplete for product search
+    // Initial total and grand total (fix: recalculate from all loaded rows)
+    function recalcTotalsFromTable() {
+        let total = 0;
+        $('#added-products-table tbody tr').each(function() {
+            total += parseFloat($(this).find('.row-subtotal').text()) || 0;
+        });
+        $('#total').val(total.toFixed(2));
+        let shipping = parseFloat($('#shipping_cost').val()) || 0;
+        let coupon = 0;
+        const couponVal = $('#coupon_code').val();
+        if (couponVal && !isNaN(parseFloat(couponVal))) {
+            coupon = parseFloat(couponVal);
+        }
+        let grandTotal = total + shipping - coupon;
+        if (grandTotal < 0) grandTotal = 0;
+        $('#grand-total').val(grandTotal.toFixed(2));
+    }
+    recalcTotalsFromTable();
+    // Product autocomplete and row logic (same as before)
     $('#product-search').on('input', function() {
         const query = $(this).val().toLowerCase();
         if (!query) {
@@ -414,14 +568,42 @@ $(document).ready(function() {
         });
         $('#product-search-list').html(html).show();
     });
-
-    // Hide dropdown on blur (with delay for click)
+    $('#product-search-list').on('click', 'button', function() {
+        const id = $(this).data('id');
+        const name = $(this).data('name');
+        const price = $(this).data('price');
+        const qty = parseInt($('#input-quantity').val()) || 1;
+        const subtotal = (qty * price).toFixed(2);
+        const row = `<tr data-product-id="${id}">
+            <td>
+                <input type="hidden" name="product_id[]" value="${id}">
+                <input type="hidden" name="quantity[]" value="${qty}">
+                <input type="hidden" name="unit_price[]" value="${price}">
+                ${name}
+            </td>
+            <td>${qty}</td>
+            <td>৳${price.toFixed(2)}</td>
+            <td class="row-subtotal">${subtotal}</td>
+            <td><button type="button" class="btn btn-sm btn-danger remove-row"><i class="fas fa-trash"></i></button></td>
+        </tr>`;
+        $('#added-products-table tbody').append(row);
+        updateTotalWithCoupon();
+        updateGrandTotal();
+        // Clear input fields
+        $('#product-search').val('');
+        $('#product-id').val('');
+        $('#input-unit-price').val('');
+        $('#input-subtotal').val('');
+        $('#product-search-list').hide();
+        $('#input-quantity').val('1');
+    });
+    $('#added-products-table').on('click', '.remove-row', function() {
+        $(this).closest('tr').remove();
+        recalcTotalsFromTable();
+    });
     $('#product-search').on('blur', function() {
         setTimeout(() => $('#product-search-list').hide(), 200);
     });
-
-    // Initial total
-    updateTotalWithCoupon();
 });
 </script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
