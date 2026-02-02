@@ -206,10 +206,12 @@ export default function CheckoutForm() {
         throw new Error(errorMessage);
       }
 
-      // Clear cart and redirect to success page
-      clearCart();
+      // Redirect to success page, then clear cart after short delay
       toast.success('Order placed successfully!');
       router.push(`/order-success?orderId=${data.order?.id || data.order?.order_id}`);
+      setTimeout(() => {
+        clearCart();
+      }, 500);
       
     } catch (error) {
       console.error('❌ Order error:', error);
@@ -239,19 +241,21 @@ export default function CheckoutForm() {
   return (
     <form onSubmit={handleSubmit} className={styles.form}>
       {/* Login Prompt */}
-      <div className={styles.loginPromptBox}>
-        <p>Returning Customer?</p>
-        <a
-          href="#"
-          className={styles.loginPromptLink}
-          onClick={(e) => {
-            e.preventDefault();
-            openLoginModal();
-          }}
-        >
-          Click here to login
-        </a>
-      </div>
+      {!user && (
+        <div className={styles.loginPromptBox}>
+          <p>Returning Customer?</p>
+          <a
+            href="#"
+            className={styles.loginPromptLink}
+            onClick={(e) => {
+              e.preventDefault();
+              openLoginModal();
+            }}
+          >
+            Click here to login
+          </a>
+        </div>
+      )}
 
       {/* BILLING & SHIPPING */}
       <h2 className={styles.sectionTitle}>Billing & Shipping</h2>

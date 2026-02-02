@@ -15,11 +15,22 @@ use App\Http\Controllers\Controller;
 
 class OrderController extends Controller
 {
-    // List all orders (admin)
+    // List orders for the logged-in user, or all if admin
     public function index()
     {
-        $orders = Order::with('user')->paginate(20);
-        return response()->json(['success' => true, 'orders' => $orders]);
+        $user = Auth::user();
+        if ($user && $user->role === 'admin') {
+            // Admin: show all orders
+            $orders = Order::with('user')->paginate(20);
+        } else if ($user) {
+            // Regular user: show only their orders
+            $orders = Order::with('user')->where('user_id', $user->id)->paginate(20);
+        } else {
+            // Not logged in: return empty
+            $orders = collect([]);
+        }
+        Log::info('OrderController@index orders', ['user_id' => $user?->id, 'orders' => $orders]);
+        return response()->json(['success' => true, 'data' => ['orders' => $orders]]);
     }
 
     // Show order details
@@ -36,7 +47,7 @@ class OrderController extends Controller
             $validated = $request->validated();
 
             $user = Auth::user();
-            \Log::info('OrderController@store user', ['user' => $user, 'token' => request()->header('Authorization')]);
+            Log::info('OrderController@store user', ['user' => $user, 'token' => request()->header('Authorization')]);
             
             // Calculate shipping cost server-side to prevent tampering
             $shippingCost = ShippingCalculator::getShippingCost($validated['city'], $validated['area']);

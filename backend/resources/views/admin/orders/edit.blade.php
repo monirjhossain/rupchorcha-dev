@@ -27,38 +27,40 @@
                 <!-- Customer Information (matches create page) -->
                 <div class="card mb-4 shadow-sm">
                     <div class="card-header bg-info text-white"><i class="fas fa-user-circle mr-2"></i> Customer Information</div>
-                    <div class="card-body">
-                        <div class="form-group">
-                            <label for="customer_name">Full Name <span class="text-danger">*</span></label>
-                            <input type="text" name="customer_name" id="customer_name" class="form-control" value="{{ $order->customer_name }}" required>
+                    <div class="card-body p-2">
+                        <div class="form-group mb-2">
+                            <label for="customer_name" class="mb-1">Full Name <span class="text-danger">*</span></label>
+                            <input type="text" name="customer_name" id="customer_name" class="form-control form-control-sm" value="{{ $order->customer_name }}" required>
                         </div>
-                        <div class="form-group">
-                            <label for="customer_email">Email Address <span class="text-danger">*</span></label>
-                            <input type="email" name="customer_email" id="customer_email" class="form-control" value="{{ $order->customer_email }}" required>
+                        <div class="form-group mb-2">
+                            <label for="customer_email" class="mb-1">Email <span class="text-danger">*</span></label>
+                            <input type="email" name="customer_email" id="customer_email" class="form-control form-control-sm" value="{{ $order->customer_email }}" required>
                         </div>
-                        <div class="form-group">
-                            <label for="customer_phone">Phone Number <span class="text-danger">*</span></label>
-                            <input type="text" name="customer_phone" id="customer_phone" class="form-control" value="{{ $order->customer_phone }}" required>
+                        <div class="form-group mb-2">
+                            <label for="customer_phone" class="mb-1">Phone <span class="text-danger">*</span></label>
+                            <input type="text" name="customer_phone" id="customer_phone" class="form-control form-control-sm" value="{{ $order->customer_phone }}" required>
                         </div>
-                        <div class="form-group">
-                            <label for="shipping_address">Address <span class="text-danger">*</span></label>
-                            <input type="text" name="shipping_address" id="shipping_address" class="form-control" value="{{ $order->shipping_address }}" required>
+                        <div class="form-group mb-2">
+                            <label for="shipping_address" class="mb-1">Address <span class="text-danger">*</span></label>
+                            <input type="text" name="shipping_address" id="shipping_address" class="form-control form-control-sm" value="{{ $order->shipping_address }}" required>
                         </div>
-                        <div class="form-group">
-                            <label for="city">City / District <span class="text-danger">*</span></label>
-                            <select name="city" id="city" class="form-control" required>
-                                <option value="">Select City / District</option>
-                            </select>
+                        <div class="form-row">
+                            <div class="form-group col-md-6 mb-2">
+                                <label for="city" class="mb-1">City/District <span class="text-danger">*</span></label>
+                                <select name="city" id="city" class="form-control form-control-sm" required>
+                                    <option value="">Select City / District</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-6 mb-2">
+                                <label for="area" class="mb-1">Area <span class="text-danger">*</span></label>
+                                <select name="area" id="area" class="form-control form-control-sm" required>
+                                    <option value="">Select Area</option>
+                                </select>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="area">Area <span class="text-danger">*</span></label>
-                            <select name="area" id="area" class="form-control" required>
-                                <option value="">Select Area</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
+                        <div class="form-group mb-2">
                             <label for="notes">Order Notes</label>
-                            <textarea name="notes" id="notes" class="form-control" rows="3">{{ $order->notes }}</textarea>
+                            <textarea name="notes" id="notes" class="form-control form-control-sm" rows="3">{{ $order->notes }}</textarea>
                         </div>
                     </div>
                 </div>

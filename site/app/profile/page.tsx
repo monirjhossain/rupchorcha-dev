@@ -1,66 +1,317 @@
 "use client";
-
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useUser } from "../common/UserContext";
 import styles from "./profile.module.css";
+import { fetchMyOrders, Order } from "@/src/data/orders";
+import WishlistPage from "../wishlist/page";
+
+// Address type for address state
+type Address = {
+  name: string;
+  phone: string;
+  address: string;
+  city: string;
+  postal: string;
+  type: string;
+};
+
+function ProfileOrdersTable() {
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [showModal, setShowModal] = useState(false);
+
+    useEffect(() => {
+      fetchMyOrders()
+        .then((data) => {
+          setOrders(data);
+          setLoading(false);
+        })
+        .catch(() => {
+          setError("Failed to load orders.");
+        });
+    }, []);
+
+    // Status color helper
+    function getStatusColor(status: string) {
+      switch (status) {
+        case 'pending': return '#ff9800';
+        case 'processing': return '#2196f3';
+        case 'completed': return '#4caf50';
+        case 'cancelled': return '#f44336';
+        default: return '#757575';
+      }
+    }
+
+    // Modal content for order details
+    const renderOrderModal = () => {
+      if (!selectedOrder) return null;
+      return (
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.18)',
+          zIndex: 1000,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <div style={{
+            background: '#fff',
+            borderRadius: 16,
+            boxShadow: '0 8px 32px rgba(99,102,241,0.18)',
+            padding: '2.5rem 2rem',
+            minWidth: 340,
+            maxWidth: 480,
+            width: '100%',
+            position: 'relative',
+          }}>
+            <button onClick={() => setShowModal(false)} style={{
+              position: 'absolute', top: 18, right: 18, background: 'none', border: 'none', fontSize: 22, color: '#a004b0', cursor: 'pointer', fontWeight: 700
+            }}>&times;</button>
+            <h2 style={{ color: '#a004b0', fontWeight: 800, marginBottom: 18 }}>Order Details</h2>
+            <div style={{ marginBottom: 12 }}>
+              <strong>Order #:</strong> <span style={{ color: '#6366f1', fontWeight: 700 }}>#{selectedOrder.order_number || selectedOrder.id}</span>
+            </div>
+            <div style={{ marginBottom: 12 }}>
+              <strong>Status:</strong> <span style={{ color: getStatusColor(selectedOrder.status), fontWeight: 700 }}>{selectedOrder.status}</span>
+            </div>
+            <div style={{ marginBottom: 12 }}>
+              <strong>Date:</strong> {new Date(selectedOrder.created_at).toLocaleString()}
+            </div>
+            <div style={{ marginBottom: 12 }}>
+              <strong>Total:</strong> <span style={{ color: '#a004b0', fontWeight: 700 }}>{selectedOrder.total} ৳</span>
+            </div>
+            {/* Product list, shipping, payment, notes commented out due to type errors */}
+            {false && Array.isArray(selectedOrder.items) && selectedOrder.items.length > 0 && (
+              <div style={{ marginBottom: 12 }}>
+                <strong>Products:</strong>
+                <ul style={{ margin: '8px 0 0 0', padding: 0, listStyle: 'none' }}>
+                  {selectedOrder.items.map((item: any) => (
+                    <li key={item.id} style={{ marginBottom: 6, fontSize: '0.98em' }}>
+                      <span style={{ fontWeight: 600 }}>{item.product_name || item.name}</span> &times; {item.quantity} <span style={{ color: '#a004b0', fontWeight: 700 }}>৳{item.price}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {false && selectedOrder.shipping_address && (
+              <div style={{ marginBottom: 12 }}>
+                <strong>Shipping Address:</strong>
+                <div style={{ color: '#555', marginTop: 2 }}>{selectedOrder.shipping_address}</div>
+              </div>
+            )}
+            {false && selectedOrder.payment_method && (
+              <div style={{ marginBottom: 12 }}>
+                <strong>Payment:</strong> {selectedOrder.payment_method} ({selectedOrder.payment_status})
+              </div>
+            )}
+            {false && selectedOrder.notes && (
+              <div style={{ marginBottom: 12 }}>
+                <strong>Notes:</strong> {selectedOrder.notes}
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    };
+
+    return (
+      <div style={{ overflowX: 'auto', margin: '0 auto', maxWidth: 900 }}>
+        <div style={{
+          background: '#fff',
+          borderRadius: 18,
+          boxShadow: '0 8px 32px rgba(99,102,241,0.10)',
+          padding: '2.5rem 2rem',
+          margin: '0 auto',
+          minWidth: 340,
+          maxWidth: 900,
+        }}>
+          <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: 0, minWidth: 600 }}>
+            <thead>
+              <tr>
+                <th style={{ color: '#a004b0', fontWeight: 800, fontSize: '1.05rem', background: 'none', border: 'none', padding: '14px 8px', textAlign: 'left' }}>Order #</th>
+                <th style={{ color: '#a004b0', fontWeight: 800, fontSize: '1.05rem', background: 'none', border: 'none', padding: '14px 8px', textAlign: 'left' }}>Status</th>
+                <th style={{ color: '#a004b0', fontWeight: 800, fontSize: '1.05rem', background: 'none', border: 'none', padding: '14px 8px', textAlign: 'left' }}>Total</th>
+                <th style={{ color: '#a004b0', fontWeight: 800, fontSize: '1.05rem', background: 'none', border: 'none', padding: '14px 8px', textAlign: 'left' }}>Date</th>
+                <th style={{ background: 'none', border: 'none', padding: '14px 8px' }}></th>
+              </tr>
+            </thead>
+            <tbody>
+              {orders.map((order) => (
+                <tr key={order.id} style={{ transition: 'background 0.2s', borderRadius: 12 }}>
+                  <td style={{ borderBottom: "1px solid #f0f0f0", padding: "14px 8px", fontWeight: 800, fontSize: '1.08em', color: '#333' }}>
+                    #{order.order_number || order.id}
+                  </td>
+                  <td style={{ borderBottom: "1px solid #f0f0f0", padding: "14px 8px" }}>
+                    <span style={{
+                      color: getStatusColor(order.status),
+                      fontWeight: 700,
+                      textTransform: 'capitalize',
+                      background: '#f9f9f9',
+                      borderRadius: 12,
+                      padding: '4px 18px',
+                      fontSize: '1em',
+                      boxShadow: '0 2px 8px rgba(99,102,241,0.07)',
+                      border: `1.5px solid ${getStatusColor(order.status)}`,
+                      letterSpacing: '0.5px',
+                    }}>{order.status}</span>
+                  </td>
+                  <td style={{ borderBottom: "1px solid #f0f0f0", padding: "14px 8px", fontWeight: 700, color: '#a004b0' }}>{order.total} ৳</td>
+                  <td style={{ borderBottom: "1px solid #f0f0f0", padding: "14px 8px", color: '#666', fontWeight: 500 }}>{new Date(order.created_at).toLocaleString()}</td>
+                  <td style={{ borderBottom: "1px solid #f0f0f0", padding: "14px 8px" }}>
+                    <button style={{
+                      background: 'linear-gradient(90deg, #a004b0 0%, #6366f1 100%)',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: 8,
+                      padding: '8px 22px',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      fontSize: '1em',
+                      boxShadow: '0 2px 8px rgba(99,102,241,0.10)',
+                      transition: 'background 0.2s, box-shadow 0.2s',
+                    }}
+                    onClick={() => { setSelectedOrder(order); setShowModal(true); }}
+                    >View Details</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {showModal && renderOrderModal()}
+        </div>
+      </div>
+  );
+}
+
+// Address modal and list for My Address section
+function ProfileAddressSection() {
+  const [addresses, setAddresses] = useState<Address[]>([]);
+  const [showModal, setShowModal] = useState(false);
+  const [form, setForm] = useState<Address>({ name: '', phone: '', address: '', city: '', postal: '', type: 'home' });
+  const [editIndex, setEditIndex] = useState<number | null>(null);
+
+  // Load addresses from localStorage (replace with API in production)
+  useEffect(() => {
+    const saved = localStorage.getItem('addresses');
+    if (saved) setAddresses(JSON.parse(saved));
+  }, []);
+
+  const saveAddresses = (newAddresses: Address[]) => {
+    setAddresses(newAddresses);
+    localStorage.setItem('addresses', JSON.stringify(newAddresses));
+  };
+
+  const handleAdd = () => {
+    setForm({ name: '', phone: '', address: '', city: '', postal: '', type: 'home' });
+    setEditIndex(null);
+    setShowModal(true);
+  };
+  const handleEdit = (idx: number) => {
+    setForm(addresses[idx]);
+    setEditIndex(idx);
+    setShowModal(true);
+  };
+  const handleDelete = (idx: number) => {
+    const updated = addresses.filter((_, i) => i !== idx);
+    saveAddresses(updated);
+  };
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    let updated;
+    if (editIndex !== null) {
+      updated = addresses.map((a, i) => (i === editIndex ? form : a));
+    } else {
+      updated = [...addresses, form];
+    }
+    saveAddresses(updated);
+    setShowModal(false);
+  };
+
+  return (
+    <div className={styles.section}>
+      <div className={styles.sectionHeader}>
+        <h2>My Address</h2>
+        <button className={styles.editBtn} onClick={handleAdd}>
+          + Add Address
+        </button>
+      </div>
+      {addresses.length === 0 ? (
+        <p className={styles.emptyState}>No addresses added yet.</p>
+      ) : (
+        <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
+          {addresses.map((addr, idx) => (
+            <li key={idx} style={{ marginBottom: 18, background: '#f9f9f9', borderRadius: 12, padding: '1.2rem 1.5rem', boxShadow: '0 2px 8px #6366f122', position: 'relative' }}>
+              <div style={{ fontWeight: 700, fontSize: '1.08em', color: '#a004b0' }}>{addr.name} <span style={{ fontWeight: 400, color: '#6366f1', fontSize: '0.98em' }}>({addr.type})</span></div>
+              <div style={{ color: '#555', marginTop: 2 }}>{addr.address}, {addr.city}, {addr.postal}</div>
+              <div style={{ color: '#555', marginTop: 2 }}>Phone: {addr.phone}</div>
+              <div style={{ position: 'absolute', top: 16, right: 18, display: 'flex', gap: 8 }}>
+                <button style={{ background: 'none', border: 'none', color: '#6366f1', fontWeight: 700, cursor: 'pointer' }} onClick={() => handleEdit(idx)}>Edit</button>
+                <button style={{ background: 'none', border: 'none', color: '#f44336', fontWeight: 700, cursor: 'pointer' }} onClick={() => handleDelete(idx)}>Delete</button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+      {showModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.18)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <form onSubmit={handleSubmit} style={{ background: '#fff', borderRadius: 16, boxShadow: '0 8px 32px #6366f122', padding: '2.5rem 2rem', minWidth: 340, maxWidth: 420, width: '100%', position: 'relative' }}>
+            <button type="button" onClick={() => setShowModal(false)} style={{ position: 'absolute', top: 18, right: 18, background: 'none', border: 'none', fontSize: 22, color: '#a004b0', cursor: 'pointer', fontWeight: 700 }}>&times;</button>
+            <h2 style={{ color: '#a004b0', fontWeight: 800, marginBottom: 18 }}>{editIndex !== null ? 'Edit Address' : 'Add Address'}</h2>
+            <div style={{ marginBottom: 12 }}>
+              <label>Name</label>
+              <input required value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #ccc' }} />
+            </div>
+            <div style={{ marginBottom: 12 }}>
+              <label>Phone</label>
+              <input required value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #ccc' }} />
+            </div>
+            <div style={{ marginBottom: 12 }}>
+              <label>Address</label>
+              <input required value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #ccc' }} />
+            </div>
+            <div style={{ marginBottom: 12 }}>
+              <label>City</label>
+              <input required value={form.city} onChange={e => setForm({ ...form, city: e.target.value })} style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #ccc' }} />
+            </div>
+            <div style={{ marginBottom: 12 }}>
+              <label>Postal Code</label>
+              <input required value={form.postal} onChange={e => setForm({ ...form, postal: e.target.value })} style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #ccc' }} />
+            </div>
+            <div style={{ marginBottom: 12 }}>
+              <label>Type</label>
+              <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value })} style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #ccc' }}>
+                <option value="home">Home</option>
+                <option value="office">Office</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <button type="submit" style={{ width: '100%', padding: '12px', background: 'linear-gradient(90deg, #a004b0 0%, #6366f1 100%)', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: '1.1em', cursor: 'pointer' }}>
+              {editIndex !== null ? 'Update Address' : 'Add Address'}
+            </button>
+          </form>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function ProfilePage() {
   const [activeSection, setActiveSection] = useState("general");
-  const [user, setUser] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
-
-  // Load user from localStorage
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      router.push("/");
-      return;
-    }
-
-    // Fetch user profile
-    fetch(`http://localhost:8000/api/profile`, {
-      method: 'GET',
-      headers: { 
-        'Authorization': `Bearer ${token}`,
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-    })
-      .then((res) => {
-        if (res.status === 401) {
-          localStorage.removeItem('token');
-          setUser(null);
-          router.replace("/");
-          return null;
-        }
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
-        return res.json();
-      })
-      .then((data) => {
-        if (!data) return;
-        if (data?.user) {
-          setUser(data.user);
-        } else {
-          console.error('No user data in response');
-          router.replace("/");
-        }
-      })
-      .catch((error) => {
-        console.error('Failed to fetch profile:', error);
-        router.push("/");
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  }, [router]);
+  const { user, isLoading, logout } = useUser();
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    router.push("/");
+      logout();
+      router.push("/");
   };
+
+  useEffect(() => {
+    if (!user && !isLoading) {
+      router.push("/");
+    }
+  }, [user, isLoading, router]);
 
   if (isLoading) {
     return (
@@ -69,29 +320,8 @@ export default function ProfilePage() {
       </div>
     );
   }
-
   if (!user) {
-    return (
-      <div style={{ textAlign: "center", padding: "4rem" }}>
-        <h2>Session expired</h2>
-        <p>Please log in again to view your profile.</p>
-        <button
-          style={{
-            marginTop: "1rem",
-            padding: "0.85rem 1.4rem",
-            background: "#6366f1",
-            color: "white",
-            border: "none",
-            borderRadius: "10px",
-            cursor: "pointer",
-            fontWeight: 700,
-          }}
-          onClick={() => router.push("/")}
-        >
-          Go to Home
-        </button>
-      </div>
-    );
+    return null;
   }
 
   return (
@@ -271,22 +501,14 @@ export default function ProfilePage() {
 
         {activeSection === "favourites" && (
           <div className={styles.section}>
-            <h2>My Wishlist</h2>
-            <p className={styles.emptyState}>Your wishlist is empty</p>
+            <WishlistPage />
           </div>
         )}
 
         {activeSection === "orders" && (
           <div className={styles.section}>
             <h2>My Orders</h2>
-            <p className={styles.emptyState}>No orders yet</p>
-          </div>
-        )}
-
-        {activeSection === "address" && (
-          <div className={styles.section}>
-            <h2>My Address</h2>
-            <p className={styles.emptyState}>No saved addresses</p>
+            <ProfileOrdersTable />
           </div>
         )}
 
@@ -296,6 +518,8 @@ export default function ProfilePage() {
             <p className={styles.emptyState}>No reviews yet</p>
           </div>
         )}
+
+        {activeSection === "address" && <ProfileAddressSection />}
       </div>
     </div>
   );

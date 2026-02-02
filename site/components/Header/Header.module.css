@@ -1,0 +1,46 @@
+.header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  position: relative;
+  z-index: 10;
+}
+.left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.logo {
+  font-size: 2rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  color: #222;
+}
+.center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+.search {
+  width: 320px;
+  max-width: 100%;
+  padding: 8px 18px;
+  border-radius: 24px;
+  border: 1.5px solid #e91e63;
+  font-size: 1rem;
+  outline: none;
+}
+.right {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+@media (max-width: 900px) {
+  .rupchorchaHeader {
+    display: none !important;
+  }
+}

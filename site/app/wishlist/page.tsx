@@ -22,6 +22,8 @@ const WishlistPage: React.FC = () => {
         quantity: 1,
         product: product
       });
+      // Remove from wishlist after adding to cart
+      await removeFromWishlist(product.id);
     } catch (error) {
       console.error("Failed to add to cart:", error);
     } finally {
@@ -151,9 +153,9 @@ const WishlistPage: React.FC = () => {
       {/* Wishlist Items Grid */}
       <div style={{
         display: "grid",
-        gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
-        gap: "1.5rem",
-        marginBottom: "3rem"
+        gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
+        gap: "1rem",
+        marginBottom: "2rem"
       }}>
         {wishlist.map((item) => {
           const product = item.product;
@@ -169,14 +171,17 @@ const WishlistPage: React.FC = () => {
               key={item.product_id}
               style={{
                 background: "#fff",
-                borderRadius: 16,
+                borderRadius: 12,
                 overflow: "hidden",
-                boxShadow: "0 4px 16px rgba(0, 0, 0, 0.06)",
-                border: "1px solid #e8e8e8",
-                transition: "all 0.35s cubic-bezier(0.4, 0, 0.2, 1)",
+                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.04)",
+                border: "1px solid #ececec",
+                transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
                 display: "flex",
                 flexDirection: "column",
-                position: "relative"
+                position: "relative",
+                minHeight: 260,
+                maxWidth: 210,
+                margin: "0 auto"
               }}
               onMouseEnter={(e) => {
                 (e.currentTarget as HTMLElement).style.boxShadow = "0 12px 32px rgba(233, 30, 99, 0.15)";
@@ -204,7 +209,7 @@ const WishlistPage: React.FC = () => {
                   alt={product?.name}
                   style={{
                     width: "100%",
-                    height: 220,
+                    height: 120,
                     objectFit: "cover",
                     display: "block",
                     transition: "transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)"
@@ -219,16 +224,16 @@ const WishlistPage: React.FC = () => {
                 {discount > 0 && (
                   <div style={{
                     position: "absolute",
-                    top: 16,
-                    left: 16,
+                    top: 10,
+                    left: 10,
                     background: "linear-gradient(135deg, #e91e63 0%, #c2185b 100%)",
                     color: "#fff",
-                    padding: "0.5rem 1rem",
-                    borderRadius: 8,
-                    fontWeight: 800,
-                    fontSize: "0.95rem",
-                    boxShadow: "0 4px 12px rgba(233, 30, 99, 0.3)",
-                    letterSpacing: "0.5px"
+                    padding: "2px 8px",
+                    borderRadius: 6,
+                    fontWeight: 700,
+                    fontSize: "0.75rem",
+                    boxShadow: "0 2px 6px rgba(233, 30, 99, 0.18)",
+                    letterSpacing: "0.2px"
                   }}>
                     -{discount}% OFF
                   </div>
@@ -280,7 +285,7 @@ const WishlistPage: React.FC = () => {
               </Link>
 
               {/* Product Info */}
-              <div style={{ padding: "1.2rem", flex: 1, display: "flex", flexDirection: "column" }}>
+              <div style={{ padding: "0.7rem", flex: 1, display: "flex", flexDirection: "column" }}>
                 {/* Brand */}
                 {product?.brand?.name && (
                   <div style={{ 

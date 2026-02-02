@@ -1,13 +1,12 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import Header from "./components/Header";
-import HeroSlider from "./components/Home/HeroSlider";
-import ShopByCategorySection from "./Home/sections/ShopByCategorySection";
+import HeroSlider, { Slide } from "./Home/components/HeroSlider";
 import BrandOfferSection from "./Home/sections/BrandOfferSection";
+import ShopByCategorySection from "./Home/sections/ShopByCategorySection";
+import TrendingSection from "./Home/sections/TrendingSection/TrendingSection";
+import OffersToSayYesSection from "./Home/sections/OffersToSayYesSection/OffersToSayYesSection";
 import styles from "./Home/Home.module.css";
 import Image from "next/image";
-import Link from "next/link";
-import { usePrefetchRoutes } from "./hooks/usePrefetchRoutes";
 
 interface Product {
   id: number;
@@ -17,16 +16,42 @@ interface Product {
 }
 
 const Home: React.FC = () => {
+  const [slides, setSlides] = useState<Slide[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  
-  // Prefetch routes for instant navigation
-  usePrefetchRoutes();
 
   useEffect(() => {
-    const cachedProducts = typeof window !== "undefined" ? localStorage.getItem("products_cache") : null;
-    const productsCacheTime = typeof window !== "undefined" ? localStorage.getItem("products_cache_time") : null;
+    // Try to load sliders from cache
+    const cachedSliders = typeof window !== 'undefined' ? localStorage.getItem('sliders_cache') : null;
+    const slidersCacheTime = typeof window !== 'undefined' ? localStorage.getItem('sliders_cache_time') : null;
     const now = Date.now();
+
+    const fetchSliders = async () => {
+      // TODO: Replace with actual API call
+      const fallbackSlides: Slide[] = [
+        {
+          id: 1,
+          image: '/hero/slide1.jpg',
+          title: 'Mega Sale!',
+          description: 'Up to 50% off on selected products.'
+        }
+      ];
+      setSlides(fallbackSlides);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('sliders_cache', JSON.stringify(fallbackSlides));
+        localStorage.setItem('sliders_cache_time', Date.now().toString());
+      }
+    };
+
+    if (cachedSliders && slidersCacheTime && (now - parseInt(slidersCacheTime)) < 300000) {
+      setTimeout(() => setSlides(JSON.parse(cachedSliders)), 0);
+    } else {
+      fetchSliders();
+    }
+
+    // Try to load products from cache
+    const cachedProducts = typeof window !== 'undefined' ? localStorage.getItem('products_cache') : null;
+    const productsCacheTime = typeof window !== 'undefined' ? localStorage.getItem('products_cache_time') : null;
 
     const fetchProducts = async () => {
       // TODO: Replace with actual API call
@@ -36,7 +61,7 @@ const Home: React.FC = () => {
       }, 0);
     };
 
-    if (cachedProducts && productsCacheTime && now - parseInt(productsCacheTime) < 300000) {
+    if (cachedProducts && productsCacheTime && (now - parseInt(productsCacheTime)) < 300000) {
       setTimeout(() => {
         setProducts(JSON.parse(cachedProducts));
         setLoading(false);
@@ -47,44 +72,17 @@ const Home: React.FC = () => {
   }, []);
 
   return (
-    <main>
-      <div className={styles.home}>
-        {/* Hero Slider */}
-        <HeroSlider />
-        <BrandOfferSection />
-        {/* Mega Deals Section */}
-        {/* Shop By Category Section */}
-        <ShopByCategorySection />
-        {/* Featured Products */}
-        <section className={styles.featuredProducts}>
-          <div className="container">
-            <h2 className="section-title">Featured Products</h2>
-            {loading ? (
-              <div className={styles.loading}>Loading products...</div>
-            ) : (
-              <div className={styles.productsGrid}>
-                {products.map((product) => (
-                  <div key={product.id} className={styles.productCard}>
-                    <Link href={`/products/${product.id}`}>
-                      <Image
-                        src={product.images?.[0]?.url || "https://via.placeholder.com/300"}
-                        alt={product.name}
-                        width={300}
-                        height={300}
-                        style={{ objectFit: "cover" }}
-                      />
-                      <h3>{product.name}</h3>
-                      <p className={styles.price}>${product.price}</p>
-                      <button className="btn-primary">View Details</button>
-                    </Link>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </section>
-      </div>
-    </main>
+    <div className={styles.home}>
+      {/* Hero Slider */}
+      <HeroSlider slides={slides} />
+      {/* Shop By Category Section */}
+      <ShopByCategorySection />
+      {/* Trending Section */}
+      <TrendingSection />
+      {/* Offers To Say Yes Section */}
+      <OffersToSayYesSection />
+      {/* Featured Products */}
+    </div>
   );
 };
 

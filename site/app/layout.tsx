@@ -5,6 +5,7 @@ import "./globals.css";
 import ClientLayout from "./ClientLayout";
 import ToastProvider from "./ToastProvider";
 import { WishlistProvider } from "./components/WishlistContext";
+import { UserProvider } from "./common/UserContext";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { AuthProvider } from "./contexts/AuthContext";
 
@@ -75,21 +76,23 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}>
           <AuthProvider>
             <ToastProvider />
-            <WishlistProvider>
-              <ClientLayout>
-              <div
-                style={{
-                  minHeight: '80vh',
-                  maxWidth: 1400,
-                  margin: '2rem auto',
-                  padding: '0 1rem',
-                }}
-              >
-                {children}
-              </div>
-              <Footer />
-            </ClientLayout>
-          </WishlistProvider>
+            <UserProvider>
+              <WishlistProvider>
+                <ClientLayout>
+                  <div
+                    style={{
+                      minHeight: '80vh',
+                      maxWidth: 1400,
+                      margin: '2rem auto',
+                      padding: '0 1rem',
+                    }}
+                  >
+                    {children}
+                  </div>
+                  <Footer />
+                </ClientLayout>
+              </WishlistProvider>
+            </UserProvider>
           </AuthProvider>
         </GoogleOAuthProvider>
       </body>

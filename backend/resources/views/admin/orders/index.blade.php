@@ -204,7 +204,7 @@
                         @endforelse
                     </tbody>
                 </table>
-                {{ $orders->links() }}
+                {{ $orders->appends(request()->query())->links() }}
             </div>
         </div>
     </div>

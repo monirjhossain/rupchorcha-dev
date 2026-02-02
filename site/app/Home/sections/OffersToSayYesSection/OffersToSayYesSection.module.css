@@ -1,0 +1,52 @@
+/* Redesigned Offers To Say Yes Section */
+.offersSection {
+  margin: 48px 0;
+  padding: 32px 0 40px 0;
+  border-radius: 18px;
+  min-height: 120px;
+  border: none;
+  box-shadow: none;
+  background: none;
+}
+.heading {
+  font-size: 2.1rem;
+  font-weight: 800;
+  margin-bottom: 32px;
+  color: #1e90e9;
+  letter-spacing: 1px;
+  text-align: center;
+  text-shadow: 0 2px 8px #e6f7ff;
+}
+.offersGrid {
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.offerCard {
+  border-radius: 18px;
+  box-shadow: 0 4px 24px 0 rgba(30, 144, 233, 0.10);
+  padding: 28px 24px 22px 24px;
+  min-width: 220px;
+  width: 260px;
+  text-align: center;
+  transition: box-shadow 0.2s, transform 0.2s;
+  border: 1.5px solid #e6f7ff;
+  background: #fff;
+}
+.offerCard:hover {
+  box-shadow: 0 8px 32px 0 rgba(30, 144, 233, 0.18);
+  transform: translateY(-6px) scale(1.03);
+}
+.code {
+  display: inline-block;
+  margin-top: 14px;
+  background: linear-gradient(90deg, #fff0f6 60%, #ffe0f7 100%);
+  color: #d72660;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 5px 18px;
+  font-size: 1.05rem;
+  box-shadow: 0 2px 8px #ffe0f7;
+  letter-spacing: 0.5px;
+}

@@ -150,11 +150,17 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       });
   };
 
+
   // Clear cart
-  const clearCart = () => {
+  const clearCart = async () => {
     setItems([]);
     if (isLoggedIn()) {
-      // Optionally, call backend to clear cart
+      try {
+        const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
+        await axios.post(`${API_BASE}/cart/clear`, {}, { headers });
+      } catch (e) {
+        // Ignore error, still clear local state
+      }
     } else {
       localStorage.removeItem(STORAGE_KEY);
     }

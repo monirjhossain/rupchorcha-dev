@@ -41,7 +41,7 @@ Route::middleware('auth:sanctum')->put('/discounts/{id}', [\App\Http\Controllers
 Route::middleware('auth:sanctum')->delete('/discounts/{id}', [\App\Http\Controllers\API\DiscountController::class, 'destroy']);
 Route::middleware('auth:sanctum')->get('/orders', [\App\Http\Controllers\API\OrderController::class, 'index']);
 Route::get('/orders/{id}', [\App\Http\Controllers\API\OrderController::class, 'show']);
-Route::post('/orders', [\App\Http\Controllers\API\OrderController::class, 'store'])->middleware('auth:sanctum'); // Allow guest orders (with user detection)
+Route::post('/orders', [\App\Http\Controllers\API\OrderController::class, 'store']); // Allow guest orders (with user detection)
 Route::middleware('auth:sanctum')->put('/orders/{id}/status', [\App\Http\Controllers\API\OrderController::class, 'updateStatus']);
 Route::middleware('auth:sanctum')->post('/orders/{id}/cancel', [\App\Http\Controllers\API\OrderController::class, 'cancel']);
 Route::get('/shipping-zones', [\App\Http\Controllers\API\ShippingZoneController::class, 'index']);
