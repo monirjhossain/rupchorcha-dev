@@ -1,11 +1,12 @@
 "use client";
 import React, { useState } from "react";
 import { useCart } from "@/app/common/CartContext";
-import ProductList from "@/app/components/ProductList";
 import toast from "react-hot-toast";
 import { useShopProducts } from "@/app/services/useShopProducts";
 import GlobalSortBar from "@/app/components/GlobalSortBar";
 import { usePaginationSort } from "@/app/hooks/usePaginationSort";
+import ProductCard from "@/app/components/ProductCard";
+import gridStyles from "@/app/components/ProductGrid.module.css";
 
 // Banner component
 const ShopBanner = ({ imageUrl }: { imageUrl: string }) => (
@@ -75,7 +76,7 @@ export default function ShopProductsClient() {
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+    <div className="shop-page" style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
       {/* Banner */}
       <ShopBanner imageUrl={bannerImageUrl} />
 
@@ -86,52 +87,38 @@ export default function ShopProductsClient() {
 
       {isError && <div style={{ color: "#d33" }}>Failed to load products.</div>}
 
-      {products.length === 0 && isLoading ? (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-          gap: '1.5rem'
-        }}>
-          {Array.from({ length: 20 }).map((_, i) => (
-            <div key={i} style={{
-              background: '#f5f5f5',
-              borderRadius: '12px',
-              height: '380px',
-              animation: 'pulse 1.5s ease-in-out infinite'
-            }} />
-          ))}
-        </div>
-      ) : products.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "2rem", color: "#666" }}>No products found.</div>
-      ) : (
-        <>
-          {isLoading && (
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-              gap: '1.5rem',
-              opacity: 0.6,
-              pointerEvents: 'none'
-            }}>
-              {Array.from({ length: 20 }).map((_, i) => (
-                <div key={i} style={{
-                  background: '#f5f5f5',
-                  borderRadius: '12px',
-                  height: '380px',
-                  animation: 'pulse 1.5s ease-in-out infinite'
-                }} />
-              ))}
+      <div className={gridStyles["shop-container"]}>
+        <main className={gridStyles["shop-main"]}>
+          {isLoading && products.length === 0 ? (
+            <div className="loading-spinner">
+              <div className="spinner"></div>
+              <p>Loading products...</p>
             </div>
+          ) : products.length === 0 ? (
+            <div className="no-products">
+              <p>No products found.</p>
+            </div>
+          ) : (
+            <>
+              <div className={gridStyles["products-grid-wrapper"]}>
+                <div
+                  className={gridStyles["products-grid"]}
+                  style={isLoading ? { filter: 'blur(1.5px)', pointerEvents: 'none' } : {}}
+                >
+                  {products.map((product: any) => (
+                    <ProductCard
+                      key={product.id}
+                      product={{ ...product, images: Array.isArray(product.images) ? product.images : [] }}
+                      onAddToCart={handleAddToCart}
+                      isAddingToCart={!!isAddingToCart[product.id]}
+                    />
+                  ))}
+                </div>
+              </div>
+            </>
           )}
-          {!isLoading && (
-            <ProductList
-              products={products}
-              onAddToCart={handleAddToCart}
-              addingStateMap={isAddingToCart}
-            />
-          )}
-        </>
-      )}
+        </main>
+      </div>
 
       {totalPages > 1 && (
         <div className="pagination">

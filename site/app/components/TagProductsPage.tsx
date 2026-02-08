@@ -100,7 +100,9 @@ const TagProductsPage = ({ params }: { params?: { slug?: string } }) => {
         setSortBy={(value) => handleSortChange(value, `/tags/${slug}`)}
       />
       <div className={gridStyles["shop-container"]}>
-        <Sidebar />
+        <div className="responsive-sidebar">
+          <Sidebar />
+        </div>
         <main className={gridStyles["shop-main"]}>
           {tag ? (
             loading ? (

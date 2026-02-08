@@ -1,19 +1,21 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useUser } from "../common/UserContext";
+import { useAuth } from "@/app/contexts/AuthContext";
 import styles from "./profile.module.css";
 import { fetchMyOrders, Order } from "@/src/data/orders";
 import WishlistPage from "../wishlist/page";
 
 // Address type for address state
 type Address = {
+  id?: number;
   name: string;
   phone: string;
   address: string;
   city: string;
   postal: string;
   type: string;
+  is_default?: boolean;
 };
 
 function ProfileOrdersTable() {
@@ -55,16 +57,19 @@ function ProfileOrdersTable() {
           background: 'rgba(0,0,0,0.18)',
           zIndex: 1000,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
+          padding: '0 12px',
         }}>
           <div style={{
             background: '#fff',
             borderRadius: 16,
             boxShadow: '0 8px 32px rgba(99,102,241,0.18)',
-            padding: '2.5rem 2rem',
-            minWidth: 340,
-            maxWidth: 480,
+            padding: '2rem 1.5rem',
+            minWidth: 320,
+            maxWidth: 460,
             width: '100%',
             position: 'relative',
+            maxHeight: '85vh',
+            overflowY: 'auto',
           }}>
             <button onClick={() => setShowModal(false)} style={{
               position: 'absolute', top: 18, right: 18, background: 'none', border: 'none', fontSize: 22, color: '#a004b0', cursor: 'pointer', fontWeight: 700
@@ -189,44 +194,111 @@ function ProfileOrdersTable() {
 function ProfileAddressSection() {
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [showModal, setShowModal] = useState(false);
-  const [form, setForm] = useState<Address>({ name: '', phone: '', address: '', city: '', postal: '', type: 'home' });
-  const [editIndex, setEditIndex] = useState<number | null>(null);
+  const [form, setForm] = useState<Address>({ name: '', phone: '', address: '', city: '', postal: '', type: 'home', is_default: false });
+  const [editId, setEditId] = useState<number | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 
-  // Load addresses from localStorage (replace with API in production)
-  useEffect(() => {
-    const saved = localStorage.getItem('addresses');
-    if (saved) setAddresses(JSON.parse(saved));
-  }, []);
-
-  const saveAddresses = (newAddresses: Address[]) => {
-    setAddresses(newAddresses);
-    localStorage.setItem('addresses', JSON.stringify(newAddresses));
+  // Fetch addresses from backend and map fields
+  const fetchAddresses = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`${API_BASE}/addresses`, {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      });
+      if (!res.ok) throw new Error('Failed to load addresses');
+      const data = await res.json();
+      // Map backend fields to frontend Address type
+      const mapped = data.map((addr: any) => ({
+        id: addr.id,
+        name: addr.name,
+        phone: addr.phone || '',
+        address: addr.line1 || '',
+        city: addr.city || '',
+        postal: addr.postal_code || '',
+        type: addr.type || '',
+        is_default: addr.is_default || false
+      }));
+      setAddresses(mapped);
+    } catch (err: any) {
+      setError(err.message || 'Failed to load addresses');
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(() => { fetchAddresses(); }, []);
 
   const handleAdd = () => {
-    setForm({ name: '', phone: '', address: '', city: '', postal: '', type: 'home' });
-    setEditIndex(null);
+    setForm({ name: '', phone: '', address: '', city: '', postal: '', type: 'home', is_default: false });
+    setEditId(null);
     setShowModal(true);
   };
-  const handleEdit = (idx: number) => {
-    setForm(addresses[idx]);
-    setEditIndex(idx);
+  const handleEdit = (addr: Address) => {
+    setForm({ ...addr });
+    setEditId(addr.id!);
     setShowModal(true);
   };
-  const handleDelete = (idx: number) => {
-    const updated = addresses.filter((_, i) => i !== idx);
-    saveAddresses(updated);
-  };
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    let updated;
-    if (editIndex !== null) {
-      updated = addresses.map((a, i) => (i === editIndex ? form : a));
-    } else {
-      updated = [...addresses, form];
+  const handleDelete = async (id: number) => {
+    if (!window.confirm('Delete this address?')) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`${API_BASE}/addresses/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      });
+      if (!res.ok) throw new Error('Failed to delete address');
+      await fetchAddresses();
+    } catch (err: any) {
+      setError(err.message || 'Failed to delete address');
+    } finally {
+      setLoading(false);
     }
-    saveAddresses(updated);
-    setShowModal(false);
+  };
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    try {
+      // Map frontend fields to backend fields
+      const payload = {
+        name: form.name,
+        phone: form.phone,
+        type: form.type,
+        line1: form.address,
+        city: form.city,
+        postal_code: form.postal,
+        is_default: form.is_default,
+      };
+      const method = editId ? 'PUT' : 'POST';
+      const url = editId ? `${API_BASE}/addresses/${editId}` : `${API_BASE}/addresses`;
+      const res = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) {
+        let data;
+        try { data = await res.json(); } catch { throw new Error('Server error'); }
+        if (data && data.errors) {
+          const firstField = Object.keys(data.errors)[0];
+          throw new Error(data.errors[firstField][0]);
+        }
+        throw new Error(data && data.message ? data.message : 'Failed to save address');
+      }
+      await fetchAddresses();
+      setShowModal(false);
+    } catch (err: any) {
+      setError(err.message || 'Failed to save address');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -237,18 +309,20 @@ function ProfileAddressSection() {
           + Add Address
         </button>
       </div>
-      {addresses.length === 0 ? (
+      {loading && <p>Loading...</p>}
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {addresses.length === 0 && !loading ? (
         <p className={styles.emptyState}>No addresses added yet.</p>
       ) : (
         <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
-          {addresses.map((addr, idx) => (
-            <li key={idx} style={{ marginBottom: 18, background: '#f9f9f9', borderRadius: 12, padding: '1.2rem 1.5rem', boxShadow: '0 2px 8px #6366f122', position: 'relative' }}>
-              <div style={{ fontWeight: 700, fontSize: '1.08em', color: '#a004b0' }}>{addr.name} <span style={{ fontWeight: 400, color: '#6366f1', fontSize: '0.98em' }}>({addr.type})</span></div>
+          {addresses.map((addr) => (
+            <li key={addr.id} style={{ marginBottom: 18, background: '#f9f9f9', borderRadius: 12, padding: '1.2rem 1.5rem', boxShadow: '0 2px 8px #6366f122', position: 'relative' }}>
+              <div style={{ fontWeight: 700, fontSize: '1.08em', color: '#a004b0' }}>{addr.name} <span style={{ fontWeight: 400, color: '#6366f1', fontSize: '0.98em' }}>({addr.type})</span> {addr.is_default && <span style={{ color: '#4caf50', fontWeight: 600, marginLeft: 8 }}>(Default)</span>}</div>
               <div style={{ color: '#555', marginTop: 2 }}>{addr.address}, {addr.city}, {addr.postal}</div>
               <div style={{ color: '#555', marginTop: 2 }}>Phone: {addr.phone}</div>
               <div style={{ position: 'absolute', top: 16, right: 18, display: 'flex', gap: 8 }}>
-                <button style={{ background: 'none', border: 'none', color: '#6366f1', fontWeight: 700, cursor: 'pointer' }} onClick={() => handleEdit(idx)}>Edit</button>
-                <button style={{ background: 'none', border: 'none', color: '#f44336', fontWeight: 700, cursor: 'pointer' }} onClick={() => handleDelete(idx)}>Delete</button>
+                <button style={{ background: 'none', border: 'none', color: '#6366f1', fontWeight: 700, cursor: 'pointer' }} onClick={() => handleEdit(addr)}>Edit</button>
+                <button style={{ background: 'none', border: 'none', color: '#f44336', fontWeight: 700, cursor: 'pointer' }} onClick={() => handleDelete(addr.id!)}>Delete</button>
               </div>
             </li>
           ))}
@@ -258,7 +332,7 @@ function ProfileAddressSection() {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.18)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <form onSubmit={handleSubmit} style={{ background: '#fff', borderRadius: 16, boxShadow: '0 8px 32px #6366f122', padding: '2.5rem 2rem', minWidth: 340, maxWidth: 420, width: '100%', position: 'relative' }}>
             <button type="button" onClick={() => setShowModal(false)} style={{ position: 'absolute', top: 18, right: 18, background: 'none', border: 'none', fontSize: 22, color: '#a004b0', cursor: 'pointer', fontWeight: 700 }}>&times;</button>
-            <h2 style={{ color: '#a004b0', fontWeight: 800, marginBottom: 18 }}>{editIndex !== null ? 'Edit Address' : 'Add Address'}</h2>
+            <h2 style={{ color: '#a004b0', fontWeight: 800, marginBottom: 18 }}>{editId !== null ? 'Edit Address' : 'Add Address'}</h2>
             <div style={{ marginBottom: 12 }}>
               <label>Name</label>
               <input required value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid #ccc' }} />
@@ -287,8 +361,11 @@ function ProfileAddressSection() {
                 <option value="other">Other</option>
               </select>
             </div>
-            <button type="submit" style={{ width: '100%', padding: '12px', background: 'linear-gradient(90deg, #a004b0 0%, #6366f1 100%)', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: '1.1em', cursor: 'pointer' }}>
-              {editIndex !== null ? 'Update Address' : 'Add Address'}
+            <div style={{ marginBottom: 12 }}>
+              <label><input type="checkbox" checked={!!form.is_default} onChange={e => setForm({ ...form, is_default: e.target.checked })} /> Set as default</label>
+            </div>
+            <button type="submit" style={{ width: '100%', padding: '12px', background: 'linear-gradient(90deg, #a004b0 0%, #6366f1 100%)', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: '1.1em', cursor: 'pointer' }} disabled={loading}>
+              {editId !== null ? (loading ? 'Saving...' : 'Update Address') : (loading ? 'Saving...' : 'Add Address')}
             </button>
           </form>
         </div>
@@ -299,8 +376,38 @@ function ProfileAddressSection() {
 
 export default function ProfilePage() {
   const [activeSection, setActiveSection] = useState("general");
+  const [editMode, setEditMode] = useState(false);
+  const [form, setForm] = useState({
+    name: '',
+    phone: '',
+    address: ''
+  });
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string|null>(null);
   const router = useRouter();
-  const { user, isLoading, logout } = useUser();
+  const { user, isLoading, logout } = useAuth();
+
+  // Keep form in sync with user when not editing
+  useEffect(() => {
+    if (!editMode && user) {
+      setForm({
+        name: user.name || "",
+        phone: user.phone || "",
+        address: user.address || ""
+      });
+    }
+  }, [user, editMode]);
+
+  // Listen for auth-state-changed event to reload page/user state
+  useEffect(() => {
+    const handleAuthChange = () => {
+      router.refresh(); // Next.js 13+ instant reload
+    };
+    window.addEventListener("auth-state-changed", handleAuthChange);
+    return () => {
+      window.removeEventListener("auth-state-changed", handleAuthChange);
+    };
+  }, [router]);
 
   const handleLogout = () => {
       logout();
@@ -324,6 +431,9 @@ export default function ProfilePage() {
     return null;
   }
 
+  // Fallback: show email if name is 'User' or empty
+  const displayName = !user.name || user.name.trim().toLowerCase() === 'user' ? user.email : user.name;
+
   return (
     <div className={styles.container}>
       <div className={styles.sidebar}>
@@ -338,7 +448,7 @@ export default function ProfilePage() {
               />
             </svg>
           </div>
-          <h3 className={styles.userName}>{user.name}</h3>
+          <h3 className={styles.userName}>{displayName}</h3>
           <p className={styles.userPhone}>{user.phone}</p>
         </div>
 
@@ -454,47 +564,145 @@ export default function ProfilePage() {
           <div className={styles.section}>
             <div className={styles.sectionHeader}>
               <h2>General Info</h2>
-              <button className={styles.editBtn}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"
-                    fill="currentColor"
-                  />
-                </svg>
-                Edit
-              </button>
+              {!editMode ? (
+                <button className={styles.editBtn} onClick={() => setEditMode(true)}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                  Edit
+                </button>
+              ) : null}
             </div>
 
             <div className={styles.infoGrid}>
-              <div className={styles.infoItem}>
-                <label>Name</label>
-                <p>{user.name}</p>
-              </div>
-
-              <div className={styles.infoItem}>
-                <label>Email Address</label>
-                <p>{user.email || "Not Provided"}</p>
-              </div>
-
-              <div className={styles.infoItem}>
-                <label>Mobile Number</label>
-                <p>{user.phone}</p>
-              </div>
-
-              <div className={styles.infoItem}>
-                <label>Role</label>
-                <p>{user.role || "Customer"}</p>
-              </div>
-
-              <div className={styles.infoItem}>
-                <label>Date of Birth</label>
-                <p>Not Provided</p>
-              </div>
-
-              <div className={styles.infoItem}>
-                <label>Address</label>
-                <p>Not Provided</p>
-              </div>
+              {editMode ? (
+                <>
+                  <div className={styles.infoItem}>
+                    <label>Name</label>
+                    <input
+                      type="text"
+                      value={form.name}
+                      onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                      style={{ width: '100%', padding: 8, borderRadius: 6, border: '1px solid #ccc' }}
+                    />
+                  </div>
+                  <div className={styles.infoItem}>
+                    <label>Email Address</label>
+                    <input type="text" value={user.email} disabled style={{ width: '100%', padding: 8, borderRadius: 6, border: '1px solid #eee', background: '#f9f9f9' }} />
+                  </div>
+                  <div className={styles.infoItem}>
+                    <label>Mobile Number</label>
+                    <input
+                      type="text"
+                      value={form.phone}
+                      onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
+                      style={{ width: '100%', padding: 8, borderRadius: 6, border: '1px solid #ccc' }}
+                    />
+                    {/* Show phone error below field if present */}
+                    {saveError && saveError.toLowerCase().includes('phone') && (
+                      <span style={{ color: 'red', fontSize: '0.98em' }}>{saveError}</span>
+                    )}
+                  </div>
+                  <div className={styles.infoItem}>
+                    <label>Role</label>
+                    <input type="text" value={user.role || 'Customer'} disabled style={{ width: '100%', padding: 8, borderRadius: 6, border: '1px solid #eee', background: '#f9f9f9' }} />
+                  </div>
+                  <div className={styles.infoItem}>
+                    <label>Date of Birth</label>
+                    <input type="text" value="Not Provided (not editable)" disabled style={{ width: '100%', padding: 8, borderRadius: 6, border: '1px solid #eee', background: '#f9f9f9' }} />
+                  </div>
+                  <div className={styles.infoItem}>
+                    <label>Address</label>
+                    <input
+                      type="text"
+                      value={form.address}
+                      onChange={e => setForm(f => ({ ...f, address: e.target.value }))}
+                      style={{ width: '100%', padding: 8, borderRadius: 6, border: '1px solid #ccc' }}
+                    />
+                  </div>
+                  <div style={{ gridColumn: '1/-1', display: 'flex', gap: 12, marginTop: 18 }}>
+                    <button
+                      onClick={async () => {
+                        setSaving(true);
+                        setSaveError(null);
+                        try {
+                          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/profile`, {
+                            method: 'PUT',
+                            headers: {
+                              'Content-Type': 'application/json',
+                              'Authorization': `Bearer ${localStorage.getItem('token')}`
+                            },
+                            body: JSON.stringify(form)
+                          });
+                          let data;
+                          try {
+                            data = await res.json();
+                          } catch (jsonErr) {
+                            throw new Error('Server error: Non-JSON response. Please check your login or try again.');
+                          }
+                          if (!res.ok || !data.success) {
+                            // Show validation error if present
+                            if (data.errors) {
+                              // Show first error message found
+                              const firstField = Object.keys(data.errors)[0];
+                              throw new Error(data.errors[firstField][0]);
+                            }
+                            throw new Error(data.message || 'Failed to update profile');
+                          }
+                          window.dispatchEvent(new Event('auth-state-changed'));
+                          setEditMode(false);
+                        } catch (err: any) {
+                          setSaveError(err.message || 'Failed to update profile');
+                        } finally {
+                          setSaving(false);
+                        }
+                      }}
+                      style={{ padding: '10px 28px', background: 'linear-gradient(90deg, #a004b0 0%, #6366f1 100%)', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: '1.1em', cursor: 'pointer' }}
+                      disabled={saving}
+                    >{saving ? 'Saving...' : 'Save'}</button>
+                    <button
+                      onClick={() => { setEditMode(false); setSaveError(null); setForm({ name: user.name || '', phone: user.phone || '', address: user.address || '' }); }}
+                      style={{ padding: '10px 28px', background: '#eee', color: '#a004b0', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: '1.1em', cursor: 'pointer' }}
+                      type="button"
+                      disabled={saving}
+                    >Cancel</button>
+                    {/* Show other errors (not phone) below buttons */}
+                    {saveError && !saveError.toLowerCase().includes('phone') && (
+                      <span style={{ color: 'red', marginLeft: 12 }}>{saveError}</span>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className={styles.infoItem}>
+                    <label>Name</label>
+                    <p>{displayName}</p>
+                  </div>
+                  <div className={styles.infoItem}>
+                    <label>Email Address</label>
+                    <p>{user.email || "Not Provided"}</p>
+                  </div>
+                  <div className={styles.infoItem}>
+                    <label>Mobile Number</label>
+                    <p>{user.phone}</p>
+                  </div>
+                  <div className={styles.infoItem}>
+                    <label>Role</label>
+                    <p>{user.role || "Customer"}</p>
+                  </div>
+                  <div className={styles.infoItem}>
+                    <label>Date of Birth</label>
+                    <p>Not Provided</p>
+                  </div>
+                  <div className={styles.infoItem}>
+                    <label>Address</label>
+                    <p>{user.address || 'Not Provided'}</p>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         )}

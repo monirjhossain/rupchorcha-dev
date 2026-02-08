@@ -1,3 +1,4 @@
+
 <?php
 
 use Illuminate\Http\Request;
@@ -17,6 +18,9 @@ use App\Http\Controllers\API\WishlistController;
 */
 // Tags API routes
 Route::get('tags/{slug}', [TagController::class, 'showBySlug']);
+
+// Google login API (frontend expects /login/google)
+Route::post('/login/google', [\App\Http\Controllers\GoogleAuthController::class, 'handleGoogleLogin']);
 
 // Cart API routes
 Route::get('/cart', [\App\Http\Controllers\API\CartController::class, 'index']);
@@ -98,11 +102,13 @@ Route::middleware('auth:sanctum')->post('/bulk-sms', [\App\Http\Controllers\API\
 Route::middleware('auth:sanctum')->put('/bulk-sms/{id}', [\App\Http\Controllers\API\BulkSmsController::class, 'update']);
 Route::middleware('auth:sanctum')->delete('/bulk-sms/{id}', [\App\Http\Controllers\API\BulkSmsController::class, 'destroy']);
 // Address API routes (Best Practice)
-Route::get('/addresses', [\App\Http\Controllers\API\AddressController::class, 'index']);
-Route::get('/addresses/{id}', [\App\Http\Controllers\API\AddressController::class, 'show']);
-Route::middleware('auth:sanctum')->post('/addresses', [\App\Http\Controllers\API\AddressController::class, 'store']);
-Route::middleware('auth:sanctum')->put('/addresses/{id}', [\App\Http\Controllers\API\AddressController::class, 'update']);
-Route::middleware('auth:sanctum')->delete('/addresses/{id}', [\App\Http\Controllers\API\AddressController::class, 'destroy']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/addresses', [\App\Http\Controllers\API\AddressController::class, 'index']);
+    Route::get('/addresses/{id}', [\App\Http\Controllers\API\AddressController::class, 'show']);
+    Route::post('/addresses', [\App\Http\Controllers\API\AddressController::class, 'store']);
+    Route::put('/addresses/{id}', [\App\Http\Controllers\API\AddressController::class, 'update']);
+    Route::delete('/addresses/{id}', [\App\Http\Controllers\API\AddressController::class, 'destroy']);
+});
 // Refund API routes (Best Practice)
 Route::get('/refunds', [\App\Http\Controllers\API\RefundController::class, 'index']);
 Route::get('/refunds/{id}', [\App\Http\Controllers\API\RefundController::class, 'show']);
@@ -155,7 +161,15 @@ Route::middleware('auth:sanctum')->put('/reviews/{id}', [\App\Http\Controllers\A
 Route::middleware('auth:sanctum')->delete('/reviews/{id}', [\App\Http\Controllers\API\ReviewController::class, 'destroy']);
 Route::get('/products/{id}/rating', [\App\Http\Controllers\API\ReviewController::class, 'ratingSummary']);
 Route::post('/register', [\App\Http\Controllers\API\UserController::class, 'register']);
+// POST login route
 Route::post('/login', [\App\Http\Controllers\API\UserController::class, 'login']);
+// GET login route returns clear error
+Route::get('/login', function () {
+    return response()->json([
+        'success' => false,
+        'message' => 'GET method is not supported for this route. Please use POST.'
+    ], 405);
+});
 Route::middleware('auth:sanctum')->get('/profile', [\App\Http\Controllers\API\UserController::class, 'profile']);
 Route::middleware('auth:sanctum')->put('/profile', [\App\Http\Controllers\API\UserController::class, 'updateProfile']);
 Route::middleware('auth:sanctum')->put('/change-password', [\App\Http\Controllers\API\UserController::class, 'changePassword']);

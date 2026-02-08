@@ -4,6 +4,129 @@
   background: #fafbfc;
   padding-bottom: 2rem;
 }
+.desktopMain {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 1rem 0.75rem 2.5rem;
+}
+
+/* Thin banners row under hero */
+.thinBannerRow {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.thinBanner {
+  height: 90px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #ffe4f2, #ffe9d9);
+}
+
+/* 3-column deals you cannot miss */
+.dealsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.dealCard {
+  height: 180px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #e0f3ff, #ffe6ff);
+}
+
+/* Top brands & offers style grid */
+.topBrandGrid {
+  display: grid;
+  grid-template-columns: 2fr 2fr 2fr;
+  grid-auto-rows: 140px;
+  gap: 0.75rem;
+  margin-top: 1.75rem;
+}
+
+.topBrandWide {
+  grid-column: span 1;
+  grid-row: span 2;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #2b004b, #6600ff);
+}
+
+.topBrandCard {
+  border-radius: 10px;
+  background: linear-gradient(135deg, #fdf1ff, #e6f9ff);
+}
+
+/* Limited time offers pink cards */
+.limitedOffers {
+  margin-top: 2rem;
+}
+
+.sectionHeading {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 0.85rem;
+  text-align: center;
+  color: #ff4b8b;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.offerRow {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.offerCard {
+  height: 180px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #ff4b8b, #ff1493);
+}
+
+/* Shop by category grid */
+.categorySection {
+  margin-top: 2.25rem;
+}
+
+.categoryGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.categoryCard {
+  height: 190px;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+/* Shop by concern grid */
+.concernSection {
+  margin-top: 2.25rem;
+}
+
+.concernGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.concernCard {
+  height: 170px;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+@media (max-width: 900px) {
+  .desktopMain {
+    display: none;
+  }
+}
 .featuredProducts {
   margin: 2rem auto;
   max-width: 1200px;

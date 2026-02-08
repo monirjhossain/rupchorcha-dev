@@ -86,3 +86,12 @@
   display: inline-flex;
   align-items: center;
 }
+
+@media (max-width: 900px) {
+  .deliveryInfo {
+    min-width: auto;
+    padding: 20px 16px 14px 16px;
+    border-radius: 14px;
+    font-size: 15px;
+  }
+}

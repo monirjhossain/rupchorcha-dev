@@ -1,16 +1,125 @@
 .footer {
   width: 100%;
-  background: #fafafd;
-  border-top: 1px solid #eee;
-  padding: 2rem 0 1rem 0;
-  text-align: center;
-  color: #888;
-  font-size: 1rem;
+  background: #0b0b2b;
+  color: #f5f5ff;
   margin-top: 3rem;
+  font-size: 0.9rem;
 }
+
+.statsRow {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 1.2rem 12px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  background: #4b008f;
+}
+
+.statItem {
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.09);
+  padding: 0.55rem 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.statLabel {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.statSub {
+  font-size: 0.75rem;
+  opacity: 0.85;
+}
+
 .footerInner {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 0 12px;
-  box-sizing: border-box;
+  padding: 2rem 12px 1.5rem;
+  display: flex;
+  gap: 2.5rem;
+}
+
+.brandBlock {
+  min-width: 180px;
+}
+
+.brandName {
+  font-size: 1.4rem;
+  letter-spacing: 0.15em;
+  font-weight: 800;
+  margin-bottom: 0.75rem;
+}
+
+.columnsWrap {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.75rem;
+}
+
+.columnTitle {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 0.7rem;
+}
+
+.linkList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.linkList li {
+  margin-bottom: 0.4rem;
+  opacity: 0.85;
+  cursor: default;
+}
+
+.linkList li:hover {
+  opacity: 1;
+}
+
+.bottomBar {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.75rem 12px 0.9rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1280px;
+  margin: 0 auto;
+  font-size: 0.8rem;
+}
+
+.bottomLinks {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.copy {
+  opacity: 0.8;
+}
+
+@media (max-width: 900px) {
+  .statsRow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .footerInner {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .columnsWrap {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .bottomBar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
+  }
 }

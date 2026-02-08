@@ -126,3 +126,36 @@
   box-shadow: 0 2px 8px #a004b033;
   opacity: 1;
 }
+
+@media (max-width: 900px) {
+  .gallery {
+    width: 100%;
+    max-width: 420px;
+  }
+
+  .mainImageWrapper {
+    width: 100%;
+    max-width: 420px;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    margin-bottom: 16px;
+  }
+
+  .mainImage,
+  .placeholder {
+    width: 100%;
+    height: 100%;
+  }
+
+  .thumbs {
+    margin-top: 6px;
+    justify-content: center;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+
+  .thumb {
+    width: 64px;
+    height: 64px;
+  }
+}

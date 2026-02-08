@@ -1,7 +1,8 @@
 "use client";
 import React, { useState } from "react";
 import { useCart } from "@/app/common/CartContext";
-import ProductList from "@/app/components/ProductList";
+import ProductCard from "@/app/components/ProductCard";
+import gridStyles from "@/app/components/ProductGrid.module.css";
 import toast from "react-hot-toast";
 import { useBrandProducts } from "@/app/services/useBrandProducts";
 import GlobalSortBar from "@/app/components/GlobalSortBar";
@@ -91,17 +92,36 @@ export default function BrandProductsClient({ slug }: { slug: string }) {
 
       {isError && <div style={{ color: "#d33" }}>Failed to load products.</div>}
 
-      {isLoading && products.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "2rem" }}>Loading products...</div>
-      ) : products.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "2rem", color: "#666" }}>No products found for this brand.</div>
-      ) : (
-        <ProductList
-          products={products}
-          onAddToCart={handleAddToCart}
-          addingStateMap={isAddingToCart}
-        />
-      )}
+      <div className={gridStyles["shop-container"]}>
+        <main className={gridStyles["shop-main"]}>
+          {isLoading && products.length === 0 ? (
+            <div className="loading-spinner">
+              <div className="spinner"></div>
+              <p>Loading products...</p>
+            </div>
+          ) : products.length === 0 ? (
+            <div className="no-products">
+              <p>No products found for this brand.</p>
+            </div>
+          ) : (
+            <div className={gridStyles["products-grid-wrapper"]}>
+              <div
+                className={gridStyles["products-grid"]}
+                style={isLoading ? { filter: "blur(1.5px)", pointerEvents: "none" } : {}}
+              >
+                {products.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    onAddToCart={() => handleAddToCart(product)}
+                    isAddingToCart={!!isAddingToCart[product.id]}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+        </main>
+      </div>
 
       {totalPages > 1 && (
         <div className="pagination">

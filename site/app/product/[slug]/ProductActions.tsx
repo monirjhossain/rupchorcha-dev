@@ -19,6 +19,13 @@ export default function ProductActions({ product }: { product: Product }) {
   const [buying, setBuying] = React.useState(false);
   const [wishlistError, setWishlistError] = React.useState<string | null>(null);
 
+  // Short description shown under wishlist row
+  const rawShort =
+    (product as any).short_description ||
+    (product as any).description ||
+    "";
+  const shortDescription = typeof rawShort === "string" ? rawShort.trim() : "";
+
   const handleAddToCart = async () => {
     setAdding(true);
     try {
@@ -71,43 +78,51 @@ export default function ProductActions({ product }: { product: Product }) {
   };
 
   return (
-    <div className={styles.actions}>
-      <button
-        className={styles.addToCartBtn}
-        style={adding ? { cursor: "not-allowed", opacity: 0.7 } : {}}
-        onClick={handleAddToCart}
-        disabled={adding || buying}
-      >
-        {adding ? "Adding..." : "Add to bag"}
-      </button>
-      <button
-        className={styles.appPriceBtn}
-        onClick={handleBuyNow}
-        disabled={buying}
-        aria-label="Buy now"
-      >
-        {buying ? "Processing..." : "Buy Now"}
-      </button>
-      {/* Wishlist & Share icons */}
-      <button
-        className={styles.iconBtn + ' ' + styles.iconHeart}
-        onClick={handleWishlist}
-        disabled={wishlistLoading}
-        aria-label={isInWishlist(product.id) ? "Remove from wishlist" : "Add to wishlist"}
-        title={isInWishlist(product.id) ? "Remove from wishlist" : "Add to wishlist"}
-      >
-        {wishlistLoading ? (
-          <span style={{ fontSize: 12, fontWeight: "bold" }}>...</span>
-        ) : isInWishlist(product.id) ? (
-          <FaHeart size={20} color="#e53935" />
-        ) : (
-          <FaRegHeart size={20} color="#e53935" />
+    <>
+      <div className={styles.actions}>
+        <button
+          className={styles.addToCartBtn}
+          style={adding ? { cursor: "not-allowed", opacity: 0.7 } : {}}
+          onClick={handleAddToCart}
+          disabled={adding || buying}
+        >
+          {adding ? "Adding..." : "Add to bag"}
+        </button>
+        <button
+          className={styles.appPriceBtn}
+          onClick={handleBuyNow}
+          disabled={buying}
+          aria-label="Buy now"
+        >
+          {buying ? "Processing..." : "Buy Now"}
+        </button>
+        {/* Wishlist & Share icons */}
+        <button
+          className={styles.iconBtn + ' ' + styles.iconHeart}
+          onClick={handleWishlist}
+          disabled={wishlistLoading}
+          aria-label={isInWishlist(product.id) ? "Remove from wishlist" : "Add to wishlist"}
+          title={isInWishlist(product.id) ? "Remove from wishlist" : "Add to wishlist"}
+        >
+          {wishlistLoading ? (
+            <span style={{ fontSize: 12, fontWeight: "bold" }}>...</span>
+          ) : isInWishlist(product.id) ? (
+            <FaHeart size={20} color="#e53935" />
+          ) : (
+            <FaRegHeart size={20} color="#e53935" />
+          )}
+        </button>
+        <button className={styles.iconBtn + ' ' + styles.iconShare}>⤴</button>
+        {wishlistError && (
+          <span style={{ color: "red", fontSize: 13, marginLeft: 8 }}>{wishlistError}</span>
         )}
-      </button>
-      <button className={styles.iconBtn + ' ' + styles.iconShare}>⤴</button>
-      {wishlistError && (
-        <span style={{ color: "red", fontSize: 13, marginLeft: 8 }}>{wishlistError}</span>
+      </div>
+
+      {shortDescription && (
+        <div className={styles.shortDescription}>
+          <p>{shortDescription}</p>
+        </div>
       )}
-    </div>
+    </>
   );
 }

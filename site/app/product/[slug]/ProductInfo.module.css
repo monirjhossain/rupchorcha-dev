@@ -144,3 +144,18 @@
 .shortDescription p {
   margin: 0;
 }
+
+@media (max-width: 900px) {
+  .breadcrumbs {
+    font-size: 0.8rem;
+    flex-wrap: wrap;
+  }
+
+  .title {
+    font-size: 1.25rem;
+  }
+
+  .price {
+    font-size: 1.25rem;
+  }
+}

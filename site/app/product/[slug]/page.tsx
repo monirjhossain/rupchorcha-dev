@@ -5,6 +5,7 @@ import ProductActions from "./ProductActions";
 import ProductDeliveryInfo from "./ProductDeliveryInfo";
 import FrequentlyBoughtTogether from "./FrequentlyBoughtTogether";
 import ProductTabs from "./ProductTabs";
+import styles from "./ProductDetailsPage.module.css";
 import { notFound } from "next/navigation";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
@@ -151,10 +152,10 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
       />
-      <main style={{ display: "flex", justifyContent: "center", background: "#fafafd", minHeight: "100vh", padding: "2rem 0" }}>
-        <div style={{ display: "flex", gap: 48, maxWidth: 1200, width: "100%", background: "#fff", borderRadius: 18, boxShadow: "0 4px 24px #0002", padding: 32 }}>
+      <main className={styles.main}>
+        <div className={styles.container}>
           {/* Left: Gallery */}
-          <div style={{ flex: 1, minWidth: 0 }}>
+          <div className={styles.left}>
             <ProductGallery
               images={
                 Array.isArray(product.images)
@@ -167,7 +168,7 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
             />
           </div>
           {/* Right: Info & Actions */}
-          <div style={{ flex: 1.2, minWidth: 0, display: "flex", flexDirection: "column", gap: 24 }}>
+          <div className={styles.right}>
             <ProductInfo product={product} />
             <ProductActions product={product} />
             <ProductDeliveryInfo product={product} />

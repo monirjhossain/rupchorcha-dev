@@ -96,3 +96,25 @@
   text-align: center;
   padding: 32px 0;
 }
+
+/* Responsive adjustments for shop layout and grid */
+@media (max-width: 1024px) {
+  .products-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .shop-container {
+    flex-direction: column;
+    gap: 0.9rem;
+    padding: 0 0.25rem;
+  }
+
+  .products-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.4rem;
+  }
+}
+
+/* Keep 2 columns even on very small screens */

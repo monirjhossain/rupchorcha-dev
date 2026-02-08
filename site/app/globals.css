@@ -169,3 +169,11 @@ input[type="range"]::-moz-range-thumb:active {
   transform: scale(1.05);
   background: #c2185b;
 }
+
+/* Hide left filter sidebar on mobile; show only via Filter overlay
+   Match mobile header breakpoint (<= 900px) */
+@media (max-width: 900px) {
+  .responsive-sidebar {
+    display: none !important;
+  }
+}

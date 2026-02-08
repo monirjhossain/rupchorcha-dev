@@ -1,0 +1,84 @@
+.mobileHome {
+  width: 100%;
+  min-height: 100vh;
+  background: #fafbfc;
+  padding-bottom: 2.5rem;
+}
+
+.bannerStrip,
+.bannerGridTwo,
+.bannerStripRow {
+  padding: 0.5rem 0.5rem 0;
+}
+
+.bannerTall {
+  width: 100%;
+  height: 180px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #ffe0f0, #ffd1e5);
+}
+
+.bannerGridTwo {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.bannerCard {
+  width: 100%;
+  height: 120px;
+  border-radius: 8px;
+  background: linear-gradient(145deg, #e0f3ff, #ffe6ff);
+}
+
+.bannerWide {
+  width: 100%;
+  height: 150px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #fdf1ff, #ffe9f3);
+}
+
+.bannerWideSmall {
+  width: 100%;
+  height: 130px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #fef0ff, #ffe4f6);
+}
+
+.labelSection {
+  padding: 1rem 0.5rem 0;
+}
+
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+  color: #ff4b8b;
+}
+
+.iconGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.iconCard,
+.iconCardTall {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.iconCard {
+  height: 110px;
+}
+
+.iconCardTall {
+  height: 130px;
+}
+
+@media (min-width: 769px) {
+  .mobileHome {
+    display: none;
+  }
+}

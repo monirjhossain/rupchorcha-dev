@@ -14,19 +14,27 @@ export default function ProductDescription({ product }: ProductDescriptionProps)
   const features = (product as Record<string, unknown>).features as string[] || [];
   const specifications = (product as Record<string, unknown>).specifications as Record<string, unknown> || {};
 
+  // Hide the section if all are empty
+  const hasDescription = (longDescription && longDescription.trim() !== "") || (shortDescription && shortDescription.trim() !== "");
+  const hasFeatures = features.length > 0;
+  const hasSpecs = Object.keys(specifications).length > 0;
+  const hasDefaultSpecs = product.brand?.name || product.category?.name || product.sku;
+  if (!hasDescription && !hasFeatures && !hasSpecs && !hasDefaultSpecs) {
+    return null;
+  }
+
   return (
     <div className={styles.container}>
       <h2 className={styles.heading}>Product Description</h2>
-      
       {/* Long Description - Primary content */}
-      {longDescription && (
+      {longDescription && longDescription.trim() !== "" && (
         <div className={styles.longDescription}>
           <div dangerouslySetInnerHTML={{ __html: longDescription }} />
         </div>
       )}
 
       {/* Short Description - Fallback */}
-      {!longDescription && (
+      {!longDescription && shortDescription && shortDescription.trim() !== "" && (
         <div className={styles.description}>
           <p>{shortDescription}</p>
         </div>
@@ -65,7 +73,7 @@ export default function ProductDescription({ product }: ProductDescriptionProps)
       )}
 
       {/* Default specs if none from backend */}
-      {Object.keys(specifications).length === 0 && (
+      {Object.keys(specifications).length === 0 && hasDefaultSpecs && (
         <div className={styles.section}>
           <h3 className={styles.subheading}>Product Details</h3>
           <table className={styles.specTable}>

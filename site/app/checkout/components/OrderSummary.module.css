@@ -256,6 +256,32 @@
   text-align: right;
 }
 
+@media (max-width: 768px) {
+  .summary {
+    position: static;
+    top: auto;
+    padding: 1.25rem 1rem 1.4rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  }
+
+  .items {
+    max-height: 220px;
+  }
+
+  .discountSection {
+    flex-direction: column;
+  }
+
+  .discountInput {
+    width: 100%;
+  }
+
+  .applyBtn {
+    width: 100%;
+    text-align: center;
+  }
+}
+
 .removeBtn {
   background: transparent;
   border: none;

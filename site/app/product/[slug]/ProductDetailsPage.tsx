@@ -23,7 +23,7 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
   if (!product) return notFound();
 
   return (
-    <main style={{ display: "flex", justifyContent: "center", background: "#fafafd", minHeight: "100vh", padding: "2rem 0" }}>
+    <main style={{ display: "flex", justifyContent: "center", background: "#fafafd", minHeight: "100vh", padding: "1rem 0" }}>
       <div style={{ display: "flex", gap: 48, maxWidth: 1200, width: "100%", background: "#fff", borderRadius: 18, boxShadow: "0 4px 24px #0002", padding: 32 }}>
         {/* Left: Gallery */}
         <div style={{ flex: 1, minWidth: 0 }}>

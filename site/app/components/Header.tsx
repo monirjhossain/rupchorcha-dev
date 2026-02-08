@@ -1,19 +1,19 @@
 "use client";
 import styles from './Header.module.css';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useCategories } from '@/src/hooks/useCategories';
+import { usePathname, useRouter } from 'next/navigation';
 import { useBrands } from '@/src/hooks/useBrands';
 import CartIcon from './CartIcon';
 import React, { useState } from 'react';
 import Image from 'next/image';
 import SearchBox from './SearchBox';
 import { useWishlist } from './WishlistContext';
-import { useAuth } from '@/src/hooks/useAuth';
-import LoginModal from './LoginModal';
+import { useAuth } from '@/app/contexts/AuthContext';
+import LoginModal from './login/LoginModal';
 import Head from 'next/head';
 import MenuToggle from '../../components/MenuToggle/MenuToggle';
 import MenuSidebar from '../../components/MenuSidebar/MenuSidebar';
+import Sidebar from './Sidebar';
 
 const useIsMobile = () => {
   const [isMobile, setIsMobile] = React.useState(false);
@@ -31,65 +31,100 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ onCartClick }) => {
-  const { categories, isLoading } = useCategories();
-  const { brands, isLoading: brandsLoading } = useBrands();
-  const { wishlist } = useWishlist();
-  const { isAuthenticated, user } = useAuth();
+    const { brands } = useBrands();
+    const { wishlist } = useWishlist();
+    const { isAuthenticated, user } = useAuth();
+  const pathname = usePathname();
+
+    // Always sync isAuthenticated with localStorage token
+    React.useEffect(() => {
+      const syncAuth = () => {
+        const token = localStorage.getItem('token');
+        if (!token && isAuthenticated) {
+          forceUpdate();
+        }
+      };
+      window.addEventListener('auth-state-changed', syncAuth);
+      window.addEventListener('storage', syncAuth);
+      return () => {
+        window.removeEventListener('auth-state-changed', syncAuth);
+        window.removeEventListener('storage', syncAuth);
+      };
+    }, [isAuthenticated]);
+  // Removed duplicate useWishlist and useAuth declarations
   const router = useRouter();
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [, forceUpdate] = React.useReducer((x) => x + 1, 0);
   const isMobile = useIsMobile();
+  const [filterOpen, setFilterOpen] = useState(false);
+
+  const isCategoryRoute = React.useMemo(() => {
+    if (!pathname) return false;
+    return (
+      pathname === '/category' ||
+      pathname.startsWith('/category/') ||
+      pathname === '/brands' ||
+      pathname.startsWith('/brands/') ||
+      pathname.startsWith('/tags/')
+    );
+  }, [pathname]);
 
   // Debug logging
   React.useEffect(() => {
-    console.log("Header State - isAuthenticated:", isAuthenticated, "user:", user);
+    console.log('[Header] isAuthenticated:', isAuthenticated, 'user:', user);
   }, [isAuthenticated, user]);
 
-  // Listen for auth state changes
+  // Listen for auth state changes and force router refresh for instant UI update
   React.useEffect(() => {
     const handleAuthChange = () => {
-      console.log("Auth state changed, forcing Header re-render");
-      forceUpdate();
+      console.log("Auth state changed, refreshing router for instant UI update");
+      router.refresh();
     };
     window.addEventListener('auth-state-changed', handleAuthChange);
     return () => window.removeEventListener('auth-state-changed', handleAuthChange);
   }, []);
 
+
   // Listen for global login modal open/close events
   React.useEffect(() => {
     const handleOpenModal = () => setShowLoginModal(true);
     const handleCloseModal = () => setShowLoginModal(false);
-    
     window.addEventListener('open-login-modal', handleOpenModal);
     window.addEventListener('close-login-modal', handleCloseModal);
-    
     return () => {
       window.removeEventListener('open-login-modal', handleOpenModal);
       window.removeEventListener('close-login-modal', handleCloseModal);
     };
   }, []);
 
-  // Handle modal close - ensure UI updates
+  // Auto-close login modal only when authenticated becomes true
+  React.useEffect(() => {
+    if (isAuthenticated) {
+      setShowLoginModal(false);
+    }
+  }, [isAuthenticated]);
+
+  // Handle modal close - always just close modal
   const handleModalClose = () => {
     setShowLoginModal(false);
   };
 
+  // Listen for auth state changes and close modal if logged in
+  React.useEffect(() => {
+    if (isAuthenticated && showLoginModal) {
+      setShowLoginModal(false);
+    }
+  }, [isAuthenticated, showLoginModal]);
+
+  // Close mobile filter overlay when route changes
+  React.useEffect(() => {
+    setFilterOpen(false);
+  }, [pathname]);
+
   return (
     <>
-      {/* Prefetch category/brand links (desktop only) */}
-      {!isMobile && !isLoading && categories.length > 0 && (
-        <>
-          {categories.slice(0, 6).map((cat: any) => (
-            <link
-              key={cat.id}
-              rel="prefetch"
-              href={`/category/${cat.slug || cat.name.toLowerCase().replace(/\s+/g, '-')}`}
-            />
-          ))}
-        </>
-      )}
-      {!isMobile && !brandsLoading && brands.length > 0 && (
+      {!isMobile && brands.length > 0 && (
         <>
           {brands.slice(0, 12).map((brand: any) => (
             <link
@@ -108,7 +143,7 @@ const Header: React.FC<HeaderProps> = ({ onCartClick }) => {
             <div className={styles.topBar}>
               <div className={styles.logoWrap}>
                 <Link href="/">
-                  <Image src="/rupchorcha-logo.png" alt="Logo" height={50} width={160} className={styles.logoImg} />
+                  <Image src="/rupchorcha-logo.png" alt="Logo" height={56} width={180} className={styles.logoImg} />
                 </Link>
               </div>
               <div className={styles.searchWrap} style={{position:'relative'}}>
@@ -124,45 +159,36 @@ const Header: React.FC<HeaderProps> = ({ onCartClick }) => {
                   </span>
                 </Link>
                 <div style={{ position: 'relative' }}>
-                  {isAuthenticated && user ? (
-                    <button
-                      type="button"
-                      className={styles.actionBtn + ' ' + styles.actionBtnLight}
-                      onClick={(e) => {
+                  <button
+                    type="button"
+                    className={styles.actionBtn + ' ' + styles.actionBtnLight}
+                    onClick={(e) => {
+                      if (isAuthenticated && user) {
+                        router.push('/profile');
+                      } else {
                         e.preventDefault();
-                        const currentToken = localStorage.getItem('token');
-                        if (currentToken && isAuthenticated) {
-                          router.push('/profile');
-                        } else {
-                          setShowLoginModal(true);
-                        }
-                      }}
-                      style={{background:'none',border:'none',cursor:'pointer',position:'relative',padding:'0.2rem 0.7rem',display:'inline-block',textDecoration:'none'}}
-                      aria-label="Go to profile"
-                    >
-                      <span style={{position:'relative',display:'inline-block'}}>
-                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" style={{display:'block'}}>
-                          <circle cx="12" cy="8" r="4" stroke="#222" strokeWidth="1.5" fill="#222"/>
-                          <path d="M4 20c0-3.31 3.13-6 8-6s8 2.69 8 6" stroke="#222" strokeWidth="1.5" fill="none"/>
-                        </svg>
-                      </span>
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      className={styles.actionBtn + ' ' + styles.actionBtnLight}
-                      onClick={() => setShowLoginModal(true)}
-                      style={{background:'none',border:'none',cursor:'pointer',position:'relative',padding:'0.2rem 0.7rem'}}
-                      aria-label="Open login modal"
-                    >
-                      <span style={{position:'relative',display:'inline-block'}}>
-                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" style={{display:'block'}}>
-                          <circle cx="12" cy="8" r="4" stroke="#222" strokeWidth="1.5" fill="#222"/>
-                          <path d="M4 20c0-3.31 3.13-6 8-6s8 2.69 8 6" stroke="#222" strokeWidth="1.5" fill="none"/>
-                        </svg>
-                      </span>
-                    </button>
-                  )}
+                        setShowLoginModal(true);
+                        console.log('[Header] Opening login modal (forced)');
+                      }
+                    }}
+                    style={{background:'none',border:'none',cursor:'pointer',position:'relative',padding:'0.2rem 0.7rem',display:'inline-block',textDecoration:'none'}}
+                    aria-label={isAuthenticated && user ? "Go to profile" : "Open login modal"}
+                  >
+                    <span style={{position:'relative',display:'inline-block'}}>
+                      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" style={{display:'block'}}>
+                        <circle cx="12" cy="8" r="4" stroke="#222" strokeWidth="1.5" fill="#222"/>
+                        <path d="M4 20c0-3.31 3.13-6 8-6s8 2.69 8 6" stroke="#222" strokeWidth="1.5" fill="none"/>
+                      </svg>
+                      {(isAuthenticated && !user) && (
+                        <span style={{position:'absolute',top:0,right:0}}>
+                          <svg width="16" height="16" viewBox="0 0 50 50" style={{display:'block'}}>
+                            <circle cx="25" cy="25" r="20" fill="#eee" />
+                            <circle cx="25" cy="25" r="10" fill="#7c32ff" />
+                          </svg>
+                        </span>
+                      )}
+                    </span>
+                  </button>
                 </div>
                 <button
                   type="button"
@@ -184,28 +210,148 @@ const Header: React.FC<HeaderProps> = ({ onCartClick }) => {
                   Shop
                 </span>
               </Link>
-              {isLoading ? (
-                Array.from({ length: 8 }).map((_, i) => (
-                  <span key={i} className={styles.categoryLink + ' ' + styles.categorySkeleton}></span>
-                ))
-              ) : (
-                categories.map(cat => (
-                  <Link
-                    href={"/category/"+cat.name.toLowerCase().replace(/\s+/g,'-')}
-                    key={cat.id}
-                    className={styles.categoryLink}
-                    prefetch={true}
-                  >
-                    {cat.name}
-                  </Link>
-                ))
-              )}
+              <Link href="/category/skin-care" className={styles.categoryLink} prefetch={true}>Skin Care</Link>
+              <Link href="/category/body" className={styles.categoryLink} prefetch={true}>Body</Link>
+              <Link href="/category/makeup" className={styles.categoryLink} prefetch={true}>Makeup</Link>
+              <Link href="/category/face" className={styles.categoryLink} prefetch={true}>Face</Link>
+              <Link href="/category/hair" className={styles.categoryLink} prefetch={true}>Hair</Link>
+              <Link href="/category/hair-care" className={styles.categoryLink} prefetch={true}>Hair Care</Link>
+              <Link href="/category/shop-by-concern" className={styles.categoryLink} prefetch={true}>Shop By Concern</Link>
+              <Link href="/category/acne-treatment" className={styles.categoryLink} prefetch={true}>Acne Treatment</Link>
+              <Link href="/category/skin-concern" className={styles.categoryLink} prefetch={true}>Skin Concern</Link>
             </nav>
           </div>
         </header>
       )}
 
-      {/* Mobile Header removed as per request */}
+      {/* Mobile Header */}
+      {isMobile && (
+        <>
+          <header className={styles.header + ' ' + styles.mobileHeader}>
+            <div className={styles.mobileTopBar}>
+              <div className={styles.mobileLeft}>
+                <MenuToggle onClick={() => setSidebarOpen(true)} />
+              </div>
+              <div className={styles.mobileLogoWrap}>
+                <Link href="/">
+                  <Image
+                    src="/rupchorcha-logo.png"
+                    alt="Logo"
+                    height={44}
+                    width={140}
+                    className={styles.mobileLogoImg}
+                  />
+                </Link>
+              </div>
+            </div>
+            <div className={styles.mobileSearchWrap}>
+              <SearchBox />
+            </div>
+            <MenuSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+          </header>
+
+          {/* Mobile sticky bottom navigation for Wishlist, Account, Cart */}
+          <nav className={styles.mobileBottomNav} aria-label="Mobile navigation">
+            {isCategoryRoute && (
+              <button
+                type="button"
+                className={styles.mobileNavItem}
+                onClick={() => setFilterOpen(true)}
+              >
+                <span className={styles.mobileNavIcon}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M4 5h16M6 12h12M10 19h4"
+                      stroke="#fff"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                </span>
+                <span className={styles.mobileNavLabel}>Filter</span>
+              </button>
+            )}
+            <button
+              type="button"
+              className={styles.mobileNavItem}
+              onClick={() => {
+                if (isAuthenticated && user) {
+                  router.push('/profile');
+                } else {
+                  setShowLoginModal(true);
+                }
+              }}
+            >
+              <span className={styles.mobileNavIcon}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="8" r="4" stroke="#fff" strokeWidth="1.6" />
+                  <path d="M4 20c0-3.31 3.13-6 8-6s8 2.69 8 6" stroke="#fff" strokeWidth="1.6" />
+                </svg>
+              </span>
+              <span className={styles.mobileNavLabel}>Account</span>
+            </button>
+
+            <Link
+              href="/wishlist"
+              className={styles.mobileNavItem}
+              aria-label="Wishlist"
+            >
+              <span className={styles.mobileNavIcon}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 1.01 4.5 2.09C13.09 4.01 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+                    stroke="#fff"
+                    strokeWidth="1.6"
+                    fill="none"
+                  />
+                </svg>
+                {wishlist.length > 0 && (
+                  <span className={styles.mobileNavBadge}>{wishlist.length}</span>
+                )}
+              </span>
+              <span className={styles.mobileNavLabel}>Wishlist</span>
+            </Link>
+
+            <button
+              type="button"
+              className={styles.mobileNavItem}
+              onClick={onCartClick}
+              aria-label="Open cart"
+            >
+              <span className={styles.mobileNavIcon}>
+                <CartIcon />
+              </span>
+              <span className={styles.mobileNavLabel}>Cart</span>
+            </button>
+          </nav>
+
+          {isCategoryRoute && filterOpen && (
+            <div className={styles.mobileFilterOverlay}>
+              <div
+                className={styles.mobileFilterBackdrop}
+                onClick={() => setFilterOpen(false)}
+              />
+              <div className={styles.mobileFilterPanel}>
+                <div className={styles.mobileFilterHeader}>
+                  <span className={styles.mobileFilterTitle}>Filters</span>
+                  <button
+                    type="button"
+                    className={styles.mobileFilterClose}
+                    onClick={() => setFilterOpen(false)}
+                    aria-label="Close filters"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <div className={styles.mobileFilterBody}>
+                  <Sidebar />
+                </div>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
       <LoginModal isOpen={showLoginModal} onClose={handleModalClose} />
     </>
   );

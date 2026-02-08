@@ -109,11 +109,25 @@
 }
 
 @media (max-width: 640px) {
+  .checkoutPage {
+    padding: 1.25rem 0 1.5rem;
+  }
+
+  .container {
+    padding: 0 0.9rem;
+  }
+
+  .checkoutGrid {
+    gap: 1.25rem;
+    margin-top: 1.25rem;
+  }
+
   .formSection {
-    padding: 1.5rem;
+    padding: 1.25rem 1rem 1.4rem;
+    border-radius: 10px;
   }
   
   .loginCard {
-    padding: 2rem 1.5rem;
+    padding: 2rem 1.25rem;
   }
 }

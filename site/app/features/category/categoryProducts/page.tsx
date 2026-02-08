@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import ProductCard from "../../../components/ProductCard";
-// import styles from "./page.module.css";
+import gridStyles from "../../../components/ProductGrid.module.css";
 import GlobalSortBar from "../../../components/GlobalSortBar";
 import { productsAPI, categoriesAPI } from "../../../services/api";
 import { useCart } from "@/app/common/CartContext";
@@ -199,9 +199,8 @@ const CategoryProductsPage = ({ params }: { params?: { slug?: string } }) => {
         setSortBy={(value) => handleSortChange(value, `/category/${slug}`)}
       />
       {showToast && <div className="toast-notification">{toastMessage}</div>}
-      <div className="shop-container">
-        <aside className="shop-sidebar"></aside>
-        <main className="shop-main">
+      <div className={gridStyles["shop-container"]}>
+        <main className={gridStyles["shop-main"]}>
           {category ? (
             loading ? (
               <div className="loading-spinner">
@@ -214,25 +213,20 @@ const CategoryProductsPage = ({ params }: { params?: { slug?: string } }) => {
               </div>
             ) : (
               <>
-                <div
-                  className="products-grid"
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(4, 1fr)',
-                    gap: '1.2rem',
-                    alignItems: 'stretch',
-                    margin: '0 auto',
-                    maxWidth: '1200px',
-                  }}
-                >
-                  {products.map((product) => (
-                    <ProductCard
-                      key={product.id}
-                      product={{ ...product, images: Array.isArray(product.images) ? product.images : [] }}
-                      onAddToCart={handleAddToCart}
-                      isAddingToCart={!!addingToCart[product.id]}
-                    />
-                  ))}
+                <div className={gridStyles["products-grid-wrapper"]}>
+                  <div
+                    className={gridStyles["products-grid"]}
+                    style={loading ? { filter: 'blur(1.5px)', pointerEvents: 'none' } : {}}
+                  >
+                    {products.map((product) => (
+                      <ProductCard
+                        key={product.id}
+                        product={{ ...product, images: Array.isArray(product.images) ? product.images : [] }}
+                        onAddToCart={handleAddToCart}
+                        isAddingToCart={!!addingToCart[product.id]}
+                      />
+                    ))}
+                  </div>
                 </div>
                 {totalPages > 1 && (
                   <div className="pagination">

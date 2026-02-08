@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useCart } from "../common/CartContext";
+import styles from "./FloatingCartIcon.module.css";
 
 const FloatingCartIcon: React.FC<{ onClick: () => void }> = ({ onClick }) => {
   const { items } = useCart();
@@ -22,50 +23,32 @@ const FloatingCartIcon: React.FC<{ onClick: () => void }> = ({ onClick }) => {
   }, [totalPrice, prevPrice]);
 
   return (
-    <div
+    <button
+      type="button"
       onClick={onClick}
-      style={{
-        position: "fixed",
-        right: 32,
-        top: "40%",
-        zIndex: 9999,
-        background: "#fff",
-        borderRadius: 16,
-        boxShadow: "0 4px 24px #0002",
-        padding: "12px 22px 12px 18px",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        cursor: "pointer",
-        border: "2px solid #e11d48",
-        minWidth: 90,
-        transition: "box-shadow 0.2s",
-      }}
+      className={`${styles.floatingCart} ${animate ? styles.shake : ""}`}
+      aria-label="Open cart"
     >
-      <svg width="26" height="32" fill="none" viewBox="0 0 24 24" style={{ marginBottom: 4 }}>
-        <rect x="3" y="7" width="18" height="12" rx="3" fill="#e11d48" />
-        <path d="M6 6h15l-1.5 9h-13z" stroke="#fff" strokeWidth="2" fill="#e11d48" />
-        <circle cx="9" cy="21" r="1" fill="#e11d48" />
-        <circle cx="18" cy="21" r="1" fill="#e11d48" />
-      </svg>
-      <div style={{ fontWeight: 700, fontSize: 15, color: "#222", marginBottom: 2 }}>{totalCount} items</div>
-      <div
-        style={{
-          fontWeight: 800,
-          fontSize: 17,
-          color: "#fff",
-          background: "#e11d48",
-          borderRadius: 8,
-          padding: "2px 12px",
-          minWidth: 60,
-          marginTop: 2,
-          transition: "transform 0.4s",
-          transform: animate ? "scale(1.15)" : "none",
-        }}
-      >
-        ৳ {totalPrice}
+      <div className={styles.iconWrap}>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <path
+            d="M6 6h15l-1.5 9h-13z"
+            stroke="#fff"
+            strokeWidth="1.8"
+            fill="none"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <circle cx="10" cy="19" r="1.4" fill="#fff" />
+          <circle cx="18" cy="19" r="1.4" fill="#fff" />
+        </svg>
+        {totalCount > 0 && <span className={styles.badge}>{totalCount}</span>}
       </div>
-    </div>
+      <div className={styles.details}>
+        <span className={styles.label}>{totalCount} items</span>
+        <span className={styles.total}>৳ {totalPrice}</span>
+      </div>
+    </button>
   );
 };
 

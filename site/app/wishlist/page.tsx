@@ -153,8 +153,8 @@ const WishlistPage: React.FC = () => {
       {/* Wishlist Items Grid */}
       <div style={{
         display: "grid",
-        gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
-        gap: "1rem",
+        gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+        gap: "0.85rem",
         marginBottom: "2rem"
       }}>
         {wishlist.map((item) => {
@@ -171,27 +171,14 @@ const WishlistPage: React.FC = () => {
               key={item.product_id}
               style={{
                 background: "#fff",
-                borderRadius: 12,
+                borderRadius: 10,
                 overflow: "hidden",
-                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.04)",
-                border: "1px solid #ececec",
-                transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
+                boxShadow: "0 1px 4px rgba(15, 23, 42, 0.06)",
+                border: "1px solid #f1f1f1",
                 display: "flex",
                 flexDirection: "column",
                 position: "relative",
-                minHeight: 260,
-                maxWidth: 210,
-                margin: "0 auto"
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.boxShadow = "0 12px 32px rgba(233, 30, 99, 0.15)";
-                (e.currentTarget as HTMLElement).style.transform = "translateY(-8px)";
-                (e.currentTarget as HTMLElement).style.borderColor = "#e91e63";
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.boxShadow = "0 4px 16px rgba(0, 0, 0, 0.06)";
-                (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
-                (e.currentTarget as HTMLElement).style.borderColor = "#e8e8e8";
+                minHeight: 220
               }}
             >
               {/* Product Image */}
@@ -209,30 +196,23 @@ const WishlistPage: React.FC = () => {
                   alt={product?.name}
                   style={{
                     width: "100%",
-                    height: 120,
+                    height: 140,
                     objectFit: "cover",
-                    display: "block",
-                    transition: "transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)"
-                  }}
-                  onMouseEnter={(e) => {
-                    (e.target as HTMLElement).style.transform = "scale(1.08)";
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.target as HTMLElement).style.transform = "scale(1)";
+                    display: "block"
                   }}
                 />
                 {discount > 0 && (
                   <div style={{
                     position: "absolute",
-                    top: 10,
-                    left: 10,
+                    top: 8,
+                    left: 8,
                     background: "linear-gradient(135deg, #e91e63 0%, #c2185b 100%)",
                     color: "#fff",
-                    padding: "2px 8px",
-                    borderRadius: 6,
-                    fontWeight: 700,
-                    fontSize: "0.75rem",
-                    boxShadow: "0 2px 6px rgba(233, 30, 99, 0.18)",
+                    padding: "2px 6px",
+                    borderRadius: 5,
+                    fontWeight: 600,
+                    fontSize: "0.7rem",
+                    boxShadow: "0 1px 4px rgba(233, 30, 99, 0.18)",
                     letterSpacing: "0.2px"
                   }}>
                     -{discount}% OFF
@@ -247,45 +227,35 @@ const WishlistPage: React.FC = () => {
                   disabled={isRemoving}
                   style={{
                     position: "absolute",
-                    top: 16,
-                    right: 16,
-                    width: 40,
-                    height: 40,
+                    top: 10,
+                    right: 10,
+                    width: 32,
+                    height: 32,
                     padding: 0,
                     background: confirmingDelete ? "#e91e63" : "rgba(255, 255, 255, 0.95)",
                     color: confirmingDelete ? "#fff" : "#e91e63",
                     border: "none",
                     borderRadius: "50%",
                     fontWeight: 700,
-                    fontSize: "1.1rem",
+                    fontSize: "0.95rem",
                     cursor: isRemoving ? "default" : "pointer",
-                    transition: "all 0.3s",
+                    transition: "all 0.2s",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+                    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.12)",
                     backdropFilter: "blur(10px)"
                   }}
                   title="Remove from wishlist"
-                  onMouseEnter={(e) => {
-                    if (!isRemoving) {
-                      (e.target as HTMLElement).style.transform = "scale(1.1) rotate(90deg)";
-                      (e.target as HTMLElement).style.background = confirmingDelete ? "#c2185b" : "#fff";
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!isRemoving) {
-                      (e.target as HTMLElement).style.transform = "scale(1) rotate(0deg)";
-                      (e.target as HTMLElement).style.background = confirmingDelete ? "#e91e63" : "rgba(255, 255, 255, 0.95)";
-                    }
-                  }}
+                  onMouseEnter={undefined}
+                  onMouseLeave={undefined}
                 >
                   {isRemoving ? "..." : <FaTrash size={14} />}
                 </button>
               </Link>
 
               {/* Product Info */}
-              <div style={{ padding: "0.7rem", flex: 1, display: "flex", flexDirection: "column" }}>
+              <div style={{ padding: "0.7rem 0.8rem 0.85rem 0.8rem", flex: 1, display: "flex", flexDirection: "column" }}>
                 {/* Brand */}
                 {product?.brand?.name && (
                   <div style={{ 
@@ -303,168 +273,98 @@ const WishlistPage: React.FC = () => {
                 {/* Name */}
                 <Link href={`/product/${product?.slug || product?.id}`} style={{ textDecoration: "none" }}>
                   <h3 style={{
-                    fontSize: "1rem",
-                    fontWeight: 700,
-                    color: "#1a1a1a",
-                    marginBottom: "0.8rem",
-                    lineHeight: 1.4,
+                    fontSize: "0.9rem",
+                    fontWeight: 600,
+                    color: "#111827",
+                    marginBottom: 4,
+                    lineHeight: 1.3,
                     display: "-webkit-box",
                     WebkitLineClamp: 2,
                     WebkitBoxOrient: "vertical",
                     overflow: "hidden",
-                    cursor: "pointer",
-                    transition: "color 0.2s",
-                    minHeight: "2.8rem"
-                  }}
-                  onMouseEnter={(e) => {
-                    (e.target as HTMLElement).style.color = "#e91e63";
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.target as HTMLElement).style.color = "#1a1a1a";
+                    cursor: "pointer"
                   }}>
                     {product?.name}
                   </h3>
                 </Link>
 
                 {/* Price */}
-                <div style={{ marginBottom: "1.2rem" }}>
-                  {discount > 0 ? (
-                    <div style={{ display: "flex", gap: "0.6rem", alignItems: "baseline", flexWrap: "wrap" }}>
-                      <span style={{ 
-                        fontSize: "1.3rem", 
-                        fontWeight: 800, 
-                        color: "#e91e63",
-                        letterSpacing: "-0.5px"
-                      }}>
-                        ৳ {Math.round(price).toLocaleString()}
-                      </span>
-                      <span style={{ 
-                        fontSize: "0.95rem", 
-                        color: "#aaa", 
-                        textDecoration: "line-through",
-                        fontWeight: 500
-                      }}>
-                        ৳ {Math.round(originalPrice).toLocaleString()}
-                      </span>
-                      <span style={{
-                        fontSize: "0.75rem",
-                        color: "#4caf50",
-                        fontWeight: 700,
-                        background: "#e8f5e9",
-                        padding: "0.15rem 0.5rem",
-                        borderRadius: 4
-                      }}>
-                        Save ৳ {Math.round(originalPrice - price).toLocaleString()}
-                      </span>
-                    </div>
-                  ) : (
-                    <span style={{ 
-                      fontSize: "1.3rem", 
-                      fontWeight: 800, 
-                      color: "#e91e63",
-                      letterSpacing: "-0.5px"
-                    }}>
-                      ৳ {Math.round(price).toLocaleString()}
-                    </span>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 10 }}>
+                  <span style={{ fontWeight: 800, color: "#e91e63", fontSize: "0.98rem" }}>৳ {price.toFixed(2)}</span>
+                  {originalPrice > price && (
+                    <span style={{ textDecoration: "line-through", color: "#9ca3af", fontSize: "0.8rem" }}>৳ {originalPrice.toFixed(2)}</span>
                   )}
                 </div>
 
-                {/* Spacer */}
-                <div style={{ flex: 1 }} />
+                {/* Add to Cart Button (minimal) */}
+                <div style={{ marginTop: "auto" }}>
+                  <button
+                    onClick={() => handleAddToCart(product)}
+                    disabled={isAdding}
+                    style={{
+                      width: "100%",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 6,
+                      padding: "0.45rem 0.6rem",
+                      background: isAdding ? "#9ca3af" : "#111827",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: 999,
+                      fontWeight: 600,
+                      fontSize: "0.85rem",
+                      cursor: isAdding ? "default" : "pointer",
+                      boxShadow: "0 3px 10px rgba(15, 23, 42, 0.25)",
+                      transition: "background 0.2s, box-shadow 0.2s"
+                    }}
+                  >
+                    {isAdding ? (
+                      "Adding..."
+                    ) : (
+                      <>
+                        <FaShoppingCart size={13} />
+                        <span>Add to Cart</span>
+                      </>
+                    )}
+                  </button>
+                </div>
 
-                {/* Add to Cart Button */}
-                <button
-                  onClick={() => handleAddToCart(product)}
-                  disabled={isAdding}
-                  style={{
-                    width: "100%",
-                    background: isAdding ? "#f5f5f5" : "linear-gradient(135deg, #e91e63 0%, #c2185b 100%)",
-                    color: isAdding ? "#999" : "#fff",
-                    border: "none",
-                    padding: "0.85rem",
-                    borderRadius: 8,
-                    fontWeight: 700,
-                    fontSize: "0.9rem",
-                    cursor: isAdding ? "default" : "pointer",
-                    transition: "all 0.3s",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "0.5rem",
-                    boxShadow: isAdding ? "none" : "0 4px 12px rgba(233, 30, 99, 0.3)",
-                    letterSpacing: "0.5px",
-                    textTransform: "uppercase"
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!isAdding) {
-                      (e.target as HTMLElement).style.transform = "translateY(-2px)";
-                      (e.target as HTMLElement).style.boxShadow = "0 6px 20px rgba(233, 30, 99, 0.4)";
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!isAdding) {
-                      (e.target as HTMLElement).style.transform = "translateY(0)";
-                      (e.target as HTMLElement).style.boxShadow = "0 4px 12px rgba(233, 30, 99, 0.3)";
-                    }
-                  }}
-                >
-                  {isAdding ? (
-                    <>
-                      <div className="spinner" style={{ width: 16, height: 16, borderWidth: 2 }} />
-                      Adding to Cart...
-                    </>
-                  ) : (
-                    <>
-                      <FaShoppingCart size={18} />
-                      Add to Cart
-                    </>
-                  )}
-                </button>
-
-                {/* Delete Confirmation */}
+                {/* Delete Confirmation (kept but visually lighter) */}
                 {confirmingDelete && (
                   <div style={{
-                    marginTop: "1rem",
-                    padding: "1rem",
-                    background: "linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%)",
-                    border: "2px solid #ff9800",
-                    borderRadius: 10,
-                    fontSize: "0.95rem",
-                    animation: "slideDown 0.3s ease-out"
+                    marginTop: "0.75rem",
+                    padding: "0.8rem 0.75rem",
+                    background: "#fff7ed",
+                    border: "1px solid #fed7aa",
+                    borderRadius: 8,
+                    fontSize: "0.85rem"
                   }}>
-                    <p style={{ 
-                      margin: "0 0 1rem 0", 
-                      color: "#e65100", 
+                    <p style={{
+                      margin: "0 0 0.75rem 0",
+                      color: "#c05621",
                       fontWeight: 600,
-                      fontSize: "0.95rem"
+                      fontSize: "0.85rem"
                     }}>
-                      ⚠️ Remove this item from wishlist?
+                      Remove this item from wishlist?
                     </p>
-                    <div style={{ display: "flex", gap: "0.7rem" }}>
+                    <div style={{ display: "flex", gap: "0.5rem" }}>
                       <button
                         onClick={() => handleRemoveFromWishlist(product?.id)}
                         disabled={isRemoving}
                         style={{
                           flex: 1,
-                          background: "linear-gradient(135deg, #e91e63 0%, #c2185b 100%)",
+                          background: "#e11d48",
                           color: "#fff",
                           border: "none",
-                          padding: "0.7rem",
-                          borderRadius: 8,
-                          fontWeight: 700,
-                          fontSize: "0.9rem",
-                          cursor: isRemoving ? "default" : "pointer",
-                          boxShadow: "0 2px 8px rgba(233, 30, 99, 0.3)",
-                          transition: "all 0.2s"
-                        }}
-                        onMouseEnter={(e) => {
-                          if (!isRemoving) (e.target as HTMLElement).style.transform = "scale(1.02)";
-                        }}
-                        onMouseLeave={(e) => {
-                          if (!isRemoving) (e.target as HTMLElement).style.transform = "scale(1)";
+                          padding: "0.55rem",
+                          borderRadius: 6,
+                          fontWeight: 600,
+                          fontSize: "0.8rem",
+                          cursor: isRemoving ? "default" : "pointer"
                         }}
                       >
-                        {isRemoving ? "Removing..." : "✓ Yes, Remove"}
+                        {isRemoving ? "Removing..." : "Yes, remove"}
                       </button>
                       <button
                         onClick={() => setShowDeleteConfirm(null)}
@@ -472,29 +372,16 @@ const WishlistPage: React.FC = () => {
                         style={{
                           flex: 1,
                           background: "#fff",
-                          color: "#666",
-                          border: "2px solid #ddd",
-                          padding: "0.7rem",
-                          borderRadius: 8,
-                          fontWeight: 700,
-                          fontSize: "0.9rem",
-                          cursor: isRemoving ? "default" : "pointer",
-                          transition: "all 0.2s"
-                        }}
-                        onMouseEnter={(e) => {
-                          if (!isRemoving) {
-                            (e.target as HTMLElement).style.borderColor = "#999";
-                            (e.target as HTMLElement).style.background = "#f5f5f5";
-                          }
-                        }}
-                        onMouseLeave={(e) => {
-                          if (!isRemoving) {
-                            (e.target as HTMLElement).style.borderColor = "#ddd";
-                            (e.target as HTMLElement).style.background = "#fff";
-                          }
+                          color: "#4b5563",
+                          border: "1px solid #e5e7eb",
+                          padding: "0.55rem",
+                          borderRadius: 6,
+                          fontWeight: 600,
+                          fontSize: "0.8rem",
+                          cursor: isRemoving ? "default" : "pointer"
                         }}
                       >
-                        ✕ Cancel
+                        Cancel
                       </button>
                     </div>
                   </div>

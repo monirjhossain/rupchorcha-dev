@@ -6,6 +6,9 @@
   top: 0;
   z-index: 100;
 }
+.desktopHeader {
+  /* desktop-specific hook class if needed */
+}
 .headerInner {
   max-width: 1280px;
   margin: 0 auto;
@@ -26,7 +29,7 @@
   gap: 1.5rem;
 }
 .logoImg {
-  height: 50px;
+  height: 56px;
   width: auto;
 }
 .brandsLink {
@@ -250,4 +253,233 @@
 .menuItem:hover {
   background: #f5f5f5;
   color: #e91e63;
+}
+
+/* Mobile Header Layout */
+.mobileHeader {
+  padding: 0.35rem 0.6rem 0.55rem;
+}
+
+.mobileTopBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.mobileLeft {
+  display: flex;
+  align-items: center;
+}
+
+.mobileLogoWrap {
+  display: flex;
+  justify-content: center;
+  flex: 1;
+}
+
+.mobileLogoImg {
+  height: 44px;
+  width: auto;
+}
+
+.mobileActions {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.iconButton {
+  background: none;
+  border: none;
+  padding: 0.15rem;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.iconButtonInner {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.iconBadge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: #7c32ff;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(124, 50, 255, 0.35);
+  border: 2px solid #fff;
+}
+
+.mobileSearchWrap {
+  margin-top: 0.45rem;
+  padding: 0 0.1rem;
+}
+
+@media (max-width: 900px) {
+  .topBar {
+    display: none;
+  }
+
+  .categoryBar {
+    display: none;
+  }
+}
+
+/* Mobile sticky bottom navigation */
+.mobileBottomNav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 0.35rem 1.2rem calc(0.45rem + env(safe-area-inset-bottom));
+  background: #ffffff;
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.12);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 110;
+}
+
+.mobileNavItem {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  background: none;
+  border: none;
+  color: #111827;
+  font-size: 0.7rem;
+  text-decoration: none;
+}
+
+.mobileNavIcon {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #7c32ff, #ec4899);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+}
+
+.mobileNavLabel {
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+
+.mobileNavBadge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: #f97316;
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid #fff;
+}
+
+@media (min-width: 901px) {
+  .mobileBottomNav {
+    display: none;
+  }
+}
+
+/* Mobile filter overlay for category pages */
+.mobileFilterOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.mobileFilterBackdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.mobileFilterPanel {
+  position: relative;
+  width: 100%;
+  max-height: 80vh;
+  background: #ffffff;
+  border-radius: 18px 18px 0 0;
+  padding: 0.75rem 1rem 1rem;
+  box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.18);
+  overflow-y: auto;
+  animation: mobileFilterSlideUp 0.22s ease-out;
+}
+
+.mobileFilterHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 0.4rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid #f1f1f1;
+}
+
+.mobileFilterTitle {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.mobileFilterClose {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0.15rem 0.35rem;
+  border-radius: 999px;
+  color: #6b7280;
+}
+
+.mobileFilterBody {
+  padding-top: 0.25rem;
+}
+
+@keyframes mobileFilterSlideUp {
+  from {
+    transform: translateY(16px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@media (min-width: 901px) {
+  .mobileFilterOverlay {
+    display: none;
+  }
 }

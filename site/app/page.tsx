@@ -1,10 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import HeroSlider, { Slide } from "./Home/components/HeroSlider";
-import BrandOfferSection from "./Home/sections/BrandOfferSection";
-import ShopByCategorySection from "./Home/sections/ShopByCategorySection";
-import TrendingSection from "./Home/sections/TrendingSection/TrendingSection";
-import OffersToSayYesSection from "./Home/sections/OffersToSayYesSection/OffersToSayYesSection";
+import MobileHome from "./Home/MobileHome";
 import styles from "./Home/Home.module.css";
 import Image from "next/image";
 
@@ -19,27 +16,56 @@ const Home: React.FC = () => {
   const [slides, setSlides] = useState<Slide[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    const checkMobile = () => {
+      if (typeof window !== "undefined") {
+        setIsMobile(window.innerWidth <= 768);
+      }
+    };
+    checkMobile();
+    if (typeof window !== "undefined") {
+      window.addEventListener("resize", checkMobile);
+    }
+
+    const SLIDER_CACHE_KEY = 'sliders_cache_v2';
+    const SLIDER_CACHE_TIME_KEY = 'sliders_cache_time_v2';
     // Try to load sliders from cache
-    const cachedSliders = typeof window !== 'undefined' ? localStorage.getItem('sliders_cache') : null;
-    const slidersCacheTime = typeof window !== 'undefined' ? localStorage.getItem('sliders_cache_time') : null;
+    const cachedSliders = typeof window !== 'undefined' ? localStorage.getItem(SLIDER_CACHE_KEY) : null;
+    const slidersCacheTime = typeof window !== 'undefined' ? localStorage.getItem(SLIDER_CACHE_TIME_KEY) : null;
     const now = Date.now();
 
     const fetchSliders = async () => {
       // TODO: Replace with actual API call
+      // Fallback uses the same local slider assets as the default slider,
+      // so desktop view always shows images correctly.
       const fallbackSlides: Slide[] = [
         {
           id: 1,
-          image: '/hero/slide1.jpg',
-          title: 'Mega Sale!',
-          description: 'Up to 50% off on selected products.'
-        }
+          image: '/slider/newyear.webp',
+        },
+        {
+          id: 2,
+          image: '/slider/christmas.png',
+        },
+        {
+          id: 3,
+          image: '/slider/Freedom.webp',
+        },
+        {
+          id: 4,
+          image: '/slider/Freedom1.webp',
+        },
+        {
+          id: 5,
+          image: '/slider/Freedom2.webp',
+        },
       ];
       setSlides(fallbackSlides);
       if (typeof window !== 'undefined') {
-        localStorage.setItem('sliders_cache', JSON.stringify(fallbackSlides));
-        localStorage.setItem('sliders_cache_time', Date.now().toString());
+        localStorage.setItem(SLIDER_CACHE_KEY, JSON.stringify(fallbackSlides));
+        localStorage.setItem(SLIDER_CACHE_TIME_KEY, Date.now().toString());
       }
     };
 
@@ -69,19 +95,78 @@ const Home: React.FC = () => {
     } else {
       fetchProducts();
     }
+
+    return () => {
+      if (typeof window !== "undefined") {
+        window.removeEventListener("resize", checkMobile);
+      }
+    };
   }, []);
+
+  if (isMobile) {
+    return <MobileHome />;
+  }
 
   return (
     <div className={styles.home}>
       {/* Hero Slider */}
       <HeroSlider slides={slides} />
-      {/* Shop By Category Section */}
-      <ShopByCategorySection />
-      {/* Trending Section */}
-      <TrendingSection />
-      {/* Offers To Say Yes Section */}
-      <OffersToSayYesSection />
-      {/* Featured Products */}
+
+      {/* Desktop-only stacked sections (header excluded) */}
+      <main className={styles.desktopMain}>
+        {/* Thin double banner row */}
+        <section className={styles.thinBannerRow}>
+          <div className={styles.thinBanner} />
+          <div className={styles.thinBanner} />
+        </section>
+
+        {/* 3-column deals row */}
+        <section className={styles.dealsGrid}>
+          <div className={styles.dealCard} />
+          <div className={styles.dealCard} />
+          <div className={styles.dealCard} />
+        </section>
+
+        {/* Top brands & offers style grid */}
+        <section className={styles.topBrandGrid}>
+          <div className={styles.topBrandWide} />
+          <div className={styles.topBrandCard} />
+          <div className={styles.topBrandCard} />
+          <div className={styles.topBrandCard} />
+          <div className={styles.topBrandCard} />
+        </section>
+
+        {/* Limited time offers pink cards */}
+        <section className={styles.limitedOffers}>
+          <h2 className={styles.sectionHeading}>Limited Time Offers</h2>
+          <div className={styles.offerRow}>
+            <div className={styles.offerCard} />
+            <div className={styles.offerCard} />
+            <div className={styles.offerCard} />
+            <div className={styles.offerCard} />
+          </div>
+        </section>
+
+        {/* Shop by category */}
+        <section className={styles.categorySection}>
+          <h2 className={styles.sectionHeading}>Shop Beauty Products By Category</h2>
+          <div className={styles.categoryGrid}>
+            {Array.from({ length: 8 }).map((_, idx) => (
+              <div key={idx} className={styles.categoryCard} />
+            ))}
+          </div>
+        </section>
+
+        {/* Shop by concern */}
+        <section className={styles.concernSection}>
+          <h2 className={styles.sectionHeading}>Shop By Concern</h2>
+          <div className={styles.concernGrid}>
+            {Array.from({ length: 12 }).map((_, idx) => (
+              <div key={idx} className={styles.concernCard} />
+            ))}
+          </div>
+        </section>
+      </main>
     </div>
   );
 };

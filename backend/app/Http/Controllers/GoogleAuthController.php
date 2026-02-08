@@ -39,7 +39,16 @@ class GoogleAuthController extends Controller
             }
 
             $email = $payload['email'] ?? null;
-            $name = $payload['name'] ?? 'User';
+            // If name is missing, use email prefix as name
+            if (!empty($payload['name'])) {
+                $name = $payload['name'];
+            } elseif (!empty($email)) {
+                $prefix = strstr($email, '@', true) ?: $email;
+                // Capitalize first letter for better UX
+                $name = ucfirst(strtolower($prefix));
+            } else {
+                $name = 'User';
+            }
             $googleId = $payload['sub'] ?? null;
 
             \Log::info('Google token decoded successfully', [

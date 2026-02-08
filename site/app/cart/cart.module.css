@@ -142,11 +142,41 @@
 
 @media (max-width: 768px) {
   .cartPageContainer {
-    padding: 15px;
+    padding: 12px 10px 20px;
   }
 
   .freeGiftBanner {
-    padding: 15px 20px;
+    padding: 12px 14px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .bannerContent {
+    font-size: 14px;
+  }
+
+  .freeGift {
+    font-size: 16px;
+  }
+
+  .mainContent {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 28px;
+  }
+
+  .cartSection {
+    padding: 0;
+  }
+
+  .cartItems {
+    gap: 12px;
+  }
+
+  .popularSearches {
+    padding: 20px 15px;
   }
 
   .popularSearches {

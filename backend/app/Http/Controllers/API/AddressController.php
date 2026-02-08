@@ -7,9 +7,10 @@ use App\Models\Address;
 
 class AddressController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return Address::all();
+        $user = $request->user();
+        return Address::where('user_id', $user->id)->get();
     }
 
     public function show($id)
@@ -19,7 +20,10 @@ class AddressController extends Controller
 
     public function store(Request $request)
     {
-        $address = Address::create($request->all());
+        $user = $request->user();
+        $data = $request->all();
+        $data['user_id'] = $user->id;
+        $address = Address::create($data);
         return response()->json($address, 201);
     }
 

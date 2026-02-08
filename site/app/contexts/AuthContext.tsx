@@ -75,16 +75,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  const saveAuth = useCallback((newToken: string, userData?: User) => {
-    console.log("Saving auth - token:", newToken, "user:", userData);
+  const saveAuth = useCallback(async (newToken: string, userData?: User) => {
     localStorage.setItem("token", newToken);
     setToken(newToken);
     if (userData) {
-      setUser(userData);
+      setUser(userData); // instant context update
     } else {
-      fetchUserProfile(newToken);
+      await fetchUserProfile(newToken); // fallback if userData missing
     }
-    // Dispatch event for any listening components
     window.dispatchEvent(new Event('auth-state-changed'));
   }, [fetchUserProfile]);
 
@@ -260,7 +258,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
     setError(null);
     window.dispatchEvent(new Event('auth-state-changed'));
-    router.push("/");
+    router.replace("/"); // instant redirect
   }, [router]);
 
   // Clear error

@@ -1,3 +1,22 @@
+// Auth API for password reset
+export const authAPI = {
+  forgotPassword: async (email: string) => {
+    const res = await fetch(`${API_BASE_URL}/forgot-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+    return await res.json();
+  },
+  resetPassword: async (email: string, token: string, password: string, password_confirmation: string) => {
+    const res = await fetch(`${API_BASE_URL}/reset-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, token, password, password_confirmation }),
+    });
+    return await res.json();
+  },
+};
 // Centralized API service for frontend-backend connection
 export const API_BASE_URL = "http://127.0.0.1:8000/api";
 
