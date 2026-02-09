@@ -72,12 +72,14 @@ class TagController extends Controller
         });
         return response()->json([
             'success' => true,
-            'tag' => [
-                'id' => $tag->id,
-                'name' => $tag->name,
-                'slug' => $tag->slug,
-            ],
-            'products' => $products,
+            'data' => [
+                'tag' => [
+                    'id' => $tag->id,
+                    'name' => $tag->name,
+                    'slug' => $tag->slug,
+                ],
+                'products' => $products,
+            ]
         ]);
     }
 }

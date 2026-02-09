@@ -1,21 +1,16 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import HeroSlider, { Slide } from "./Home/components/HeroSlider";
+import { heroSlides } from "./Home/heroSlides";
 import MobileHome from "./Home/MobileHome";
 import styles from "./Home/Home.module.css";
-import Image from "next/image";
-
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-  images?: { url: string }[];
-}
+// import Image from "next/image"; // Unused
+import { useFeaturedProducts } from "@/src/hooks/useProducts";
 
 const Home: React.FC = () => {
   const [slides, setSlides] = useState<Slide[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  // Use custom hook for products
+  const { products, isLoading: productsLoading } = useFeaturedProducts();
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -37,34 +32,10 @@ const Home: React.FC = () => {
     const now = Date.now();
 
     const fetchSliders = async () => {
-      // TODO: Replace with actual API call
-      // Fallback uses the same local slider assets as the default slider,
-      // so desktop view always shows images correctly.
-      const fallbackSlides: Slide[] = [
-        {
-          id: 1,
-          image: '/slider/newyear.webp',
-        },
-        {
-          id: 2,
-          image: '/slider/christmas.png',
-        },
-        {
-          id: 3,
-          image: '/slider/Freedom.webp',
-        },
-        {
-          id: 4,
-          image: '/slider/Freedom1.webp',
-        },
-        {
-          id: 5,
-          image: '/slider/Freedom2.webp',
-        },
-      ];
-      setSlides(fallbackSlides);
+      // TODO: Replace with actual API call if backend supports sliders
+      setSlides(heroSlides);
       if (typeof window !== 'undefined') {
-        localStorage.setItem(SLIDER_CACHE_KEY, JSON.stringify(fallbackSlides));
+        localStorage.setItem(SLIDER_CACHE_KEY, JSON.stringify(heroSlides));
         localStorage.setItem(SLIDER_CACHE_TIME_KEY, Date.now().toString());
       }
     };
@@ -73,27 +44,6 @@ const Home: React.FC = () => {
       setTimeout(() => setSlides(JSON.parse(cachedSliders)), 0);
     } else {
       fetchSliders();
-    }
-
-    // Try to load products from cache
-    const cachedProducts = typeof window !== 'undefined' ? localStorage.getItem('products_cache') : null;
-    const productsCacheTime = typeof window !== 'undefined' ? localStorage.getItem('products_cache_time') : null;
-
-    const fetchProducts = async () => {
-      // TODO: Replace with actual API call
-      setTimeout(() => {
-        setProducts([]);
-        setLoading(false);
-      }, 0);
-    };
-
-    if (cachedProducts && productsCacheTime && (now - parseInt(productsCacheTime)) < 300000) {
-      setTimeout(() => {
-        setProducts(JSON.parse(cachedProducts));
-        setLoading(false);
-      }, 0);
-    } else {
-      fetchProducts();
     }
 
     return () => {
@@ -136,14 +86,27 @@ const Home: React.FC = () => {
           <div className={styles.topBrandCard} />
         </section>
 
-        {/* Limited time offers pink cards */}
+        {/* Limited time offers pink cards - Now using real data count to render placeholders or cards */}
         <section className={styles.limitedOffers}>
           <h2 className={styles.sectionHeading}>Limited Time Offers</h2>
           <div className={styles.offerRow}>
-            <div className={styles.offerCard} />
-            <div className={styles.offerCard} />
-            <div className={styles.offerCard} />
-            <div className={styles.offerCard} />
+            {!productsLoading && products && products.length > 0 ? (
+                products.slice(0, 4).map((p, i) => (
+                    <div key={p.id} className={styles.offerCard} title={p.name}>
+                        <div style={{padding: '10px', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end'}}>
+                           <p style={{fontWeight: 'bold', fontSize: '0.9rem', marginBottom: '5px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{p.name}</p>
+                           <p style={{color: '#e91e63', fontWeight: 'bold'}}>Tk {p.price}</p>
+                        </div>
+                    </div>
+                ))
+            ) : (
+                <>
+                    <div className={styles.offerCard} />
+                    <div className={styles.offerCard} />
+                    <div className={styles.offerCard} />
+                    <div className={styles.offerCard} />
+                </>
+            )}
           </div>
         </section>
 

@@ -9,25 +9,27 @@ class CampaignHistoryController extends Controller
 {
     public function index()
     {
-        return CampaignHistory::all();
+        $history = CampaignHistory::latest()->paginate(20);
+        return response()->json(['success' => true, 'data' => $history]);
     }
 
     public function show($id)
     {
-        return CampaignHistory::findOrFail($id);
+        $history = CampaignHistory::findOrFail($id);
+        return response()->json(['success' => true, 'data' => $history]);
     }
 
     public function store(Request $request)
     {
         $campaignHistory = CampaignHistory::create($request->all());
-        return response()->json($campaignHistory, 201);
+        return response()->json(['success' => true, 'data' => $campaignHistory], 201);
     }
 
     public function update(Request $request, $id)
     {
         $campaignHistory = CampaignHistory::findOrFail($id);
         $campaignHistory->update($request->all());
-        return response()->json($campaignHistory);
+        return response()->json(['success' => true, 'data' => $campaignHistory]);
     }
 
     public function destroy($id)

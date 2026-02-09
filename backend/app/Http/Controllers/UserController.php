@@ -10,6 +10,47 @@ use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
+    /**
+     * Show the Bulk SMS form for users.
+     */
+    public function bulkMessageForm()
+    {
+        $users = User::all();
+        return view('admin.users.bulk_message', compact('users'));
+    }
+
+    /**
+     * AJAX Search for users (Select2)
+     */
+    public function ajaxSearch(Request $request)
+    {
+        $search = $request->q;
+        $query = User::query();
+
+        if ($search) {
+            $query->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%");
+        }
+
+        $users = $query->limit(20)->get(['id', 'name', 'email', 'phone']);
+
+        $results = [];
+        foreach ($users as $user) {
+            $results[] = [
+                'id' => $user->id,
+                'text' => $user->name . ' (' . $user->email . ' - ' . $user->phone . ')',
+            ];
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'results' => $results
+            ]
+        ]);
+    }
+
     // Send OTP to user's email or phone
     public function sendOtp(Request $request)
     {
@@ -488,7 +529,13 @@ class UserController extends Controller
             'user_ids' => 'required|array',
         ]);
 
-        $users = \App\Models\User::whereIn('id', $request->user_ids)->whereNotNull('phone')->get();
+        $userIds = $request->user_ids;
+
+        if (in_array('all', $userIds, true)) {
+            $users = User::whereNotNull('phone')->get();
+        } else {
+            $users = User::whereIn('id', $userIds)->whereNotNull('phone')->get();
+        }
         $count = 0;
         foreach ($users as $user) {
             // sendSms($user->phone, $request->sms_message, $request->sms_api_key); // Implement this

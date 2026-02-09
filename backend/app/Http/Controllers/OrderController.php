@@ -7,6 +7,9 @@ use App\Mail\OrderConfirmationMail;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\DB;
+use App\Http\Requests\StoreOrderRequest;
+use App\Http\Requests\UpdateOrderRequest;
 
 class OrderController extends Controller
 {
@@ -101,33 +104,16 @@ class OrderController extends Controller
     /**
      * Store a newly created order in storage.
      */
-    public function store(Request $request)
+    public function store(StoreOrderRequest $request)
     {
-        // Fix: If user_id is 0 (Guest), set to null for validation and guest logic
-        if ($request->input('user_id') == 0) {
-            $request->merge(['user_id' => null]);
-        }
-        $validated = $request->validate([
-            'user_id' => 'nullable|exists:users,id',
-            'customer_name' => 'required|string',
-            'customer_email' => 'required|email',
-            'customer_phone' => 'required|string',
-            'shipping_address' => 'required|string',
-            'city' => 'required|string',
-            'area' => 'required|string',
-            'notes' => 'nullable|string',
-            'payment_method' => 'required|string',
-            'shipping_method' => 'required|string',
-            'shipping_cost' => 'required|numeric',
-            'status' => 'required|string',
-            'total' => 'required|numeric',
-            'grand_total' => 'required|numeric',
-            'payment_status' => 'required|string',
-            'coupon_code' => 'nullable|string',
-        ]);
+        // Validation is handled by StoreOrderRequest
+        $validated = $request->validated();
 
-        // If no user_id, use existing user by email or create a new guest user
-        if (empty($validated['user_id'])) {
+        try {
+            DB::beginTransaction();
+
+            // If no user_id, use existing user by email or create a new guest user
+            if (empty($validated['user_id'])) {
             $existingUser = \App\Models\User::where('email', $validated['customer_email'])->first();
             if ($existingUser) {
                 $validated['user_id'] = $existingUser->id;
@@ -210,6 +196,8 @@ class OrderController extends Controller
             }
         }
 
+        DB::commit();
+
         // Send order confirmation email
         try {
             Mail::to($order->customer_email)
@@ -220,6 +208,11 @@ class OrderController extends Controller
         }
 
         return redirect()->route('orders.index')->with('success', 'Order created successfully.');
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return back()->withInput()->with('error', 'Failed to create order: ' . $e->getMessage());
+    }
     }
 
     /**
@@ -244,26 +237,15 @@ class OrderController extends Controller
     /**
      * Update the specified order in storage.
      */
-    public function update(Request $request, Order $order)
+    public function update(UpdateOrderRequest $request, Order $order)
     {
-        $validated = $request->validate([
-            'status' => 'nullable|string',
-            'payment_status' => 'nullable|string',
-            'payment_method' => 'nullable|string',
-            'courier_id' => 'nullable|exists:couriers,id',
-            'tracking_number' => 'nullable|string',
-            'admin_note' => 'nullable|string',
-            'coupon_code' => 'nullable|string',
-            // For items
-            'product_id' => 'array',
-            'product_id.*' => 'integer|exists:products,id',
-            'quantity' => 'array',
-            'quantity.*' => 'integer|min:1',
-            'unit_price' => 'array',
-            'unit_price.*' => 'numeric|min:0',
-        ]);
-        // Coupon logic
-        $discountAmount = 0;
+        $validated = $request->validated();
+
+        try {
+            DB::beginTransaction();
+
+            // Coupon logic
+            $discountAmount = 0;
         $appliedCouponCode = null;
         if ($request->filled('coupon_code')) {
             $coupon = \App\Models\Coupon::where('code', $request->coupon_code)->where('active', true)->first();
@@ -354,7 +336,14 @@ class OrderController extends Controller
             }
         }
 
-        return redirect()->route('orders.index')->with('success', 'Order updated successfully.');
+            DB::commit();
+            
+            return redirect()->route('orders.index')->with('success', 'Order updated successfully.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withInput()->with('error', 'Failed to update order: ' . $e->getMessage());
+        }
     }
 
     /**

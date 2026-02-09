@@ -20,7 +20,7 @@ async function getProduct(slug: string) {
     });
     if (!res.ok) return null;
     const data = await res.json();
-    return data.product || null;
+    return data.data || data.product || null;
   } catch {
     return null;
   }

@@ -5,14 +5,6 @@
   position: relative;
   margin-bottom: 2rem;
 }
-.sliderContainer {
-  position: relative;
-  width: 100%;
-  height: 220px;
-  overflow: hidden;
-  display: flex;
-}
-
 .heroSlider {
   width: 100vw;
   min-width: 100vw;
@@ -55,68 +47,29 @@
   object-fit: cover;
   z-index: 1;
 }
-.slideContent {
-  position: absolute;
-  left: 5%;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 3;
-  color: #fff;
-  background: rgba(0,0,0,0.32);
-  padding: 2rem 2.5rem;
-  border-radius: 18px;
-  box-shadow: 0 2px 16px #0003;
-  min-width: 320px;
-  max-width: 420px;
-}
-.title {
-  font-size: 2.2rem;
-  font-weight: 800;
-  margin-bottom: 0.5rem;
-  letter-spacing: 1px;
-}
-.subtitle {
-  font-size: 1.2rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-}
-.desc {
-  font-size: 1rem;
-  margin-bottom: 1.2rem;
-}
-.ctaBtn {
-  display: inline-block;
-  background: #e91e63;
-  color: #fff;
-  font-weight: 600;
-  padding: 0.6rem 1.6rem;
-  border-radius: 24px;
-  text-decoration: none;
-  font-size: 1.1rem;
-  transition: background 0.2s;
-}
-.ctaBtn:hover {
-  background: #c2185b;
+.mobileSlideImg {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: contain;
 }
 .arrow {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(255,255,255,0.8);
+  background: transparent;
   border: none;
-  font-size: 2.2rem;
-  color: #e91e63;
-  border-radius: 50%;
-  width: 44px;
-  height: 44px;
+  font-size: 1.8rem;
+  color: #333;
   cursor: pointer;
   z-index: 10;
-  box-shadow: 0 2px 8px #0002;
-  transition: background 0.2s;
+  padding: 0;
 }
-.arrow.left { left: 18px; }
-.arrow.right { right: 18px; }
-.arrow:hover { background: #e91e63; color: #fff; }
+.arrow.left { left: 8px; }
+.arrow.right { right: 8px; }
+.arrow:hover {
+  color: #111;
+}
 .dots {
   position: absolute;
   left: 50%;
@@ -127,24 +80,38 @@
   z-index: 10;
 }
 .dot, .activeDot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: #fff;
-  border: 2px solid #e91e63;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: #d0d0d0;
+  border: none;
   cursor: pointer;
-  transition: background 0.2s, border 0.2s;
+  transition: background 0.2s;
 }
 .activeDot {
-  background: #e91e63;
-  border: 2px solid #fff;
+  background: #555;
 }
 @media (max-width: 900px) {
-  .heroSlider, .sliderWrapper { height: 220px; }
-  .slideContent { padding: 1rem 1.2rem; min-width: 180px; max-width: 260px; }
-  .title { font-size: 1.2rem; }
-  .subtitle { font-size: 1rem; }
-  .desc { font-size: 0.9rem; }
-  .ctaBtn { font-size: 0.95rem; padding: 0.4rem 1rem; }
+  .sliderWrapper {
+    height: auto;
+    min-height: 0;
+  }
+  .slide {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    width: 100%;
+    height: auto;
+    opacity: 0;
+    pointer-events: none;
+    display: none;
+  }
+  .active {
+    opacity: 1;
+    pointer-events: auto;
+    display: block;
+  }
 }
 

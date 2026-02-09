@@ -20,24 +20,43 @@ class StoreOrderRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'user_id' => 'nullable|exists:users,id',
             'customer_name' => 'required|string|max:255',
             'customer_email' => 'required|email|max:255',
-            'customer_phone' => 'required|string|max:20|min:11',
-            'shipping_address' => 'required|string|min:5',
-            'city' => 'required|string|max:100',
-            'area' => 'required|string|max:100',
-            'notes' => 'nullable|string|max:500',
-            'payment_method' => 'required|string|in:cod,bkash,nagad',
-            // Accept id or name; controller recalculates shipping method anyway
-            'shipping_method' => 'required',
+            'customer_phone' => 'required|string|max:20',
+            'shipping_address' => 'required|string',
+            'city' => 'required|string',
+            'area' => 'required|string',
+            'notes' => 'nullable|string',
+            'payment_method' => 'required|string',
+            'shipping_method' => 'required|string',
             'shipping_cost' => 'required|numeric|min:0',
-            'coupon_code' => 'nullable|string|max:100',
-            'discount_amount' => 'nullable|numeric|min:0',
-            'items' => 'required|array|min:1',
-            'items.*.product_id' => 'required|integer|min:1',
-            'items.*.quantity' => 'required|integer|min:1|max:1000',
-            'items.*.price' => 'required|numeric|min:0',
+            'status' => 'required|string',
+            'total' => 'required|numeric|min:0',
+            'grand_total' => 'required|numeric|min:0',
+            'payment_status' => 'required|string',
+            'coupon_code' => 'nullable|string',
+
+            // Array based inputs from Admin Form
+            'products' => 'required|array|min:1',
+            'products.*' => 'exists:products,id',
+            'prices' => 'required|array',
+            'prices.*' => 'numeric|min:0',
+            'quantities' => 'required|array',
+            'quantities.*' => 'integer|min:1',
         ];
+    }
+
+    /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation()
+    {
+        if ($this->has('user_id') && $this->input('user_id') == 0) {
+            $this->merge([
+                'user_id' => null,
+            ]);
+        }
     }
 
     /**

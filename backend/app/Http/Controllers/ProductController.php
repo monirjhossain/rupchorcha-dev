@@ -7,6 +7,9 @@ use App\Models\Brand;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
+use App\Http\Requests\StoreProductRequest;
+
 class ProductController extends Controller
 {
     // Display a listing of the products
@@ -67,59 +70,53 @@ class ProductController extends Controller
     }
 
     // Store a newly created product in storage
-    public function store(Request $request)
+    public function store(StoreProductRequest $request)
     {
-        // dd($request->file('gallery_images'));
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'slug' => 'required|string|max:255|unique:products',
-            'description' => 'required',
-            'short_description' => 'nullable|string',
-            'price' => 'required|numeric',
-            'sale_price' => 'nullable|numeric',
-            'cost_price' => 'nullable|numeric',
-            'stock_quantity' => 'nullable|integer',
-            'stock_in' => 'nullable|string',
-            'sku' => 'nullable|string|max:255',
-            'type' => 'required|string',
-            'status' => 'nullable|string',
-            'featured' => 'nullable|boolean',
-            'barcode' => 'nullable|string',
-            'manage_stock' => 'nullable|boolean',
-            'external_url' => 'nullable|string',
-            'meta_title' => 'nullable|string',
-            'meta_description' => 'nullable|string',
-            'main_image' => 'nullable|file|image',
-            'gallery_images.*' => 'nullable|file|image',
-            'category_ids' => 'required|array',
-            'category_ids.*' => 'exists:categories,id',
-            'brand_id' => 'required|exists:brands,id',
-            'warehouse_id' => 'nullable|exists:warehouses,id',
-            'min_order_qty' => 'nullable|integer',
-            'max_order_qty' => 'nullable|integer',
-            'sale_start_date' => 'nullable|date',
-            'sale_end_date' => 'nullable|date',
-        ]);
+        $validated = $request->validated();
+        
         // Handle main image upload
         if ($request->hasFile('main_image')) {
             $validated['main_image'] = $request->file('main_image')->store('products', 'public');
         }
-        $productData = $validated;
-        unset($productData['category_ids']);
-        $product = Product::create($productData);
-        // Attach categories
-        $product->categories()->sync($validated['category_ids']);
-        // Handle gallery images upload
-        if ($request->hasFile('gallery_images')) {
-            foreach ($request->file('gallery_images') as $galleryImage) {
-                $path = $galleryImage->store('products', 'public');
-                $product->images()->create(['image_path' => $path]);
+
+        try {
+            DB::beginTransaction();
+
+            $productData = $validated;
+            unset($productData['category_ids']);
+            unset($productData['tags']);
+            unset($productData['gallery_images']);
+
+            $product = Product::create($productData);
+            
+            // Attach categories
+            if (isset($validated['category_ids'])) {
+                $product->categories()->sync($validated['category_ids']);
             }
+
+            // Handle gallery images upload
+            if ($request->hasFile('gallery_images')) {
+                foreach ($request->file('gallery_images') as $galleryImage) {
+                    $path = $galleryImage->store('products', 'public');
+                    $product->images()->create(['image_path' => $path]);
+                }
+            }
+            
+            // Handle tags
+            if (isset($validated['tags'])) {
+                $product->tags()->sync($validated['tags']);
+            }
+
+            DB::commit();
+            
+            return redirect()->route('products.index')->with('success', 'Product created successfully.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            // Delete uploaded main image if DB failed? 
+            // Ideally yes but let's keep it simple for now as per best effort.
+            return back()->withInput()->with('error', 'Failed to create product: ' . $e->getMessage());
         }
-        if ($request->has('tags')) {
-            $product->tags()->sync($request->input('tags'));
-        }
-        return redirect()->route('products.index')->with('success', 'Product created successfully.');
     }
 
     // Show the form for editing the specified product

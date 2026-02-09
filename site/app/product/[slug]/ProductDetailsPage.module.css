@@ -30,6 +30,10 @@
   gap: 24px;
 }
 
+.mobileBreadcrumb {
+  display: none;
+}
+
 @media (max-width: 900px) {
   .main {
     padding: 0.75rem 0;
@@ -47,5 +51,10 @@
   .left,
   .right {
     width: 100%;
+  }
+
+  .mobileBreadcrumb {
+    display: block;
+    margin-bottom: 0.75rem;
   }
 }

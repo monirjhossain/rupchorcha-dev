@@ -1,22 +1,22 @@
 
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import { useSearchParams } from "next/navigation";
+import useSWR from "swr";
 import ProductCard from "./ProductCard";
 import GlobalSortBar from "./GlobalSortBar";
 import Sidebar from "./Sidebar";
-import { useCart } from "../common/CartContext";
+import { useCart } from "@/app/common/CartContext";
 import gridStyles from "./ProductGrid.module.css";
 import { usePaginationSort } from "../hooks/usePaginationSort";
+import { fetcher } from "@/src/services/apiClient";
+import toast from "react-hot-toast";
 
 const TagProductsPage = ({ params }: { params?: { slug?: string } }) => {
   const searchParams = useSearchParams();
   const slug = params?.slug || "";
-  const [products, setProducts] = useState<any[]>([]);
-  const [tag, setTag] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  
   const { currentPage, sortBy, handlePageChange, handleSortChange } = usePaginationSort();
-  const [totalPages, setTotalPages] = useState(1);
   const [perPage] = useState(12);
   const { addToCart } = useCart();
   const [addingToCart, setAddingToCart] = useState<{ [key: number]: boolean }>({});
@@ -24,50 +24,35 @@ const TagProductsPage = ({ params }: { params?: { slug?: string } }) => {
   const handleAddToCart = async (product: any) => {
     setAddingToCart(prev => ({ ...prev, [product.id]: true }));
     try {
-      await addToCart({ product_id: product.id, quantity: 1, product });
+      await addToCart({ 
+        product_id: product.id, 
+        quantity: 1, 
+        product,
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image || "/placeholder.png"
+      });
+      toast.success(`${product.name} added to cart!`);
     } catch (error) {
       console.error("Failed to add to cart:", error);
+      toast.error("Failed to add to cart");
     } finally {
-      setAddingToCart(prev => ({ ...prev, [product.id]: false }));
+      setTimeout(() => setAddingToCart(prev => ({ ...prev, [product.id]: false })), 400);
     }
   };
 
-  // Debounce filter/api calls for fast UX
-  const debounceRef = useRef<NodeJS.Timeout | null>(null);
-  useEffect(() => {
-    let cancelled = false;
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => {
-      const fetchProducts = async () => {
-        setLoading(true);
-        try {
-          const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
-          const paramsObj: Record<string, any> = { page: currentPage, per_page: perPage };
-          if (sortBy !== "default") paramsObj.sort = sortBy;
-          const paramStr = Object.entries(paramsObj).map(([k, v]) => `${k}=${v}`).join("&");
-          const res = await fetch(`${apiUrl}/tags/${slug}?${paramStr}`);
-          const data = await res.json();
-          if (!cancelled) {
-            setTag(data.tag || null);
-            setProducts(data.products?.data || data.products || []);
-            setTotalPages(data.products?.last_page || 1);
-          }
-        } catch (e) {
-          if (!cancelled) {
-            setProducts([]);
-            setTotalPages(1);
-          }
-        } finally {
-          if (!cancelled) setLoading(false);
-        }
-      };
-      if (slug) fetchProducts();
-    }, 350); // 350ms debounce
-    return () => {
-      cancelled = true;
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-    };
-  }, [slug, currentPage, sortBy, perPage]);
+  // Build SWR key
+  const paramsObj: Record<string, any> = { page: currentPage, per_page: perPage };
+  if (sortBy !== "default") paramsObj.sort = sortBy;
+  const paramStr = Object.entries(paramsObj).map(([k, v]) => `${k}=${v}`).join("&");
+  const key = slug ? `/tags/${slug}?${paramStr}` : null;
+
+  const { data, isLoading } = useSWR(key, fetcher);
+
+  const products = data?.products?.data || [];
+  const tag = data?.tag;
+  const totalPages = data?.products?.last_page || 1;
 
   // Generate smart pagination numbers (first, last, and around current)
   const getPageNumbers = () => {
@@ -96,6 +81,7 @@ const TagProductsPage = ({ params }: { params?: { slug?: string } }) => {
   return (
     <div className="shop-page">
       <GlobalSortBar 
+        totalProducts={data?.products?.total || products.length}
         sortBy={sortBy} 
         setSortBy={(value) => handleSortChange(value, `/tags/${slug}`)}
       />
@@ -105,7 +91,7 @@ const TagProductsPage = ({ params }: { params?: { slug?: string } }) => {
         </div>
         <main className={gridStyles["shop-main"]}>
           {tag ? (
-            loading ? (
+            isLoading ? (
               <div className="loading-spinner">
                 <div className="spinner"></div>
                 <p>Loading products...</p>
@@ -120,13 +106,13 @@ const TagProductsPage = ({ params }: { params?: { slug?: string } }) => {
                   {tag.name} Products
                 </div>
                         <div className={gridStyles["products-grid-wrapper"]}>
-                          {loading && (
+                          {isLoading && (
                             <div className={gridStyles["grid-loading-overlay"]}>
                               <div className="spinner"></div>
                             </div>
                           )}
-                          <div className={gridStyles["products-grid"]} style={loading ? {filter:'blur(1.5px)', pointerEvents:'none'} : {}}>
-                            {products.map((product) => (
+                          <div className={gridStyles["products-grid"]} style={isLoading ? {filter:'blur(1.5px)', pointerEvents:'none'} : {}}>
+                            {products.map((product: any) => (
                               <ProductCard 
                                 key={product.id} 
                                 product={product} 
@@ -141,9 +127,9 @@ const TagProductsPage = ({ params }: { params?: { slug?: string } }) => {
                     <button 
                       className="pagination-btn" 
                       onClick={() => handlePageChange(Math.max(1, currentPage - 1), `/tags/${slug}`)} 
-                      disabled={currentPage === 1 || loading}
+                      disabled={currentPage === 1 || isLoading}
                     >
-                      {loading ? '⏳' : '← Previous'}
+                      {isLoading ? '⏳' : '← Previous'}
                     </button>
                     <div className="pagination-numbers">
                       {getPageNumbers().map((page, idx) =>

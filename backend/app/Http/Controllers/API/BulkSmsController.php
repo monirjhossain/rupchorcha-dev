@@ -9,12 +9,14 @@ class BulkSmsController extends Controller
 {
     public function index()
     {
-        return BulkSms::all();
+        $smsList = BulkSms::latest()->paginate(20);
+        return response()->json(['success' => true, 'data' => $smsList]);
     }
 
     public function show($id)
     {
-        return BulkSms::findOrFail($id);
+        $sms = BulkSms::findOrFail($id);
+        return response()->json(['success' => true, 'data' => $sms]);
     }
 
     public function store(Request $request)
@@ -39,19 +41,19 @@ class BulkSmsController extends Controller
         }
         $bulkSms->status = $success ? 'sent' : 'failed';
         $bulkSms->save();
-        return response()->json($bulkSms, 201);
+        return response()->json(['success' => true, 'data' => $bulkSms, 'message' => 'SMS processed.'], 201);
     }
 
     public function update(Request $request, $id)
     {
         $bulkSms = BulkSms::findOrFail($id);
         $bulkSms->update($request->all());
-        return response()->json($bulkSms);
+        return response()->json(['success' => true, 'data' => $bulkSms]);
     }
 
     public function destroy($id)
     {
         BulkSms::destroy($id);
-        return response()->json(null, 204);
+        return response()->json(['success' => true, 'message' => 'Record deleted'], 200);
     }
 }

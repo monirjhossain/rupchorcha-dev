@@ -22,14 +22,14 @@ class ReviewController extends Controller
             'rating' => $request->rating,
             'comment' => $request->comment,
         ]);
-        return response()->json(['success' => true, 'message' => 'Review added.', 'review' => $review]);
+        return response()->json(['success' => true, 'message' => 'Review added.', 'data' => $review]);
     }
 
     // View reviews for a product
     public function show($product_id)
     {
         $reviews = Review::where('product_id', $product_id)->with('user')->get();
-        return response()->json(['success' => true, 'reviews' => $reviews]);
+        return response()->json(['success' => true, 'data' => $reviews]);
     }
 
     // Update a review
@@ -44,7 +44,7 @@ class ReviewController extends Controller
             'comment' => 'nullable|string',
         ]);
         $review->update($request->only('rating', 'comment'));
-        return response()->json(['success' => true, 'message' => 'Review updated.', 'review' => $review]);
+        return response()->json(['success' => true, 'message' => 'Review updated.', 'data' => $review]);
     }
 
     // Delete a review

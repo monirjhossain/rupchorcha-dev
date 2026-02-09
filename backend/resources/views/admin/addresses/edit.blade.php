@@ -13,9 +13,9 @@
                 <div class="form-group">
                     <label for="user_id">User</label>
                     <select name="user_id" id="user_id" class="form-control" required>
-                        @foreach($users as $user)
-                            <option value="{{ $user->id }}" {{ $address->user_id == $user->id ? 'selected' : '' }}>{{ $user->name }} ({{ $user->email }})</option>
-                        @endforeach
+                        @if($address->user)
+                            <option value="{{ $address->user_id }}" selected>{{ $address->user->name }} ({{ $address->user->email }})</option>
+                        @endif
                     </select>
                 </div>
                 <div class="form-group">
@@ -71,3 +71,79 @@
     </div>
 </div>
 @endsection
+
+@push('styles')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    .select2-container .select2-selection--single {
+        height: 38px;
+        line-height: 38px;
+    }
+</style>
+@endpush
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('#user_id').select2({
+        placeholder: 'Search for a user...',
+        allowClear: true,
+        ajax: {
+            url: '{{ route("users.ajax_search") }}',
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return {
+                    q: params.term // search term
+                };
+            },
+            processResults: function (data) {
+                return {
+                    results: data.data.results
+                };
+            },
+            cache: true
+        }
+    });
+});
+</script>
+@endpush
+
+@push('styles')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    .select2-container .select2-selection--single {
+        height: 38px;
+        line-height: 38px;
+    }
+</style>
+@endpush
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('#user_id').select2({
+        placeholder: 'Search for a user...',
+        allowClear: true,
+        ajax: {
+            url: '{{ route("users.ajax_search") }}',
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return {
+                    q: params.term // search term
+                };
+            },
+            processResults: function (data) {
+                return {
+                    results: data.results
+                };
+            },
+            cache: true
+        }
+    });
+});
+</script>
+@endpush

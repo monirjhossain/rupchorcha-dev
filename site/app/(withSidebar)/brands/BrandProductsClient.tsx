@@ -4,9 +4,10 @@ import { useCart } from "@/app/common/CartContext";
 import ProductCard from "@/app/components/ProductCard";
 import gridStyles from "@/app/components/ProductGrid.module.css";
 import toast from "react-hot-toast";
-import { useBrandProducts } from "@/app/services/useBrandProducts";
 import GlobalSortBar from "@/app/components/GlobalSortBar";
 import { usePaginationSort } from "@/app/hooks/usePaginationSort";
+import { useProducts } from "@/src/hooks/useProducts";
+import { useBrands } from "@/src/hooks/useBrands";
 
 // Banner component
 const BrandBanner = ({ imageUrl }: { imageUrl: string }) => {
@@ -45,16 +46,56 @@ export default function BrandProductsClient({ slug }: { slug: string }) {
   const perPage = 12;
 
   const { addToCart } = useCart();
-  const { products, brand, isLoading, isError, meta } = useBrandProducts(slug, currentPage, perPage, sortBy);
+  const { brands, isLoading: brandsLoading } = useBrands();
+  
+  const foundBrand = React.useMemo(() => {
+     if (!brands) return null;
+     if (!isNaN(Number(slug))) {
+        return brands.find(b => b.id === Number(slug));
+     }
+     return brands.find(b => b.slug === slug);
+  }, [brands, slug]);
 
-  const handleAddToCart = (product: any) => {
+
+  const { products: fetchedProducts, meta, isLoading: productsLoading, isError } = useProducts({ 
+      page: currentPage, 
+      brand_id: foundBrand?.id, 
+      sort: sortBy 
+  });
+  
+  const products = fetchedProducts || [];
+  const isLoading = brandsLoading || productsLoading;
+  const brand = foundBrand;
+
+  if (!brandsLoading && slug && !foundBrand) {
+    return (
+      <div style={{textAlign:'center', padding:'4rem 0'}}>
+         <h2>Brand Not Found</h2>
+         <p>We couldn't find the brand you're looking for.</p>
+      </div>
+    );
+ }
+
+  const handleAddToCart = async (product: any) => {
     setIsAddingToCart((prev) => ({ ...prev, [product.id]: true }));
-    addToCart({ product_id: product.id, quantity: 1, product });
-    toast.success(`${product.name} added to cart!`);
-    setTimeout(() => setIsAddingToCart((prev) => ({ ...prev, [product.id]: false })), 400);
+    try {
+        await addToCart({ 
+            id: product.id,
+            name: product.name,
+            price: product.sale_price || product.price,
+            image: product.images && product.images.length > 0 ? product.images[0].url : (product.image || "/placeholder.png"),
+            quantity: 1,
+        });
+        toast.success(`${product.name} added to cart!`);
+    } catch(e) {
+        console.error(e);
+        toast.error('Failed to add to cart');
+    } finally {
+        setTimeout(() => setIsAddingToCart((prev) => ({ ...prev, [product.id]: false })), 400);
+    }
   };
 
-  const totalPages = meta?.lastPage || 1;
+  const totalPages = meta?.last_page || 1;
 
   // Generate smart pagination numbers (first, last, and around current)
   const getPageNumbers = () => {
@@ -83,11 +124,13 @@ export default function BrandProductsClient({ slug }: { slug: string }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
       {/* Brand Banner */}
-      {brand?.banner_image && <BrandBanner imageUrl={brand.banner_image} />}
+      {brand?.logo && <BrandBanner imageUrl={brand.logo} />}
+      {/* Fallback to legacy field if logo not used for banner */}
 
       <GlobalSortBar
-        sortBy={sortBy}
-        setSortBy={(value) => handleSortChange(value, `/brands/${slug}`)}
+        totalProducts={meta?.total || products.length}
+        currentSort={sortBy}
+        onSortChange={handleSortChange}
       />
 
       {isError && <div style={{ color: "#d33" }}>Failed to load products.</div>}

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\CategoryResource;
 
 class CategoryController extends Controller
 {
@@ -11,36 +12,15 @@ class CategoryController extends Controller
     public function index()
     {
         $categories = Category::withCount('products')->get();
-        return response()->json(['success' => true, 'categories' => $categories]);
+        return response()->json(['success' => true, 'data' => CategoryResource::collection($categories)]);
     }
 
     // Show category details
     public function show($id)
     {
         $category = Category::with(['products.categories'])->findOrFail($id);
-        // Format products to include their categories (id, name, slug)
-        $products = $category->products->map(function($product) {
-            return [
-                'id' => $product->id,
-                'name' => $product->name,
-                'slug' => $product->slug,
-                'categories' => $product->categories->map(function($cat) {
-                    return [
-                        'id' => $cat->id,
-                        'name' => $cat->name,
-                        'slug' => $cat->slug,
-                    ];
-                }),
-            ];
-        });
-        $data = [
-            'id' => $category->id,
-            'name' => $category->name,
-            'slug' => $category->slug,
-            'description' => $category->description,
-            'products' => $products,
-        ];
-        return response()->json(['success' => true, 'category' => $data]);
+        
+        return response()->json(['success' => true, 'data' => new CategoryResource($category)]);
     }
 
     // Create category (admin)
@@ -55,7 +35,7 @@ class CategoryController extends Controller
             $validated['banner_image'] = $request->file('banner_image')->store('categories/banners', 'public');
         }
         $category = Category::create($validated);
-        return response()->json(['success' => true, 'message' => 'Category added.', 'category' => $category]);
+        return response()->json(['success' => true, 'message' => 'Category added.', 'data' => new CategoryResource($category)]);
     }
 
     // Update category (admin)

@@ -10,12 +10,14 @@ class BulkEmailController extends Controller
 {
     public function index()
     {
-        return BulkEmail::all();
+        $emails = BulkEmail::latest()->paginate(20);
+        return response()->json(['success' => true, 'data' => $emails]);
     }
 
     public function show($id)
     {
-        return BulkEmail::findOrFail($id);
+        $email = BulkEmail::findOrFail($id);
+        return response()->json(['success' => true, 'data' => $email]);
     }
 
     public function store(Request $request)
@@ -40,19 +42,19 @@ class BulkEmailController extends Controller
         }
         $bulkEmail->status = $success ? 'sent' : 'failed';
         $bulkEmail->save();
-        return response()->json($bulkEmail, 201);
+        return response()->json(['success' => true, 'data' => $bulkEmail, 'message' => 'Bulk emails sent.'], 201);
     }
 
     public function update(Request $request, $id)
     {
         $bulkEmail = BulkEmail::findOrFail($id);
         $bulkEmail->update($request->all());
-        return response()->json($bulkEmail);
+        return response()->json(['success' => true, 'data' => $bulkEmail]);
     }
 
     public function destroy($id)
     {
         BulkEmail::destroy($id);
-        return response()->json(null, 204);
+        return response()->json(['success' => true, 'message' => 'Record deleted'], 200);
     }
 }

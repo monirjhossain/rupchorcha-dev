@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserResource;
 
 class UserController extends Controller
 {
@@ -27,7 +28,7 @@ class UserController extends Controller
             'password' => Hash::make($request->password),
         ]);
         $token = $user->createToken('auth_token')->plainTextToken;
-        return response()->json(['success' => true, 'message' => 'Registration successful.', 'user' => $user, 'token' => $token]);
+        return response()->json(['success' => true, 'message' => 'Registration successful.', 'data' => ['user' => new UserResource($user), 'token' => $token]]);
     }
 
     // User login
@@ -42,14 +43,14 @@ class UserController extends Controller
         }
         $user = Auth::user();
         $token = $user->createToken('auth_token')->plainTextToken;
-        return response()->json(['success' => true, 'message' => 'Login successful.', 'user' => $user, 'token' => $token]);
+        return response()->json(['success' => true, 'message' => 'Login successful.', 'data' => ['user' => new UserResource($user), 'token' => $token]]);
     }
 
     // Get user profile
     public function profile(Request $request)
     {
         $user = $request->user();
-        return response()->json(['success' => true, 'user' => $user]);
+        return response()->json(['success' => true, 'data' => new UserResource($user)]);
     }
 
     // Update user profile
@@ -62,7 +63,7 @@ class UserController extends Controller
             'address' => 'string|nullable',
         ]);
         $user->update($request->only('name', 'phone', 'address'));
-        return response()->json(['success' => true, 'message' => 'Profile updated.', 'user' => $user]);
+        return response()->json(['success' => true, 'message' => 'Profile updated.', 'data' => new UserResource($user)]);
     }
 
     // Change password

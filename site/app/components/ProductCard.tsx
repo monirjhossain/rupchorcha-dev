@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { useWishlist } from "./WishlistContext";
 import { useFeatureAccess } from "@/src/hooks/useFeatureAccess";
 import { openLoginModal } from "@/src/utils/loginModal";
-import { FaHeart, FaRegHeart } from "react-icons/fa";
+import { FaHeart, FaRegHeart, FaTimes } from "react-icons/fa";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import styles from "./ProductCard.module.css";
@@ -12,10 +12,10 @@ interface ProductCardProps {
   product: any;
   onAddToCart: (product: any) => void;
   isAddingToCart?: boolean;
+  showRemoveButton?: boolean;
 }
 
 const backendBase = "http://localhost:8000";
-
 
 const getImageUrl = (product: any, idx = 0): string => {
   if (product.images?.length && product.images[idx]) {
@@ -37,146 +37,165 @@ const getImageUrl = (product: any, idx = 0): string => {
   return "https://via.placeholder.com/300x300/f0f0f0/999?text=No+Image";
 };
 
-
-const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, isAddingToCart = false }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, isAddingToCart = false, showRemoveButton = false }) => {
   const [hovered, setHovered] = useState(false);
-  const [wishlistLoading, setWishlistLoading] = useState(false);
   const router = useRouter();
   const { canAccessWishlist } = useFeatureAccess();
+  
+  // Guard clause for missing product
+  if (!product) return null;
+
   const images = Array.isArray(product.images) ? product.images : [];
   const imageUrl = getImageUrl({ ...product, images }, 0);
   const secondImageUrl = images[1] ? getImageUrl({ ...product, images }, 1) : null;
   const brand = product.brand?.name || product.brand_name;
+  
+  // Determine Product URL
+  const productUrl = product.slug ? `/product/${product.slug}` : `/product/${product.id}`;
 
-  // Discount calculation (robust against NaN and string numbers)
+  // Discount calculation
   const price = Number((product.price || "").toString().replace(/[^\d.]/g, ""));
-  const sale = Number((product.sale_price || "").toString().replace(/[^\d.]/g, ""));
+  const sale = Number((product.discount_price || product.sale_price || "").toString().replace(/[^\d.]/g, ""));
   const hasDiscount = !isNaN(price) && !isNaN(sale) && sale > 0 && sale < price;
   const discountPercent = hasDiscount ? Math.round(((price - sale) / price) * 100) : 0;
 
   const rating = product.rating || product.average_rating || 0;
-  const ratingCount = product.rating_count || product.reviews_count || 0;
-
   const isNew = product.is_new || false;
 
   const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlist();
   const [wishlistError, setWishlistError] = useState<string | null>(null);
 
   const handleWishlist = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
+    e.stopPropagation(); // Stop bubbling to card click
+    e.preventDefault(); // Prevent default button behavior
     setWishlistError(null);
 
-    // Check if feature is accessible
     if (!canAccessWishlist) {
       openLoginModal();
       return;
     }
 
-    // Optimistic update - update UI immediately
     try {
       if (isInWishlist(product.id)) {
         removeFromWishlist(product.id).catch((err: any) => {
-          const message = err.message || "Failed to remove from wishlist";
-          setWishlistError(message);
-          console.error("Wishlist error:", err);
+          setWishlistError(err.message || "Failed to remove");
         });
       } else {
         addToWishlist(product.id).catch((err: any) => {
-          const message = err.message || "Failed to add to wishlist";
-          setWishlistError(message);
-          console.error("Wishlist error:", err);
-          if (message.includes("Please login") || message.includes("login")) {
+          setWishlistError(err.message || "Failed to add");
+          if (err.message && (err.message.includes("Please login") || err.message.includes("login"))) {
             setTimeout(() => openLoginModal(), 2000);
           }
         });
       }
     } catch (err: any) {
-      const message = err.message || "Wishlist action failed. Please login or try again.";
-      setWishlistError(message);
-      console.error("Wishlist error:", err);
+      setWishlistError(err.message || "Action failed");
     }
   };
 
+  const handleCardClick = (e: React.MouseEvent) => {
+    // If the click was on a link or button, or inside one, do nothing (let default behavior happen)
+    const target = e.target as HTMLElement;
+    if (target.closest('a') || target.closest('button')) {
+      return;
+    }
+    
+    // Otherwise, programmatic navigation
+    router.push(productUrl);
+  };
+
   return (
-    <div className={styles.productCard}>
+    <div className={styles.productCard} onClick={handleCardClick} style={{cursor: 'pointer'}}>
       {wishlistError && (
         <div style={{ color: 'red', fontSize: 13, marginBottom: 4 }}>{wishlistError}</div>
       )}
+      
+      {/* Wishlist Button */}
       <button
         className={styles.wishlistBtn}
         aria-label={isInWishlist(product.id) ? "Remove from wishlist" : "Add to wishlist"}
         onClick={handleWishlist}
-        style={{ position: "absolute", top: 14, right: 14, background: "none", border: "none", cursor: "pointer", zIndex: 2 }}
+        style={{ position: "absolute", top: 14, right: 14, background: "none", border: "none", cursor: "pointer", zIndex: 10 }}
       >
-        {isInWishlist(product.id) ? (
-          <FaHeart color="#e91e63" size={24} />
+        {showRemoveButton ? (
+           <div title="Remove from wishlist" style={{ background: '#fff', borderRadius: '50%', padding: '6px', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px' }}>
+             <FaTimes color="#666" size={14} />
+           </div>
         ) : (
-          <FaRegHeart color="#e91e63" size={24} />
+          isInWishlist(product.id) ? <FaHeart color="#e91e63" size={24} /> : <FaRegHeart color="#e91e63" size={24} />
         )}
       </button>
+
       {/* Badges */}
       <div className={styles.badgeContainer}>
         {isNew && <span className={styles.newBadge}>NEW</span>}
-        {hasDiscount && discountPercent > 0 && (
-          <span className={styles.saleBadge}>-{discountPercent}%</span>
-        )}
+        {hasDiscount && discountPercent > 0 && <span className={styles.saleBadge}>-{discountPercent}%</span>}
       </div>
-      {/* Product image */}
+
+      {/* Product Image - LINKED */}
       <Link 
-        href={product.slug ? `/product/${product.slug}` : `/product/${product.id}`} 
+        href={productUrl} 
         className={styles.productImageLink}
-        prefetch={true}
+        prefetch={false} // Disable prefetch to avoid potential issues, or enable if stable
+        draggable={false}
       >
         <img
           src={hovered && secondImageUrl && secondImageUrl !== imageUrl ? secondImageUrl : imageUrl}
-          alt={product.name || "No Image Available"}
+          alt={product.name || "Product Image"}
           className={styles.productImage}
           onMouseEnter={() => setHovered(true)}
           onMouseLeave={() => setHovered(false)}
         />
       </Link>
-      {/* Product info */}
+
+      {/* Product Info */}
       <div className={styles.productInfo}>
-        {/* Brand (show if present, as link) */}
+        {/* Brand */}
         {brand && (
           <Link
             href={product.brand?.slug ? `/brands/${product.brand.slug}` : (brand ? `/brands/${encodeURIComponent(brand)}` : '#')}
             className={styles.brandName}
-            title={brand}
-            prefetch={true}
+            onClick={(e) => e.stopPropagation()} // Stop propagation for brand link specifically
           >
             {brand}
           </Link>
         )}
-        {/* Title */}
+
+        {/* Title - LINKED */}
         <Link 
-          href={product.slug ? `/product/${product.slug}` : `/product/${product.id}`}
-          prefetch={true}
+          href={productUrl}
+          className={styles.productTitleLink}
         >
           <h3 className={styles.productTitle}>{product.name}</h3>
         </Link>
+
         {/* Rating */}
         <div className={styles.rating}>
           {Array.from({ length: 5 }).map((_, i) => (
             <svg key={i} width="14" height="14" viewBox="0 0 20 20" fill={i < Math.round(rating) ? '#ffb400' : '#eee'}><polygon points="10,1.5 12.6,7.2 18.8,7.6 14,12 15.2,18.2 10,15 4.8,18.2 6,12 1.2,7.6 7.4,7.2"/></svg>
           ))}
         </div>
-        {/* Price: always show both if sale price exists */}
+
+        {/* Price */}
         <div className={styles.productPrice}>
           {hasDiscount ? (
             <>
-              <span className={styles.salePrice}>৳ {Math.round(sale)}</span>
-              <span className={styles.regularPrice}>৳ {Math.round(price)}</span>
+              <span className={styles.salePrice}>৳{Math.round(sale)}</span>
+              <span className={styles.regularPrice}>৳{Math.round(price)}</span>
             </>
           ) : (
-            <span className={styles.salePrice}>৳ {Math.round(price)}</span>
+            <span className={styles.salePrice}>৳{Math.round(price)}</span>
           )}
         </div>
-        {/* Cart Button */}
+
+        {/* Add to Cart */}
         <button
           className={`${styles.addToCartBtn} ${isAddingToCart ? styles.loading : ""}`}
-          onClick={() => onAddToCart(product)}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onAddToCart(product);
+          }}
           disabled={isAddingToCart}
         >
           {isAddingToCart ? "Adding..." : "Add to Cart"}

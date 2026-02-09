@@ -7,66 +7,6 @@
         <a href="{{ url('/admin/users/create') }}" class="btn btn-primary">+ Create User</a>
     </div>
 </div>
-<!-- Bulk SMS Section -->
-<form method="POST" action="{{ route('users.bulk_sms') }}">
-    @csrf
-    <div class="card mb-4">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <span class="font-weight-bold">Bulk SMS</span>
-            <button type="submit" class="btn btn-info">Send SMS</button>
-        </div>
-        <div class="card-body">
-            <div class="form-group">
-                <label for="sms_api_key">SMS API Key</label>
-                <input type="text" name="sms_api_key" id="sms_api_key" class="form-control" placeholder="Enter SMS API Key" required>
-            </div>
-            <div class="form-group">
-                <label for="sms_message">Message</label>
-                <textarea name="sms_message" id="sms_message" class="form-control" rows="3" required></textarea>
-            </div>
-            <div class="table-responsive">
-                <table class="table table-bordered" width="100%" cellspacing="0">
-                    <thead>
-                        <tr>
-                            <th><input type="checkbox" id="select_all_users"></th>
-                            <th>ID</th>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                            <th>Phone</th>
-                            <th>Address</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($users as $user)
-                            <tr>
-                                <td><input type="checkbox" name="user_ids[]" value="{{ $user->id }}" class="user-checkbox"></td>
-                                <td>{{ $user->id }}</td>
-                                <td>{{ $user->name }}</td>
-                                <td>{{ $user->email }}</td>
-                                <td>{{ $user->role }}</td>
-                                <td>{{ $user->phone }}</td>
-                                <td>{{ $user->address }}</td>
-                                <td>{{ $user->active ? 'Active' : 'Inactive' }}</td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</form>
-@push('scripts')
-<script>
-    document.getElementById('select_all_users').addEventListener('change', function() {
-        let checked = this.checked;
-        document.querySelectorAll('.user-checkbox').forEach(function(cb) {
-            cb.checked = checked;
-        });
-    });
-</script>
-@endpush
 <!-- User Search & Filter -->
 <form method="GET" action="" class="mb-4">
     <div class="row align-items-end">

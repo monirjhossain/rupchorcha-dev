@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import styles from "./HeroSlider.module.css";
+import { heroSlides } from "../heroSlides";
 
 export type Slide = {
   id: number;
@@ -13,34 +14,6 @@ export type Slide = {
   cta?: string;
   ctaLink?: string;
 };
-
-const defaultSlides: Slide[] = [
-  {
-    id: 1,
-    image: "/slider/newyear.webp",
-    ctaLink: "/category/makeup",
-  },
-  {
-    id: 2,
-    image: "/slider/christmas.png",
-    ctaLink: "/deals",
-  },
-  {
-    id: 3,
-    image: "/slider/Freedom.webp",
-    ctaLink: "/deals",
-  },
-  {
-    id: 4,
-    image: "/slider/Freedom1.webp",
-    ctaLink: "/deals",
-  },
-  {
-    id: 5,
-    image: "/slider/Freedom2.webp",
-    ctaLink: "/deals",
-  },
-];
 
 const useIsMobile = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -66,7 +39,7 @@ interface HeroSliderProps {
 const HeroSlider: React.FC<HeroSliderProps> = ({ slides }) => {
   const [current, setCurrent] = useState(0);
   const isMobile = useIsMobile();
-  const effectiveSlides = slides && slides.length > 0 ? slides : defaultSlides;
+  const effectiveSlides = slides && slides.length > 0 ? slides : heroSlides;
 
   useEffect(() => {
     // reset index when slide count changes
@@ -98,15 +71,28 @@ const HeroSlider: React.FC<HeroSliderProps> = ({ slides }) => {
               key={slide.id}
               className={styles.slide + (idx === current ? " " + styles.active : "")}
             >
-              <Image
-                src={imageSrc}
-                alt={altText}
-                fill
-                className={styles.slideImg}
-                priority={idx === current}
-                sizes="(max-width: 1920px) 100vw, 1200px"
-                quality={100}
-              />
+              {isMobile && slide.mobileImage ? (
+                <Image
+                  src={imageSrc}
+                  alt={altText}
+                  width={750}
+                  height={400}
+                  className={styles.mobileSlideImg}
+                  priority={idx === current}
+                  sizes="100vw"
+                  quality={100}
+                />
+              ) : (
+                <Image
+                  src={imageSrc}
+                  alt={altText}
+                  fill
+                  className={styles.slideImg}
+                  priority={idx === current}
+                  sizes="(max-width: 1920px) 100vw, 1200px"
+                  quality={100}
+                />
+              )}
             </div>
           );
         })}

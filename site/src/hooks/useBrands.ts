@@ -1,37 +1,20 @@
 import useSWR from 'swr';
-
-export interface Brand {
-  id: number;
-  name: string;
-  slug?: string;
-  logo?: string;
-  description?: string;
-}
-
-const API_URL = typeof window !== 'undefined' 
-  ? (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api')
-  : '';
-
-const fetcher = async (url: string) => {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error('Failed to fetch');
-  return res.json();
-};
+import { fetcher } from '@/src/services/apiClient';
+import { Brand } from '@/src/types/api';
 
 export function useBrands() {
-  const { data, error, isLoading } = useSWR<{ success: boolean; brands: Brand[] }>(
-    `${API_URL}/brands`,
+  const { data, error, isLoading } = useSWR<Brand[]>(
+    '/brands',
     fetcher,
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
-      dedupingInterval: 60000, // Cache for 1 minute
+      dedupingInterval: 60000,
       fallbackData: typeof window !== 'undefined' 
-        ? JSON.parse(localStorage.getItem('brands_cache') || '{}')
-        : undefined,
+        ? JSON.parse(localStorage.getItem('brands_cache') || '[]')
+        : [],
       onSuccess: (data) => {
-        // Cache in localStorage for instant load
-        if (typeof window !== 'undefined' && data?.brands) {
+        if (typeof window !== 'undefined' && data) {
           localStorage.setItem('brands_cache', JSON.stringify(data));
           localStorage.setItem('brands_cache_time', Date.now().toString());
         }
@@ -40,7 +23,7 @@ export function useBrands() {
   );
   
   return {
-    brands: data?.brands || [],
+    brands: Array.isArray(data) ? data : [],
     isLoading,
     isError: error
   };

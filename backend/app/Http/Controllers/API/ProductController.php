@@ -5,6 +5,7 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\ProductResource;
 
 class ProductController extends Controller
 {
@@ -13,48 +14,23 @@ class ProductController extends Controller
     public function showBySlug($slug)
     {
         $product = Product::with(['brand', 'images', 'categories', 'tags'])->where('slug', $slug)->first();
+        
+        // Setup fallback for ID lookup if slug not found and input looks numeric
+        if (!$product && (is_numeric($slug) || (string)(int)$slug == $slug)) {
+             $product = Product::with(['brand', 'images', 'categories', 'tags'])->where('id', $slug)->first();
+        }
+
         if (!$product) {
-            return response()->json(['error' => 'Product not found'], 404);
+            return response()->json(['success' => false, 'message' => 'Product not found'], 404);
         }
-        // Prepare images array (main_image first, then gallery images)
-        $images = [];
-        if ($product->main_image) {
-            $images[] = url('storage/' . ltrim($product->main_image, '/'));
-        }
-        if ($product->images && count($product->images) > 0) {
-            foreach ($product->images as $img) {
-                $imgUrl = url('storage/' . ltrim($img->image_path, '/'));
-                // Avoid duplicate if main_image is also in gallery
-                if (!in_array($imgUrl, $images)) {
-                    $images[] = $imgUrl;
-                }
-            }
-        }
-        $data = $product->toArray();
-        $data['images'] = $images;
-        $data['main_image_url'] = $product->main_image ? url('storage/' . ltrim($product->main_image, '/')) : null;
-        // Add categories info
-        $data['categories'] = $product->categories->map(function($cat) {
-            return [
-                'id' => $cat->id,
-                'name' => $cat->name,
-                'slug' => $cat->slug,
-            ];
-        });
-        // Add tags info
-        $data['tags'] = $product->tags->map(function($tag) {
-            return [
-                'id' => $tag->id,
-                'name' => $tag->name,
-                'slug' => $tag->slug,
-            ];
-        });
-        return response()->json(['success' => true, 'product' => $data]);
+        
+        return response()->json(['success' => true, 'data' => new ProductResource($product)]);
     }
+    
     // List all products
     public function index(Request $request)
     {
-        $query = Product::with(['brand', 'images', 'categories']);
+        $query = Product::with(['brand', 'images', 'categories', 'tags']);
 
         // Filter by name or SKU (search)
         $search = $request->input('search') ?? $request->input('name');
@@ -75,6 +51,35 @@ class ProductController extends Controller
             $query->whereHas('categories', function($q) use ($categoryIds) {
                 $q->whereIn('categories.id', $categoryIds);
             });
+        }
+
+        // Filter by category_id (single)
+        if ($request->has('category_id')) {
+            $categoryId = $request->category_id;
+            $query->whereHas('categories', function($q) use ($categoryId) {
+                $q->where('categories.id', $categoryId);
+            });
+        }
+
+        // Filter by brand
+        if ($request->has('brand_id')) {
+            $query->where('brand_id', $request->brand_id);
+        }
+
+        // Filter by tag (slug)
+        if ($request->has('tag')) {
+            $tagSlug = $request->input('tag');
+            $query->whereHas('tags', function($q) use ($tagSlug) {
+                $q->where('slug', $tagSlug);
+            });
+        }
+
+        // Filter by flags
+        if ($request->has('is_featured') && $request->is_featured == '1') {
+            $query->where('is_featured', 1);
+        }
+        if ($request->has('is_new') && $request->is_new == '1') {
+            $query->where('is_new', 1);
         }
 
         // Filter by price range if provided
@@ -111,59 +116,32 @@ class ProductController extends Controller
 
         $perPage = $request->input('per_page', 20);
         $products = $query->paginate($perPage);
-        // Map each product to array with merged images and categories
-        $productsData = [];
-        foreach ($products->items() as $product) {
-            $data = $product->toArray();
-            $images = [];
-            if (!empty($product->main_image)) {
-                $images[] = url('storage/' . ltrim($product->main_image, '/'));
-            }
-            if (!empty($product->images)) {
-                foreach ($product->images as $img) {
-                    $imgUrl = url('storage/' . ltrim($img->image_path, '/'));
-                    if (!in_array($imgUrl, $images)) {
-                        $images[] = $imgUrl;
-                    }
-                }
-            }
-            $data['images'] = $images;
-            // Add categories info
-            $data['categories'] = $product->categories->map(function($cat) {
-                return [
-                    'id' => $cat->id,
-                    'name' => $cat->name,
-                    'slug' => $cat->slug,
-                ];
-            });
-            $productsData[] = $data;
-        }
-        // Build pagination meta manually
-        $productsArray = [
-            'current_page' => $products->currentPage(),
-            'data' => $productsData,
-            'first_page_url' => $products->url(1),
-            'from' => $products->firstItem(),
-            'last_page' => $products->lastPage(),
-            'last_page_url' => $products->url($products->lastPage()),
-            'next_page_url' => $products->nextPageUrl(),
-            'path' => $products->path(),
-            'per_page' => $products->perPage(),
-            'prev_page_url' => $products->previousPageUrl(),
-            'to' => $products->lastItem(),
-            'total' => $products->total(),
-        ];
+
+        // Best Practice: Return pagination meta + Resource Collection
         return response()->json([
             'success' => true,
-            'products' => $productsArray
+            'data' => [
+                'current_page' => $products->currentPage(),
+                'data' => ProductResource::collection($products),
+                'first_page_url' => $products->url(1),
+                'from' => $products->firstItem(),
+                'last_page' => $products->lastPage(),
+                'last_page_url' => $products->url($products->lastPage()),
+                'next_page_url' => $products->nextPageUrl(),
+                'path' => $products->path(),
+                'per_page' => $products->perPage(),
+                'prev_page_url' => $products->previousPageUrl(),
+                'to' => $products->lastItem(),
+                'total' => $products->total(),
+            ]
         ]);
     }
 
     // Show product details
     public function show($id)
     {
-        $product = Product::findOrFail($id);
-        return response()->json(['success' => true, 'product' => $product]);
+        $product = Product::with(['brand', 'images', 'categories', 'tags'])->findOrFail($id);
+        return response()->json(['success' => true, 'data' => new ProductResource($product)]);
     }
 
     // Create product (admin)

@@ -30,6 +30,7 @@ class Product extends Model
         'main_image',
         'category_id',
         'brand_id',
+        'warehouse_id',
         'min_order_qty',
         'max_order_qty',
         'sale_start_date',

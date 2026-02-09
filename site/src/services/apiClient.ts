@@ -344,4 +344,28 @@ export const api = {
     apiRequest<T>(endpoint, { ...options, method: 'DELETE' }),
 };
 
+/**
+ * SWR Fetcher wrapper
+ * Unwraps the response to return just the data property
+ */
+export const fetcher = async (url: string) => {
+  // Remove leading slash if present to avoid double slashes if baseURL ends with slash
+  const endpoint = url.startsWith('http') ? url : url; 
+  
+  // If complete URL is passed (e.g. from next/image or external), use fetch directly
+  if (endpoint.startsWith('http')) {
+     const res = await fetch(endpoint);
+     if (!res.ok) throw new Error('Failed to fetch');
+     return res.json();
+  }
+
+  const response = await api.get(url);
+  
+  if (!response.success) {
+    throw new Error(response.message || 'An error occurred');
+  }
+  
+  return response.data;
+};
+
 export default api;

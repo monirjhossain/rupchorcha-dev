@@ -1,8 +1,9 @@
 "use client";
-import Link from "next/link";
 import React, { useState, useRef, useEffect } from "react";
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useCategories, useBrands } from "../services/useCategoriesBrands";
+import { useCategories } from "@/src/hooks/useCategories";
+import { useBrands } from "@/src/hooks/useBrands";
 import { usePriceRange } from "../services/usePriceRange";
 
 

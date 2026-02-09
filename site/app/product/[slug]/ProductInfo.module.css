@@ -147,8 +147,7 @@
 
 @media (max-width: 900px) {
   .breadcrumbs {
-    font-size: 0.8rem;
-    flex-wrap: wrap;
+    display: none;
   }
 
   .title {

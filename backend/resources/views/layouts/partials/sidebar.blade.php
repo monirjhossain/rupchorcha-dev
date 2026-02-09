@@ -141,7 +141,7 @@
         <div id="collapseMarketing" class="collapse" aria-labelledby="headingMarketing" data-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <a class="collapse-item" href="{{ route('bulk_email.index') }}">Bulk Email</a>
-                <a class="collapse-item" href="{{ route('users.index') }}#bulk-sms">Bulk SMS</a>
+                <a class="collapse-item" href="{{ route('users.bulk_message_form') }}">Bulk SMS</a>
                 <a class="collapse-item" href="{{ route('campaign_history.index') }}">Campaign History</a>
             </div>
         </div>

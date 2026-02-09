@@ -14,6 +14,7 @@
   margin: 0 auto;
   padding: 0 12px;
   box-sizing: border-box;
+  position: relative;
 }
 .topBar {
   display: flex;
@@ -134,6 +135,119 @@
   scrollbar-color: #e91e63 #fff;
   transition: none;
   animation: none;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.5rem 0;
+  position: relative;
+}
+
+.navSecondary {
+  border-top: 1px solid #f1f1f1;
+}
+
+.navLink {
+  text-decoration: none;
+  color: #444;
+  padding: 0.2rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  transition: color 0.2s ease, background 0.2s ease;
+  white-space: nowrap;
+}
+
+.navLink:hover {
+  color: #e91e63;
+  background: #fff3f8;
+}
+
+.shopNav {
+  background: linear-gradient(135deg, #7c32ff 0%, #6a1b9a 100%);
+  color: #fff;
+  font-weight: 700;
+  padding: 0.32rem 1rem;
+  border-radius: 16px;
+  box-shadow: 0 6px 18px rgba(124, 50, 255, 0.28);
+}
+
+.shopNav:hover {
+  color: #fff;
+  background: linear-gradient(135deg, #8a46ff 0%, #7c32ff 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(124, 50, 255, 0.34);
+}
+
+.shopNavActive {
+  color: #fff;
+  background: linear-gradient(135deg, #6a1b9a 0%, #571387 100%);
+  box-shadow: 0 10px 24px rgba(87, 19, 135, 0.32);
+}
+
+.active {
+  color: #7c32ff;
+  background: #f5edff;
+  font-weight: 700;
+}
+
+
+.megaMenu {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  background: #fff;
+  box-shadow: 0 18px 38px rgba(17, 11, 52, 0.16);
+  border: 1px solid #f2e9ff;
+  border-top: 3px solid #7c32ff;
+  border-radius: 0 0 12px 12px;
+  z-index: 120;
+  padding: 1.4rem 1.6rem 1.6rem;
+  animation: megaFade 120ms ease-out;
+}
+
+.megaContent {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 1.4rem;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.megaColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.megaTitle {
+  font-weight: 700;
+  font-size: 1rem;
+  color: #1d1236;
+  margin-bottom: 0.45rem;
+  letter-spacing: 0.01em;
+}
+
+.megaLink {
+  color: #4a4866;
+  text-decoration: none;
+  font-size: 0.93rem;
+  padding: 0.32rem 0.5rem;
+  border-radius: 10px;
+  transition: color 0.2s, transform 0.2s, background 0.2s;
+}
+
+.megaLink:hover {
+  color: #e91e63;
+  transform: translateX(2px);
+  background: #fdf4ff;
+}
+
+@keyframes megaFade {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 .categoryLink {
   text-decoration: none;

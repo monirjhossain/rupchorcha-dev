@@ -17,8 +17,10 @@ class CartController extends Controller
         $items = $cart ? $cart->items()->with('product')->get() : collect();
         return response()->json([
             'success' => true,
-            'cart' => $cart,
-            'items' => $items
+            'data' => [
+                'cart' => $cart,
+                'items' => $items
+            ]
         ]);
     }
 

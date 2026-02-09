@@ -49,14 +49,14 @@ class BrandController extends Controller
     public function index()
     {
         $brands = Brand::withCount('products')->get();
-        return response()->json(['success' => true, 'brands' => $brands]);
+        return response()->json(['success' => true, 'data' => \App\Http\Resources\BrandResource::collection($brands)]);
     }
 
     // Show brand details
     public function show($id)
     {
         $brand = Brand::findOrFail($id);
-        return response()->json(['success' => true, 'brand' => $brand]);
+        return response()->json(['success' => true, 'data' => new \App\Http\Resources\BrandResource($brand)]);
     }
 
     // Create brand (admin)

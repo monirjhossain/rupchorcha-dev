@@ -21,8 +21,8 @@ class AddressController extends Controller
      */
     public function create()
     {
-        $users = \App\Models\User::all();
-        return view('admin.addresses.create', compact('users'));
+        // Performance fix: Don't load all users. Use AJAX search in view.
+        return view('admin.addresses.create');
     }
 
     /**
@@ -61,8 +61,8 @@ class AddressController extends Controller
      */
     public function edit(Address $address)
     {
-        $users = \App\Models\User::all();
-        return view('admin.addresses.edit', compact('address', 'users'));
+        // Performance fix: AJAX Search
+        return view('admin.addresses.edit', compact('address'));
     }
 
     /**
@@ -94,10 +94,13 @@ class AddressController extends Controller
     {
         $userId = $request->input('user_id');
         if (!$userId) {
-            return response()->json(['error' => 'User ID required'], 400);
+            return response()->json(['success' => false, 'error' => 'User ID required'], 400);
         }
         $addresses = Address::where('user_id', $userId)->get();
-        return response()->json($addresses);
+        return response()->json([
+            'success' => true,
+            'data' => $addresses
+        ]);
     }
 
     /**

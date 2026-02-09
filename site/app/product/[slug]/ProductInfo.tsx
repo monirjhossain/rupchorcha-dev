@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import type { Product } from "./types";
 import styles from "./ProductInfo.module.css";
-import Link from "next/link";
+import ProductBreadcrumbs from "./ProductBreadcrumbs";
 
 export default function ProductInfo({ product }: { product: Product }) {
   const [selectedColor, setSelectedColor] = useState(0);
@@ -33,32 +33,7 @@ export default function ProductInfo({ product }: { product: Product }) {
         {isNew && <span className={styles.badgeNew}>NEW!</span>}
       </div>
       {/* Breadcrumbs */}
-      <nav className={styles.breadcrumbs} aria-label="breadcrumb">
-        <Link href="/" className={styles.breadcrumbLink}>Home</Link>
-        <span className={styles.breadcrumbSeparator}>/</span>
-        {categories.length > 0 ? (
-          categories.map((cat, idx) => (
-            <React.Fragment key={cat.slug || cat.name || idx}>
-              {cat.slug ? (
-                <a href={`/category/${cat.slug}`} className={styles.breadcrumbLink}>{cat.name}</a>
-              ) : (
-                <span className={styles.breadcrumbText}>{cat.name}</span>
-              )}
-              {idx < categories.length - 1 && <span className={styles.breadcrumbSeparator}>,</span>}
-            </React.Fragment>
-          ))
-        ) : (
-          <span className={styles.breadcrumbText}>Category</span>
-        )}
-        <span className={styles.breadcrumbSeparator}>/</span>
-        {product.brand?.slug ? (
-          <a href={`/brand/${product.brand.slug}`} className={styles.breadcrumbLink}>{product.brand.name}</a>
-        ) : (
-          <span className={styles.breadcrumbText}>{product.brand?.name || product.brand_name || "Brand"}</span>
-        )}
-        <span className={styles.breadcrumbSeparator}>/</span>
-        <span className={styles.breadcrumbCurrent}>{product.name}</span>
-      </nav>
+      <ProductBreadcrumbs product={product} />
       {/* Title & Brand */}
       <h1 className={styles.title}>{product.name}</h1>
       {/* Category row removed as per request */}

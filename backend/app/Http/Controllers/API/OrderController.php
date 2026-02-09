@@ -30,14 +30,14 @@ class OrderController extends Controller
             $orders = collect([]);
         }
         Log::info('OrderController@index orders', ['user_id' => $user?->id, 'orders' => $orders]);
-        return response()->json(['success' => true, 'data' => ['orders' => $orders]]);
+        return response()->json(['success' => true, 'data' => $orders]);
     }
 
     // Show order details
     public function show($id)
     {
         $order = Order::with('user')->findOrFail($id);
-        return response()->json(['success' => true, 'order' => $order]);
+        return response()->json(['success' => true, 'data' => $order]);
     }
 
     // Place order (user or guest)

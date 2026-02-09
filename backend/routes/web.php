@@ -144,6 +144,7 @@ Route::post('/logout', [UserController::class, 'logout'])->name('logout');
 
 // User management (admin)
 Route::middleware(['auth', 'role:admin,super_admin'])->group(function () {
+    Route::get('/admin/users/ajax-search', [UserController::class, 'ajaxSearch'])->name('users.ajax_search');
     Route::get('/admin/users', [UserController::class, 'index'])->name('users.index');
     Route::post('/admin/users', [UserController::class, 'store'])->name('users.store');
     Route::get('/admin/users/create', [UserController::class, 'create'])->name('users.create');

@@ -502,13 +502,15 @@ $(document).ready(function() {
         $.ajax({
             url: "{{ route('addresses.ajax.byUser') }}",
             data: { user_id: userId },
-            success: function(addresses) {
+            success: function(response) {
                 let options = '<option value="">-- Select address --</option>';
-                addresses.forEach(function(addr) {
-                    if (!type || addr.type === type) {
-                        options += `<option value="${addr.id}" data-address='${JSON.stringify(addr)}'>${addr.address_line1}, ${addr.city}, ${addr.country}</option>`;
-                    }
-                });
+                if (response.success && response.data) {
+                    response.data.forEach(function(addr) {
+                        if (!type || addr.type === type) {
+                            options += `<option value="${addr.id}" data-address='${JSON.stringify(addr)}'>${addr.address_line1}, ${addr.city}, ${addr.country}</option>`;
+                        }
+                    });
+                }
                 $(selectId).html(options);
             }
         });

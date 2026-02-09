@@ -30,6 +30,6 @@ class CouponController extends Controller
             $validated['product_ids'] ?? []
         );
 
-        return response()->json($result);
+        return response()->json(['success' => true, 'data' => $result]);
     }
 }

@@ -100,15 +100,17 @@ const SearchBox = () => {
 		try {
 			// Search products
 			const productResponse = await searchProducts(query);
-			let products = [];
-			if (Array.isArray(productResponse)) {
-				products = productResponse;
-			} else if (productResponse.products && Array.isArray(productResponse.products.data)) {
+			let products: any[] = [];
+			if (Array.isArray(productResponse?.products?.data)) {
 				products = productResponse.products.data;
-			} else if (Array.isArray(productResponse.products)) {
+			} else if (Array.isArray(productResponse?.products)) {
 				products = productResponse.products;
-			} else {
-				products = [];
+			} else if (Array.isArray(productResponse?.data?.data)) {
+				products = productResponse.data.data;
+			} else if (Array.isArray(productResponse?.data)) {
+				products = productResponse.data;
+			} else if (Array.isArray(productResponse)) {
+				products = productResponse;
 			}
 			// Search categories
 			const categoryResponse = await fetchCategories();
@@ -116,9 +118,17 @@ const SearchBox = () => {
 			const filteredCategories = allCategories.filter((cat: any) =>
 				cat.name?.toLowerCase().includes(query.toLowerCase())
 			);
-			// Extract unique brands from products
+			// Extract unique brand names from products (handles brand objects)
 			const uniqueBrands = [
-				...new Set(products.map((p: any) => p.brand).filter(Boolean)),
+				...new Set(
+					products
+						.map((p: any) => {
+							if (typeof p?.brand === 'string') return p.brand;
+							if (typeof p?.brand?.name === 'string') return p.brand.name;
+							return null;
+						})
+						.filter(Boolean)
+				),
 			] as string[];
 			setSearchResults({
 				products: products, // Show all products
@@ -141,6 +151,11 @@ const SearchBox = () => {
 	};
 	const handleCategoryClick = (category: any) => {
 		router.push(`/category/${category.slug || category.id}`);
+		setIsDropdownOpen(false);
+		setSearchQuery("");
+	};
+	const handleBrandClick = (brand: string) => {
+		router.push(`/brands/${encodeURIComponent(brand.toLowerCase().replace(/\s+/g, '-'))}`);
 		setIsDropdownOpen(false);
 		setSearchQuery("");
 	};
@@ -189,52 +204,84 @@ const SearchBox = () => {
 				)}
 			</form>
 			{isDropdownOpen && (
-				   <div className={styles.searchDropdown} style={{maxHeight: '650px', overflowY: 'auto'}}>
-					<div className={styles.searchSectionHeader} style={{padding: '12px 16px', fontWeight: 'bold', fontSize: '13px', color: '#666', borderBottom: '1px solid #eee'}}>PRODUCTS</div>
-					{loading ? (
-						<div className={styles.searchLoading}>
-							<div className={styles.spinner}></div>
-							<span>Searching...</span>
-						</div>
-					) : (
-						<div className={styles.searchItems}>
-							{searchResults.products.length === 0 && (
-								<div style={{padding: '18px 20px', color: '#888', fontSize: '14px'}}>No products found</div>
-							)}
-							{searchResults.products.map((product: Product) => (
-								<div key={product.id} className={styles.searchProductItem} onClick={() => handleProductClick(product)}>
-									<div className={styles.searchSuggestionThumb}>
-										{product.main_image ? (
-											<img
-												src={product.main_image.startsWith('http') ? product.main_image : `${API_BASE.replace('/api', '')}/storage/${product.main_image.replace(/^storage[\\/]/, '')}`}
-												alt={product.name}
-												style={{width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px'}}
-											/>
-										) : (
-											<div className={styles.noThumb}>📦</div>
-										)}
-									</div>
-									<div className={styles.searchSuggestionMain}>
-										<div className={styles.searchSuggestionTitle}>{product.name}</div>
-										{product.subtitle && (
-											<div className={styles.searchSuggestionSubtitle}>{product.subtitle}</div>
-										)}
-										<div className={styles.searchSuggestionPrice}>
-											{product.sale_price ? (
-												<>
-													<span className={styles.specialPrice}>৳{product.sale_price}</span>
-													<span className={styles.originalPrice}>৳{product.price}</span>
-												</>
+				<div className={styles.searchDropdown}>
+					<div className={styles.section}>
+						<div className={styles.searchSectionHeader}>Products</div>
+						{loading ? (
+							<div className={styles.searchLoading}>
+								<div className={styles.spinner}></div>
+								<span>Searching...</span>
+							</div>
+						) : (
+							<div className={styles.searchItems}>
+								{searchResults.products.length === 0 && (
+									<div className={styles.empty}>No products found</div>
+								)}
+								{searchResults.products.map((product: Product) => (
+									<div key={product.id} className={styles.searchProductItem} onClick={() => handleProductClick(product)}>
+										<div className={styles.searchSuggestionThumb}>
+											{product.main_image ? (
+												<img
+													src={product.main_image.startsWith('http') ? product.main_image : `${API_BASE.replace('/api', '')}/storage/${product.main_image.replace(/^storage[\\/]/, '')}`}
+													alt={product.name}
+													style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px' }}
+												/>
 											) : (
-												<span className={styles.price}>৳{product.price}</span>
-											)}
-											{product.unit && (
-												<span style={{color: '#888', fontSize: '12px', marginLeft: '8px'}}>{product.unit}</span>
+												<div className={styles.noThumb}>📦</div>
 											)}
 										</div>
+										<div className={styles.searchSuggestionMain}>
+											<div className={styles.searchSuggestionTitle}>{product.name}</div>
+											{product.subtitle && (
+												<div className={styles.searchSuggestionSubtitle}>{product.subtitle}</div>
+											)}
+											<div className={styles.searchSuggestionPrice}>
+												{product.sale_price ? (
+													<>
+														<span className={styles.specialPrice}>৳{product.sale_price}</span>
+														<span className={styles.originalPrice}>৳{product.price}</span>
+													</>
+												) : (
+													<span className={styles.price}>৳{product.price}</span>
+												)}
+												{product.unit && (
+													<span className={styles.unit}>{product.unit}</span>
+												)}
+											</div>
+										</div>
+									</div>
+								))}
+							</div>
+						)}
+					</div>
+
+					{(searchResults.categories.length > 0 || searchResults.brands.length > 0) && (
+						<div className={styles.section + ' ' + styles.sectionAlt}>
+							{searchResults.categories.length > 0 && (
+								<div className={styles.subSection}>
+									<div className={styles.searchSectionHeader}>Categories</div>
+									<div className={styles.pillRow}>
+										{searchResults.categories.map((category: Category) => (
+											<button key={category.id} className={styles.pill} type="button" onClick={() => handleCategoryClick(category)}>
+												{category.name}
+											</button>
+										))}
 									</div>
 								</div>
-							))}
+							)}
+
+							{searchResults.brands.length > 0 && (
+								<div className={styles.subSection}>
+									<div className={styles.searchSectionHeader}>Brands</div>
+									<div className={styles.pillRow}>
+										{searchResults.brands.map((brand: string) => (
+											<button key={brand} className={styles.pill} type="button" onClick={() => handleBrandClick(brand)}>
+												{brand}
+											</button>
+										))}
+									</div>
+								</div>
+							)}
 						</div>
 					)}
 				</div>
