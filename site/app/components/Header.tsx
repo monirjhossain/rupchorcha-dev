@@ -14,13 +14,19 @@ import MenuSidebar from '../../components/MenuSidebar/MenuSidebar';
 import Sidebar from './Sidebar';
 import { useCategories } from '@/src/hooks/useCategories';
 import { useBrands } from '@/src/hooks/useBrands';
+import { preload } from 'swr';
+import { fetcher } from '@/src/services/apiClient';
+import { buildProductsKey, UseProductsParams } from '@/src/hooks/useProducts';
+import { buildShopProductsKey, shopFetcher } from '@/app/services/useShopProducts';
 
 // Simple viewport hook to toggle mobile/desktop layouts
 const useIsMobile = () => {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    const check = () => setIsMobile(typeof window !== 'undefined' && window.innerWidth < 992);
+    // Keep this breakpoint in sync with Header.module.css media queries
+    // Mobile layout is used up to 900px width (inclusive)
+    const check = () => setIsMobile(typeof window !== 'undefined' && window.innerWidth <= 900);
     check();
     window.addEventListener('resize', check);
     return () => window.removeEventListener('resize', check);
@@ -48,6 +54,86 @@ const Header: React.FC<HeaderProps> = ({ onCartClick }) => {
   const [filterOpen, setFilterOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
+
+  const prefetchProducts = (params: UseProductsParams) => {
+    try {
+      const key = buildProductsKey(params);
+      preload(key, fetcher);
+    } catch {
+      // Ignore prefetch errors; they are only a UX optimization.
+    }
+  };
+
+  const prefetchShop = (sortParam?: string) => {
+    try {
+      const key = buildShopProductsKey(1, 20, sortParam || 'default');
+      preload(key, shopFetcher);
+    } catch {
+      // Ignore prefetch errors; they are only a UX optimization.
+    }
+  };
+
+  const prefetchTag = (slug: string) => {
+    try {
+      // Match TagProductsPage default params: page=1, per_page=12, sort=default
+      const paramsObj: Record<string, any> = { page: 1, per_page: 12 };
+      const paramStr = Object.entries(paramsObj)
+        .map(([k, v]) => `${k}=${v}`)
+        .join('&');
+      const key = `/tags/${slug}?${paramStr}`;
+      preload(key, fetcher);
+    } catch {
+      // Best-effort only.
+    }
+  };
+
+  const handleCategoryHoverPrefetch = (slug: string) => {
+    if (isMobile || !slug) return;
+    const category = categories.find((c: any) => c.slug === slug || String(c.id) === slug);
+    if (!category) return;
+    prefetchProducts({ page: 1, category_id: category.id });
+  };
+
+  const handleBrandHoverPrefetch = (slugOrId: string) => {
+    if (isMobile || !slugOrId) return;
+    const brand = brands.find((b: any) => b.slug === slugOrId || String(b.id) === slugOrId);
+    if (!brand) return;
+    prefetchProducts({ page: 1, brand_id: brand.id });
+  };
+
+  const handleLinkHoverPrefetch = (href: string) => {
+    if (isMobile || !href) return;
+    try {
+      const [path, queryString] = href.split('?');
+
+      if (path === '/shop') {
+        const params = new URLSearchParams(queryString || '');
+        const sort = params.get('sort') || undefined;
+        prefetchShop(sort);
+        return;
+      }
+
+      if (path.startsWith('/category/')) {
+        const slug = path.replace('/category/', '');
+        handleCategoryHoverPrefetch(slug);
+        return;
+      }
+
+      if (path.startsWith('/brands/')) {
+        const slugOrId = path.replace('/brands/', '');
+        handleBrandHoverPrefetch(slugOrId);
+        return;
+      }
+
+      if (path.startsWith('/tags/')) {
+        const slug = path.replace('/tags/', '');
+        if (slug) prefetchTag(slug);
+        return;
+      }
+    } catch {
+      // Best-effort only.
+    }
+  };
 
   const topCategories = categories.slice(0, 6).map((cat: any) => ({
     label: cat.name,
@@ -360,35 +446,111 @@ const Header: React.FC<HeaderProps> = ({ onCartClick }) => {
               <Link
                 href="/shop"
                 className={`${styles.navLink} ${styles.shopNav} ${pathname === '/shop' ? styles.shopNavActive : ''}`}
-                onMouseEnter={() => !isMobile && setActiveMenu(null)}
+                onMouseEnter={() => {
+                  if (isMobile) return;
+                  setActiveMenu(null);
+                  handleLinkHoverPrefetch('/shop');
+                }}
               >
                 Shop
               </Link>
-              <Link href="/category/skin-care" className={styles.navLink} onMouseEnter={() => !isMobile && setActiveMenu('Skin Care')}>
+              <Link
+                href="/category/skin-care"
+                className={styles.navLink}
+                onMouseEnter={() => {
+                  if (isMobile) return;
+                  setActiveMenu('Skin Care');
+                  handleCategoryHoverPrefetch('skin-care');
+                }}
+              >
                 Skin Care
               </Link>
-              <Link href="/category/body" className={styles.navLink} onMouseEnter={() => !isMobile && setActiveMenu('Body')}>
+              <Link
+                href="/category/body"
+                className={styles.navLink}
+                onMouseEnter={() => {
+                  if (isMobile) return;
+                  setActiveMenu('Body');
+                  handleCategoryHoverPrefetch('body');
+                }}
+              >
                 Body
               </Link>
-              <Link href="/category/makeup" className={styles.navLink} onMouseEnter={() => !isMobile && setActiveMenu('Makeup')}>
+              <Link
+                href="/category/makeup"
+                className={styles.navLink}
+                onMouseEnter={() => {
+                  if (isMobile) return;
+                  setActiveMenu('Makeup');
+                  handleCategoryHoverPrefetch('makeup');
+                }}
+              >
                 Makeup
               </Link>
-              <Link href="/category/face" className={styles.navLink} onMouseEnter={() => !isMobile && setActiveMenu('Face')}>
+              <Link
+                href="/category/face"
+                className={styles.navLink}
+                onMouseEnter={() => {
+                  if (isMobile) return;
+                  setActiveMenu('Face');
+                  handleCategoryHoverPrefetch('face');
+                }}
+              >
                 Face
               </Link>
-              <Link href="/category/hair" className={styles.navLink} onMouseEnter={() => !isMobile && setActiveMenu('Hair')}>
+              <Link
+                href="/category/hair"
+                className={styles.navLink}
+                onMouseEnter={() => {
+                  if (isMobile) return;
+                  setActiveMenu('Hair');
+                  handleCategoryHoverPrefetch('hair');
+                }}
+              >
                 Hair
               </Link>
-              <Link href="/category/hair-care" className={styles.navLink} onMouseEnter={() => !isMobile && setActiveMenu('Hair Care')}>
+              <Link
+                href="/category/hair-care"
+                className={styles.navLink}
+                onMouseEnter={() => {
+                  if (isMobile) return;
+                  setActiveMenu('Hair Care');
+                  handleCategoryHoverPrefetch('hair-care');
+                }}
+              >
                 Hair Care
               </Link>
-              <Link href="/category/shop-by-concern" className={styles.navLink} onMouseEnter={() => !isMobile && setActiveMenu('Shop By Concern')}>
+              <Link
+                href="/category/shop-by-concern"
+                className={styles.navLink}
+                onMouseEnter={() => {
+                  if (isMobile) return;
+                  setActiveMenu('Shop By Concern');
+                  handleCategoryHoverPrefetch('shop-by-concern');
+                }}
+              >
                 Shop By Concern
               </Link>
-              <Link href="/category/acne-treatment" className={styles.navLink} onMouseEnter={() => !isMobile && setActiveMenu('Acne Treatment')}>
+              <Link
+                href="/category/acne-treatment"
+                className={styles.navLink}
+                onMouseEnter={() => {
+                  if (isMobile) return;
+                  setActiveMenu('Acne Treatment');
+                  handleCategoryHoverPrefetch('acne-treatment');
+                }}
+              >
                 Acne Treatment
               </Link>
-              <Link href="/category/skin-concern" className={styles.navLink} onMouseEnter={() => !isMobile && setActiveMenu('Skin Concern')}>
+              <Link
+                href="/category/skin-concern"
+                className={styles.navLink}
+                onMouseEnter={() => {
+                  if (isMobile) return;
+                  setActiveMenu('Skin Concern');
+                  handleCategoryHoverPrefetch('skin-concern');
+                }}
+              >
                 Skin Concern
               </Link>
             </nav>
@@ -403,7 +565,12 @@ const Header: React.FC<HeaderProps> = ({ onCartClick }) => {
                     <div className={styles.megaColumn} key={`${col.title}-${idx}`}>
                       <div className={styles.megaTitle}>{col.title}</div>
                       {col.links.map((link) => (
-                        <Link key={link.href + link.label} href={link.href} className={styles.megaLink}>
+                        <Link
+                          key={link.href + link.label}
+                          href={link.href}
+                          className={styles.megaLink}
+                          onMouseEnter={() => handleLinkHoverPrefetch(link.href)}
+                        >
                           {link.label}
                         </Link>
                       ))}
@@ -448,11 +615,26 @@ const Header: React.FC<HeaderProps> = ({ onCartClick }) => {
 
           {/* Mobile sticky bottom navigation for Wishlist, Account, Cart */}
           <nav className={styles.mobileBottomNav} aria-label="Mobile navigation">
+            <Link href="/" className={styles.mobileNavItem} aria-label="Home">
+              <span className={styles.mobileNavIcon}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M4 10.5L12 4l8 6.5V20a1 1 0 0 1-1 1h-4.5a1 1 0 0 1-1-1v-4.5h-3V20a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-9.5z"
+                    stroke="currentColor"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </span>
+              <span className={styles.mobileNavLabel}>Home</span>
+            </Link>
+
             {isCategoryRoute && (
               <button type="button" className={styles.mobileNavItem} onClick={() => setFilterOpen(true)}>
                 <span className={styles.mobileNavIcon}>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <path d="M4 5h16M6 12h12M10 19h4" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" />
+                    <path d="M4 5h16M6 12h12M10 19h4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
                   </svg>
                 </span>
                 <span className={styles.mobileNavLabel}>Filter</span>
@@ -471,8 +653,8 @@ const Header: React.FC<HeaderProps> = ({ onCartClick }) => {
             >
               <span className={styles.mobileNavIcon}>
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="8" r="4" stroke="#fff" strokeWidth="1.6" />
-                  <path d="M4 20c0-3.31 3.13-6 8-6s8 2.69 8 6" stroke="#fff" strokeWidth="1.6" />
+                  <circle cx="12" cy="8" r="4" stroke="currentColor" strokeWidth="1.6" />
+                  <path d="M4 20c0-3.31 3.13-6 8-6s8 2.69 8 6" stroke="currentColor" strokeWidth="1.6" />
                 </svg>
               </span>
               <span className={styles.mobileNavLabel}>Account</span>
@@ -483,7 +665,7 @@ const Header: React.FC<HeaderProps> = ({ onCartClick }) => {
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
                   <path
                     d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 1.01 4.5 2.09C13.09 4.01 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
-                    stroke="#fff"
+                    stroke="currentColor"
                     strokeWidth="1.6"
                     fill="none"
                   />

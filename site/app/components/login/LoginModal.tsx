@@ -153,7 +153,19 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
           opacity: 0.7,
         }} aria-label="Close">×</button>
         <div style={{display:'flex',flexDirection:'column',alignItems:'center',marginBottom:16}}>
-          <Image src="/rupchorcha-logo.png" alt="Logo" width={110} height={40} style={{marginBottom:8,borderRadius:12,background:'#fff',objectFit:'contain',height:40}} />
+          <Image
+            src="/rupchorcha-logo.png"
+            alt="Logo"
+            width={150}
+            height={50}
+            style={{
+              marginBottom: 10,
+              borderRadius: 12,
+              background: '#fff',
+              objectFit: 'contain',
+              height: 50,
+            }}
+          />
           <h2 style={{margin:0, marginBottom: 2, textAlign:'center',fontWeight:700,letterSpacing:'-0.5px',fontSize: '1.15rem',color:'#222'}}>Let&apos;s Login</h2>
         </div>
         {/* Show mobile OTP login as default, now below logo/title */}

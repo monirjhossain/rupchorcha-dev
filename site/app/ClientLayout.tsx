@@ -20,7 +20,18 @@ const swrConfig = {
   // Use localStorage for offline support
   provider: () => {
     if (typeof window !== 'undefined') {
-      return new Map(JSON.parse(localStorage.getItem('app-cache') || '[]'));
+      try {
+        const raw = localStorage.getItem('app-cache');
+        if (!raw) return new Map();
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          return new Map(parsed as [string, any][]);
+        }
+      } catch (e) {
+        console.warn('Invalid app-cache in localStorage, clearing it', e);
+        localStorage.removeItem('app-cache');
+      }
+      return new Map();
     }
     return new Map();
   },

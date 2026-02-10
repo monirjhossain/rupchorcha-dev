@@ -19,10 +19,8 @@ const WishlistPage: React.FC = () => {
     try {
       await addToCart({ 
         product_id: product.id,
-        name: product.name,
-        price: product.sale_price || product.price,
-        image: product.images && product.images.length > 0 ? product.images[0].url : (product.image || "/placeholder.png"),
         quantity: 1,
+        product,
       });
       // Remove from wishlist after adding to cart
       await removeFromWishlist(product.id);

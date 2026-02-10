@@ -1,14 +1,19 @@
 "use client";
 // ProductInfo: Title, brand, price, offer, color, rating, breadcrumbs
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import type { Product } from "./types";
 import styles from "./ProductInfo.module.css";
 import ProductBreadcrumbs from "./ProductBreadcrumbs";
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
 
 export default function ProductInfo({ product }: { product: Product }) {
   const [selectedColor, setSelectedColor] = useState(0);
   const isNew = product.is_new || product.badges?.includes("NEW");
   const isOffer = !!product.sale_price && Number(product.sale_price) < Number(product.price);
+
+  const [averageRating, setAverageRating] = useState<number>(product.rating || 0);
+  const [totalReviews, setTotalReviews] = useState<number>(product.reviews_count || 0);
 
   // Regular price and sale price logic
   const regularPrice = Number(product.price);
@@ -25,6 +30,38 @@ export default function ProductInfo({ product }: { product: Product }) {
   } else if (product.category_name) {
     categories = [{ name: product.category_name, slug: product.category_slug }];
   }
+
+  // Load live rating summary so the rating under price stays dynamic
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadRating = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/products/${product.id}/rating`, {
+          cache: "no-store",
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!data || !data.success) return;
+        if (!isMounted) return;
+        if (typeof data.average_rating === "number") {
+          setAverageRating(data.average_rating);
+        }
+        if (typeof data.total_reviews === "number") {
+          setTotalReviews(data.total_reviews);
+        }
+      } catch (err) {
+        // Fail silently; fall back to initial product values
+        console.error("Failed to load rating summary", err);
+      }
+    };
+
+    loadRating();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [product.id]);
 
   return (
     <div>
@@ -69,8 +106,9 @@ export default function ProductInfo({ product }: { product: Product }) {
       )}
       {/* Rating & reviews */}
       <div className={styles.ratingRow}>
-        <span className={styles.star}>★</span> {product.rating || 0}
-        <span className={styles.reviewCount}>({product.reviews_count || 0} reviews)</span>
+        <span className={styles.star}>★</span>
+        <span className={styles.ratingValue}>{averageRating ? averageRating.toFixed(1) : "0.0"}</span>
+        <span className={styles.reviewCount}>({totalReviews || 0} reviews)</span>
       </div>
     </div>
   );

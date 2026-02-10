@@ -77,14 +77,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <ToastProvider />
             <WishlistProvider>
               <ClientLayout>
-                <div
-                  style={{
-                    minHeight: '80vh',
-                    maxWidth: 1400,
-                    margin: '2rem auto',
-                    padding: '0 1rem',
-                  }}
-                >
+                <div className="pageInner">
                   {children}
                 </div>
                 <Footer />

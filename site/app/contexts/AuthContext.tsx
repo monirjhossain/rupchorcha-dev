@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { api } from "@/src/services/apiClient";
 
 export interface User {
   id: number;
@@ -56,8 +57,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
       if (res.ok) {
         const data = await res.json();
-        setUser(data.user);
-        console.log("Profile loaded:", data.user);
+        // Backend returns { success, data: UserResource }
+        const userData = data?.data?.user || data?.data || data?.user || null;
+        if (userData) {
+          setUser(userData);
+          console.log("Profile loaded:", userData);
+        } else {
+          // If response shape is unexpected, treat as invalid session
+          localStorage.removeItem("token");
+          setToken(null);
+          setUser(null);
+          setError("Session expired. Please log in again.");
+        }
       } else {
         localStorage.removeItem("token");
         setToken(null);
@@ -91,23 +102,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(true);
     setError(null);
     try {
-      const res = await fetch(`${API_BASE}/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.message || "Login failed");
+      const response = await api.post("/login", { email, password });
+      const payload: any = (response as any)?.data ?? response;
+      console.log("Email login successful:", payload);
+      const token = payload?.token || payload?.data?.token;
+      const userData = payload?.user || payload?.data?.user;
+      if (!token) {
+        throw new Error("No token received from server");
       }
-
-      const data = await res.json();
-      console.log("Email login successful:", data);
-      saveAuth(data.token, data.user);
+      await saveAuth(token, userData);
       setError(null);
     } catch (err: any) {
-      const msg = err.message || "Login failed. Please try again.";
+      const msg = err?.message || "Login failed. Please try again.";
       setError(msg);
       throw err;
     } finally {
@@ -127,8 +133,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.message || "Failed to send OTP");
+        let message = "Failed to send OTP";
+        try {
+          const data = await res.json();
+          message = data?.message || message;
+        } catch (parseError) {
+          console.warn("Send OTP error response is not valid JSON", parseError);
+        }
+        throw new Error(message);
       }
 
       setError(null);
@@ -153,8 +165,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.message || "OTP verification failed");
+        let message = "OTP verification failed";
+        try {
+          const data = await res.json();
+          message = data?.message || message;
+        } catch (parseError) {
+          console.warn("Verify OTP error response is not valid JSON", parseError);
+        }
+        throw new Error(message);
       }
 
       const data = await res.json();
@@ -188,8 +206,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (!res.ok) {
-        const responseData = await res.json();
-        throw new Error(responseData.message || "Registration failed");
+        let message = "Registration failed";
+        try {
+          const responseData = await res.json();
+          message = responseData?.message || message;
+        } catch (parseError) {
+          console.warn("Register error response is not valid JSON", parseError);
+        }
+        throw new Error(message);
       }
 
       const responseData = await res.json();
@@ -227,8 +251,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (!res.ok) {
-        const responseData = await res.json();
-        throw new Error(responseData.message || "Google login failed");
+        let message = "Google login failed";
+        try {
+          const responseData = await res.json();
+          message = responseData?.message || message;
+        } catch (parseError) {
+          console.warn("Google login error response is not valid JSON", parseError);
+        }
+        throw new Error(message);
       }
 
       const responseData = await res.json();

@@ -42,9 +42,15 @@ const getImageUrl = (product: any): string => {
 const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
   const { items, updateCart, removeFromCart } = useCart();
   const subtotal = items.reduce((sum, item) => {
-    const price = parseFloat(item.product?.sale_price || item.product?.price || item.price || 0);
-    const quantity = parseInt(item.quantity as any || 0);
-    return sum + price * quantity;
+    const product = item.product || item;
+    const rawPrice = (product?.price ?? item.price ?? 0).toString();
+    const rawSale = (product?.discount_price ?? product?.sale_price ?? (item as any).sale_price ?? 0).toString();
+    const basePrice = Number(rawPrice.replace(/[^\d.]/g, ""));
+    const salePrice = Number(rawSale.replace(/[^\d.]/g, ""));
+    const hasDiscount = !isNaN(basePrice) && !isNaN(salePrice) && salePrice > 0 && salePrice < basePrice;
+    const unit = hasDiscount ? salePrice : basePrice;
+    const quantity = Number(item.quantity) || 0;
+    return sum + unit * quantity;
   }, 0);
   if (!isOpen) return null;
 
@@ -62,36 +68,59 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
           ) : (
             items.map((item) => (
               <div key={item.product_id} className={styles.cartItem}>
-                <img
-                  className={styles.cartItemImg}
-                  src={getImageUrl(item.product)}
-                  alt={item.product?.name || "No Image"}
-                />
-                <div className={styles.cartItemInfo}>
-                  <Link 
-                    href={`/product/${item.product?.slug || item.product_id}`}
-                    className={styles.cartItemName}
-                    onClick={onClose}
-                  >
-                    {item.product?.name}
-                  </Link>
-                  <div className={styles.cartItemPrice}>৳ {item.product?.sale_price || item.product?.price || item.price}</div>
-                  <div className={styles.cartItemQtyWrap}>
-                    <button
-                      className={styles.qtyBtn}
-                      onClick={() => updateCart(item.product_id, Math.max(1, item.quantity - 1))}
-                    >
-                      –
-                    </button>
-                    <span className={styles.qtyValue}>{item.quantity}</span>
-                    <button
-                      className={styles.qtyBtn}
-                      onClick={() => updateCart(item.product_id, item.quantity + 1)}
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
+                {(() => {
+                  const product = item.product || item;
+                  const name = product?.name || "No Image";
+                  const priceRaw = (product?.price ?? item.price ?? 0).toString();
+                  const saleRaw = (product?.discount_price ?? product?.sale_price ?? (item as any).sale_price ?? 0).toString();
+                  const price = Number(priceRaw.replace(/[^\d.]/g, ""));
+                  const sale = Number(saleRaw.replace(/[^\d.]/g, ""));
+                  const hasDiscount = !isNaN(price) && !isNaN(sale) && sale > 0 && sale < price;
+                  const displaySale = hasDiscount ? sale : price;
+                  const displayOriginal = hasDiscount ? price : null;
+                  const productSlugOrId = product?.slug || item.product_id;
+                  return (
+                    <>
+                      <img
+                        className={styles.cartItemImg}
+                        src={getImageUrl(product)}
+                        alt={name}
+                      />
+                      <div className={styles.cartItemInfo}>
+                        <Link 
+                          href={`/product/${productSlugOrId}`}
+                          className={styles.cartItemName}
+                          onClick={onClose}
+                        >
+                          {name}
+                        </Link>
+                        <div className={styles.cartItemPrice}>
+                          ৳ {Math.round(displaySale)}
+                          {displayOriginal !== null && (
+                            <span style={{ marginLeft: 6, textDecoration: 'line-through', color: '#9ca3af', fontSize: '0.82rem' }}>
+                              ৳ {Math.round(displayOriginal)}
+                            </span>
+                          )}
+                        </div>
+                        <div className={styles.cartItemQtyWrap}>
+                          <button
+                            className={styles.qtyBtn}
+                            onClick={() => updateCart(item.product_id, Math.max(1, item.quantity - 1))}
+                          >
+                            –
+                          </button>
+                          <span className={styles.qtyValue}>{item.quantity}</span>
+                          <button
+                            className={styles.qtyBtn}
+                            onClick={() => updateCart(item.product_id, item.quantity + 1)}
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
+                    </>
+                  );
+                })()}
                 <button
                   aria-label="Remove item"
                   className={styles.removeBtn}

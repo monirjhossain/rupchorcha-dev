@@ -1,9 +1,10 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useCart } from "@/app/common/CartContext";
 import toast from "react-hot-toast";
 import { useShopProducts } from "@/app/services/useShopProducts";
 import GlobalSortBar from "@/app/components/GlobalSortBar";
+import PaginationControls from "@/app/components/PaginationControls";
 import { usePaginationSort } from "@/app/hooks/usePaginationSort";
 import ProductCard from "@/app/components/ProductCard";
 import gridStyles from "@/app/components/ProductGrid.module.css";
@@ -42,6 +43,31 @@ export default function ShopProductsClient() {
   const { addToCart } = useCart();
   const { products, isLoading, isError, meta } = useShopProducts(currentPage, perPage, sortBy);
 
+  const [displayProducts, setDisplayProducts] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (isLoading) return;
+
+    // When we are on the first page (initial load or filters/sort reset),
+    // replace the list with the current page's products.
+    if (currentPage === 1) {
+      setDisplayProducts(products);
+      return;
+    }
+
+    // For subsequent pages, append new products while avoiding duplicates.
+    setDisplayProducts((prev) => {
+      const existingIds = new Set(prev.map((p: any) => p.id));
+      const merged = [...prev];
+      for (const p of products) {
+        if (!existingIds.has(p.id)) {
+          merged.push(p);
+        }
+      }
+      return merged;
+    });
+  }, [products, currentPage, isLoading]);
+
   const handleAddToCart = (product: any) => {
     setIsAddingToCart((prev) => ({ ...prev, [product.id]: true }));
     addToCart({ product_id: product.id, quantity: 1, product });
@@ -50,30 +76,6 @@ export default function ShopProductsClient() {
   };
 
   const totalPages = meta?.lastPage || 1;
-
-  // Generate smart pagination numbers (first, last, and around current)
-  const getPageNumbers = () => {
-    const pages: (number | string)[] = [];
-    const showPages = 3; // Pages on each side of current
-    const start = Math.max(1, currentPage - showPages);
-    const end = Math.min(totalPages, currentPage + showPages);
-
-    if (start > 1) {
-      pages.push(1);
-      if (start > 2) pages.push('...');
-    }
-
-    for (let i = start; i <= end; i++) {
-      pages.push(i);
-    }
-
-    if (end < totalPages) {
-      if (end < totalPages - 1) pages.push('...');
-      pages.push(totalPages);
-    }
-
-    return pages;
-  };
 
   return (
     <div className="shop-page" style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
@@ -89,12 +91,12 @@ export default function ShopProductsClient() {
 
       <div className={gridStyles["shop-container"]}>
         <main className={gridStyles["shop-main"]}>
-          {isLoading && products.length === 0 ? (
+          {isLoading && displayProducts.length === 0 ? (
             <div className="loading-spinner">
               <div className="spinner"></div>
               <p>Loading products...</p>
             </div>
-          ) : products.length === 0 ? (
+          ) : displayProducts.length === 0 ? (
             <div className="no-products">
               <p>No products found.</p>
             </div>
@@ -105,7 +107,7 @@ export default function ShopProductsClient() {
                   className={gridStyles["products-grid"]}
                   style={isLoading ? { filter: 'blur(1.5px)', pointerEvents: 'none' } : {}}
                 >
-                  {products.map((product: any) => (
+                  {displayProducts.map((product: any) => (
                     <ProductCard
                       key={product.id}
                       product={{ ...product, images: Array.isArray(product.images) ? product.images : [] }}
@@ -120,42 +122,13 @@ export default function ShopProductsClient() {
         </main>
       </div>
 
-      {totalPages > 1 && (
-        <div className="pagination">
-          <button
-            className="pagination-btn"
-            onClick={() => handlePageChange(Math.max(1, currentPage - 1), "/shop")}
-            disabled={currentPage === 1 || isLoading}
-          >
-            {isLoading ? '⏳' : '← Previous'}
-          </button>
-          <div className="pagination-numbers">
-            {getPageNumbers().map((page, idx) =>
-              typeof page === 'string' ? (
-                <span key={`dots-${idx}`} style={{ padding: '0.5rem 0.25rem', color: '#999' }}>
-                  {page}
-                </span>
-              ) : (
-                <button
-                  key={page}
-                  className={`pagination-number ${currentPage === page ? "active" : ""}`}
-                  onClick={() => handlePageChange(page as number, "/shop")}
-                  disabled={isLoading}
-                >
-                  {page}
-                </button>
-              )
-            )}
-          </div>
-          <button
-            className="pagination-btn"
-            onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1), "/shop")}
-            disabled={currentPage === totalPages || isLoading}
-          >
-            {isLoading ? '⏳' : 'Next →'}
-          </button>
-        </div>
-      )}
+      <PaginationControls
+        currentPage={currentPage}
+        totalPages={totalPages}
+        isLoading={isLoading}
+        onPageChange={(page) => handlePageChange(page, "/shop")}
+        variant="load-more"
+      />
     </div>
   );
 }

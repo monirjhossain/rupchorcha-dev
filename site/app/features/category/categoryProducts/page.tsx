@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import ProductCard from "../../../components/ProductCard";
 import gridStyles from "../../../components/ProductGrid.module.css";
 import GlobalSortBar from "../../../components/GlobalSortBar";
+import PaginationControls from "@/app/components/PaginationControls";
 import { useCart } from "@/app/common/CartContext";
 import { usePaginationSort } from "@/app/hooks/usePaginationSort";
 import { useProducts } from "@/src/hooks/useProducts";
@@ -78,27 +79,6 @@ const CategoryProductsPage = ({ params }: { params?: { slug?: string } }) => {
   const products = fetchedProducts || [];
   const totalPages = meta?.last_page || 1;
   const loading = categoriesLoading || productsLoading;
-  
-  // Generate smart pagination numbers
-  const getPageNumbers = () => {
-    const pages: (number | string)[] = [];
-    const showPages = 3; 
-    const start = Math.max(1, currentPage - showPages);
-    const end = Math.min(totalPages, currentPage + showPages);
-
-    if (start > 1) {
-      pages.push(1);
-      if (start > 2) pages.push('...');
-    }
-    for (let i = start; i <= end; i++) {
-        pages.push(i);
-    }
-    if (end < totalPages) {
-        if (end < totalPages - 1) pages.push('...');
-        pages.push(totalPages);
-    }
-    return pages;
-  };
 
   // New: Handle 404 case for invalid slug
   if (!categoriesLoading && slug && !foundCategory) {
@@ -124,10 +104,8 @@ const CategoryProductsPage = ({ params }: { params?: { slug?: string } }) => {
     try {
       await addToCart({
         product_id: product.id,
-        name: product.name,
-        price: product.sale_price || product.price,
-        image: product.images && product.images.length > 0 ? product.images[0].url : (product.image || "/placeholder.png"),
         quantity: 1,
+        product,
       });
       // Use simple toast if available or console log (removed setShotToast to match brand behaviour mostly)
       // setToastMessage(`${product.name} added to cart!`);
@@ -177,44 +155,12 @@ const CategoryProductsPage = ({ params }: { params?: { slug?: string } }) => {
         </main>
       </div>
 
-      {totalPages > 1 && (
-        <div className="pagination">
-          <button
-            className="pagination-btn"
-            onClick={() => onPageChange(currentPage - 1)}
-            disabled={currentPage === 1 || loading}
-          >
-            {loading ? '⏳' : '← Previous'}
-          </button>
-          
-          <div className="pagination-numbers">
-            {getPageNumbers().map((page, idx) =>
-              typeof page === 'string' ? (
-                <span key={`dots-${idx}`} style={{ padding: '0.5rem 0.25rem', color: '#999' }}>
-                  {page}
-                </span>
-              ) : (
-                <button
-                  key={page}
-                  className={`pagination-number ${currentPage === page ? "active" : ""}`}
-                  onClick={() => onPageChange(page as number)}
-                  disabled={loading}
-                >
-                  {page}
-                </button>
-              )
-            )}
-          </div>
-
-          <button
-            className="pagination-btn"
-            onClick={() => onPageChange(currentPage + 1)}
-            disabled={currentPage === totalPages || loading}
-          >
-            {loading ? '⏳' : 'Next →'}
-          </button>
-        </div>
-      )}
+      <PaginationControls
+        currentPage={currentPage}
+        totalPages={totalPages}
+        isLoading={loading}
+        onPageChange={(page) => onPageChange(page)}
+      />
     </div>
   );
 };

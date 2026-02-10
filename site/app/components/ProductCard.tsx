@@ -60,6 +60,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, isAddin
   const discountPercent = hasDiscount ? Math.round(((price - sale) / price) * 100) : 0;
 
   const rating = product.rating || product.average_rating || 0;
+  const reviewCount = product.reviews_count || product.total_reviews || 0;
   const isNew = product.is_new || false;
 
   const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlist();
@@ -105,26 +106,70 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, isAddin
   };
 
   return (
-    <div className={styles.productCard} onClick={handleCardClick} style={{cursor: 'pointer'}}>
+    <div className={styles.productCard} onClick={handleCardClick} style={{ cursor: 'pointer' }}>
       {wishlistError && (
         <div style={{ color: 'red', fontSize: 13, marginBottom: 4 }}>{wishlistError}</div>
       )}
       
-      {/* Wishlist Button */}
+      {/* Top-right quick add-to-cart */}
       <button
-        className={styles.wishlistBtn}
-        aria-label={isInWishlist(product.id) ? "Remove from wishlist" : "Add to wishlist"}
-        onClick={handleWishlist}
-        style={{ position: "absolute", top: 14, right: 14, background: "none", border: "none", cursor: "pointer", zIndex: 10 }}
+        className={styles.quickAddMobile}
+        aria-label="Add to cart"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onAddToCart(product);
+        }}
       >
-        {showRemoveButton ? (
-           <div title="Remove from wishlist" style={{ background: '#fff', borderRadius: '50%', padding: '6px', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px' }}>
-             <FaTimes color="#666" size={14} />
-           </div>
-        ) : (
-          isInWishlist(product.id) ? <FaHeart color="#e91e63" size={24} /> : <FaRegHeart color="#e91e63" size={24} />
-        )}
+        <svg
+          className={styles.quickAddIcon}
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path
+            d="M4 5h2l1.2 7.2A2 2 0 0 0 9.18 14h7.64a2 2 0 0 0 1.98-1.8L20 8H7"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <circle cx="10" cy="19" r="1.3" fill="currentColor" />
+          <circle cx="17" cy="19" r="1.3" fill="currentColor" />
+        </svg>
       </button>
+
+      {/* Cross remove button next to quick add-to-cart on wishlist cards */}
+      {showRemoveButton && (
+        <button
+          type="button"
+          className={styles.removeBtnTop}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            removeFromWishlist(product.id);
+          }}
+          aria-label="Remove from wishlist"
+        >
+          <FaTimes size={10} />
+        </button>
+      )}
+
+      {/* Top-right wishlist heart (hidden in wishlist view) */}
+      {!showRemoveButton && (
+        <button
+          className={styles.wishlistBtn}
+          aria-label={isInWishlist(product.id) ? "Remove from wishlist" : "Add to wishlist"}
+          onClick={handleWishlist}
+          style={{ position: "absolute", top: 14, right: 14, background: "none", border: "none", cursor: "pointer", zIndex: 10 }}
+        >
+          {isInWishlist(product.id) ? (
+            <FaHeart color="#e91e63" size={24} />
+          ) : (
+            <FaRegHeart color="#e91e63" size={24} />
+          )}
+        </button>
+      )}
 
       {/* Badges */}
       <div className={styles.badgeContainer}>
@@ -169,11 +214,26 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, isAddin
           <h3 className={styles.productTitle}>{product.name}</h3>
         </Link>
 
-        {/* Rating */}
+        {/* Rating & review count */}
         <div className={styles.rating}>
           {Array.from({ length: 5 }).map((_, i) => (
-            <svg key={i} width="14" height="14" viewBox="0 0 20 20" fill={i < Math.round(rating) ? '#ffb400' : '#eee'}><polygon points="10,1.5 12.6,7.2 18.8,7.6 14,12 15.2,18.2 10,15 4.8,18.2 6,12 1.2,7.6 7.4,7.2"/></svg>
+            <svg
+              key={i}
+              width="14"
+              height="14"
+              viewBox="0 0 20 20"
+              fill={i < Math.round(rating) ? "#ffb400" : "#eee"}
+            >
+              <polygon points="10,1.5 12.6,7.2 18.8,7.6 14,12 15.2,18.2 10,15 4.8,18.2 6,12 1.2,7.6 7.4,7.2" />
+            </svg>
           ))}
+          <span className={styles.reviewCount}>
+            {rating ? rating.toFixed(1) : "0.0"}
+            {" "}
+            <span className={styles.reviewTotal}>
+              ({reviewCount || 0})
+            </span>
+          </span>
         </div>
 
         {/* Price */}
@@ -188,7 +248,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, isAddin
           )}
         </div>
 
-        {/* Add to Cart */}
+        {/* (Hidden) bottom Add to Cart button, unused in current layout */}
         <button
           className={`${styles.addToCartBtn} ${isAddingToCart ? styles.loading : ""}`}
           onClick={(e) => {

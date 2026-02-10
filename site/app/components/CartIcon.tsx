@@ -36,10 +36,15 @@ const CartIcon: React.FC<{ animate?: boolean }> = ({ animate = false }) => {
           right: 0,
           background: "#e11d48",
           color: "#fff",
-          borderRadius: "50%",
-          padding: "2px 6px",
-          fontSize: 12,
+          borderRadius: "999px",
+          minWidth: 14,
+          height: 14,
+          padding: "0 3px",
+          fontSize: 9,
           fontWeight: 600,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         }}>
           {totalCount}
         </span>

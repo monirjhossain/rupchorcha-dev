@@ -9,8 +9,9 @@ type ShopProductsResponse = {
   total?: number;
 };
 
-const API_BASE = "http://127.0.0.1:8000/api";
-const fetcher = (url: string) => 
+export const SHOP_API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
+
+export const shopFetcher = (url: string) =>
   axios.get(url)
     .then((res) => res.data)
     .catch((error) => {
@@ -18,12 +19,13 @@ const fetcher = (url: string) =>
       throw error;
     });
 
-export function useShopProducts(page = 1, perPage = 20, sortBy = "default") {
-  // Read URL search params for price filtering
-  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
-  const priceMin = searchParams?.get('price_min');
-  const priceMax = searchParams?.get('price_max');
-  
+export const buildShopProductsKey = (
+  page = 1,
+  perPage = 20,
+  sortBy: string = "default",
+  priceMin?: string | null,
+  priceMax?: string | null,
+) => {
   const query = new URLSearchParams();
   query.set("page", page.toString());
   query.set("per_page", perPage.toString());
@@ -31,8 +33,17 @@ export function useShopProducts(page = 1, perPage = 20, sortBy = "default") {
   if (priceMin) query.set("price_min", priceMin);
   if (priceMax) query.set("price_max", priceMax);
 
-  const key = `${API_BASE}/products?${query.toString()}`;
-  const { data, error, isLoading } = useSWR(key, fetcher, {
+  return `${SHOP_API_BASE}/products?${query.toString()}`;
+};
+
+export function useShopProducts(page = 1, perPage = 20, sortBy = "default") {
+  // Read URL search params for price filtering
+  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+  const priceMin = searchParams?.get('price_min');
+  const priceMax = searchParams?.get('price_max');
+
+  const key = buildShopProductsKey(page, perPage, sortBy, priceMin, priceMax);
+  const { data, error, isLoading } = useSWR(key, shopFetcher, {
     keepPreviousData: true,
     revalidateOnFocus: false,
     revalidateOnReconnect: false,

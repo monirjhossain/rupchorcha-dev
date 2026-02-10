@@ -16,8 +16,13 @@ const OrderSuccessPage = () => {
     if (typeof window !== "undefined") {
       const stored = localStorage.getItem("order_success_data");
       if (stored) {
-        data = JSON.parse(stored);
-        setOrderData(data);
+        try {
+          data = JSON.parse(stored);
+          setOrderData(data);
+        } catch (e) {
+          console.error("Invalid order_success_data in localStorage, clearing it", e);
+          localStorage.removeItem("order_success_data");
+        }
       }
     }
     // If no data, redirect to home

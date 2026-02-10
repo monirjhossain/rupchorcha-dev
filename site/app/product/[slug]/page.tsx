@@ -5,6 +5,8 @@ import ProductActions from "./ProductActions";
 import ProductDeliveryInfo from "./ProductDeliveryInfo";
 import FrequentlyBoughtTogether from "./FrequentlyBoughtTogether";
 import ProductTabs from "./ProductTabs";
+import ProductSideActions from "./ProductSideActions";
+import ProductReviews from "./ProductReviews";
 import styles from "./ProductDetailsPage.module.css";
 import { notFound } from "next/navigation";
 
@@ -154,18 +156,21 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
       />
       <main className={styles.main}>
         <div className={styles.container}>
-          {/* Left: Gallery */}
+          {/* Left: Gallery + side icons */}
           <div className={styles.left}>
-            <ProductGallery
-              images={
-                Array.isArray(product.images)
-                  ? product.images
-                  : product.image
-                    ? [product.image]
-                    : []
-              }
-              name={product.name}
-            />
+            <div className={styles.galleryWrapper}>
+              <ProductGallery
+                images={
+                  Array.isArray(product.images)
+                    ? product.images
+                    : product.image
+                      ? [product.image]
+                      : []
+                }
+                name={product.name}
+              />
+              <ProductSideActions product={product} />
+            </div>
           </div>
           {/* Right: Info & Actions */}
           <div className={styles.right}>
@@ -178,6 +183,12 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
       
       {/* Product Information Tabs */}
       <ProductTabs product={product} />
+      {/* Reviews & Ratings */}
+      <ProductReviews
+        productId={product.id}
+        initialAverage={product.rating}
+        initialCount={product.reviews_count}
+      />
       
       {/* Frequently Bought Together Section */}
       <FrequentlyBoughtTogether productId={product.id} />

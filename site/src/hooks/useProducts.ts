@@ -2,7 +2,7 @@ import useSWR from 'swr';
 import { fetcher } from '@/src/services/apiClient';
 import { Product, PaginatedResponse } from '@/src/types/api';
 
-interface UseProductsParams {
+export interface UseProductsParams {
   page?: number;
   category_id?: number;
   brand_id?: number;
@@ -13,8 +13,9 @@ interface UseProductsParams {
   max_price?: number;
 }
 
-export function useProducts(params: UseProductsParams = {}) {
-  // Construct query parameters
+export function buildProductsKey(params: UseProductsParams = {}) {
+  // Construct query parameters in a single place so navigation prefetching
+  // can share the exact same SWR key.
   const searchParams = new URLSearchParams();
   if (params.page) searchParams.append('page', params.page.toString());
   if (params.category_id) searchParams.append('category_id', params.category_id.toString());
@@ -26,7 +27,11 @@ export function useProducts(params: UseProductsParams = {}) {
   if (params.max_price) searchParams.append('max_price', params.max_price.toString());
 
   const queryString = searchParams.toString();
-  const key = `/products${queryString ? `?${queryString}` : ''}`;
+  return `/products${queryString ? `?${queryString}` : ''}`;
+}
+
+export function useProducts(params: UseProductsParams = {}) {
+  const key = buildProductsKey(params);
 
   const { data, error, isLoading, mutate } = useSWR<PaginatedResponse<Product>>(
     key,

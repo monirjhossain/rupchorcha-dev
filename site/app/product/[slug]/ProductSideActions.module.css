@@ -1,0 +1,156 @@
+.sideActions {
+  position: absolute;
+  top: 24%;
+  right: -8px;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 5;
+}
+
+.sideButton {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: 1px solid #f0f0f0;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+}
+
+.sideButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+.sideButton:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.loadingDots {
+  font-size: 11px;
+  font-weight: 700;
+  color: #999;
+}
+
+.errorText {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: #e11d48;
+}
+
+.shareOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+}
+
+.shareModal {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 20px 20px 18px;
+  width: 90%;
+  max-width: 380px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+}
+
+.shareHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.shareTitle {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0.15rem 0.4rem;
+  border-radius: 999px;
+}
+
+.shareSubtitle {
+  margin: 4px 0 10px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-align: center;
+  color: #4b5563;
+}
+
+.linkRow {
+  margin-bottom: 10px;
+}
+
+.linkInput {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  font-size: 0.88rem;
+  color: #111827;
+  background: #f9fafb;
+}
+
+.copyBtn {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  border-radius: 10px;
+  border: none;
+  background: #ff4b8b;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  margin-bottom: 14px;
+}
+
+.copyBtn:hover {
+  background: #e91e63;
+}
+
+.iconRow {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+.socialIcon {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background: #111827;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 900px) {
+  .sideActions {
+    right: -2px;
+  }
+
+  .sideButton {
+    width: 40px;
+    height: 40px;
+  }
+}

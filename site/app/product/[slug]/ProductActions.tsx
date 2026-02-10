@@ -96,23 +96,6 @@ export default function ProductActions({ product }: { product: Product }) {
         >
           {buying ? "Processing..." : "Buy Now"}
         </button>
-        {/* Wishlist & Share icons */}
-        <button
-          className={styles.iconBtn + ' ' + styles.iconHeart}
-          onClick={handleWishlist}
-          disabled={wishlistLoading}
-          aria-label={isInWishlist(product.id) ? "Remove from wishlist" : "Add to wishlist"}
-          title={isInWishlist(product.id) ? "Remove from wishlist" : "Add to wishlist"}
-        >
-          {wishlistLoading ? (
-            <span style={{ fontSize: 12, fontWeight: "bold" }}>...</span>
-          ) : isInWishlist(product.id) ? (
-            <FaHeart size={20} color="#e53935" />
-          ) : (
-            <FaRegHeart size={20} color="#e53935" />
-          )}
-        </button>
-        <button className={styles.iconBtn + ' ' + styles.iconShare}>⤴</button>
         {wishlistError && (
           <span style={{ color: "red", fontSize: 13, marginLeft: 8 }}>{wishlistError}</span>
         )}

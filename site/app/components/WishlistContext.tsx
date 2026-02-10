@@ -41,7 +41,18 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const fetchWishlist = useCallback(async () => {
     if (!checkAuth()) {
       // Load guest wishlist from localStorage and fetch product details
-      const guestWishlist = JSON.parse(localStorage.getItem("guest_wishlist") || "[]");
+      let guestWishlist: number[] = [];
+      try {
+        const raw = localStorage.getItem("guest_wishlist") || "[]";
+        guestWishlist = JSON.parse(raw);
+        if (!Array.isArray(guestWishlist)) {
+          guestWishlist = [];
+        }
+      } catch (e) {
+        console.warn("Invalid guest_wishlist in localStorage, clearing it", e);
+        localStorage.removeItem("guest_wishlist");
+        guestWishlist = [];
+      }
       if (guestWishlist.length === 0) {
         setWishlist([]);
         return;
@@ -103,7 +114,18 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setWishlist(data.wishlists || []);
       
       // Sync guest wishlist with server after login
-      const guestWishlist = JSON.parse(localStorage.getItem("guest_wishlist") || "[]");
+      let guestWishlist: number[] = [];
+      try {
+        const raw = localStorage.getItem("guest_wishlist") || "[]";
+        guestWishlist = JSON.parse(raw);
+        if (!Array.isArray(guestWishlist)) {
+          guestWishlist = [];
+        }
+      } catch (e) {
+        console.warn("Invalid guest_wishlist in localStorage during sync, clearing it", e);
+        localStorage.removeItem("guest_wishlist");
+        guestWishlist = [];
+      }
       if (guestWishlist.length > 0) {
         for (const productId of guestWishlist) {
           try {
@@ -168,7 +190,17 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
       // For guests: add to localStorage
       if (!isAuth) {
-        const guestWishlist = JSON.parse(localStorage.getItem("guest_wishlist") || "[]");
+        let guestWishlist: number[] = [];
+        try {
+          const raw = localStorage.getItem("guest_wishlist") || "[]";
+          guestWishlist = JSON.parse(raw);
+          if (!Array.isArray(guestWishlist)) {
+            guestWishlist = [];
+          }
+        } catch (e) {
+          console.warn("Invalid guest_wishlist in localStorage when adding, resetting it", e);
+          guestWishlist = [];
+        }
         if (!guestWishlist.includes(productId)) {
           guestWishlist.push(productId);
           localStorage.setItem("guest_wishlist", JSON.stringify(guestWishlist));
@@ -240,9 +272,17 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
       // For guests: remove from localStorage
       if (!isAuth) {
-        const guestWishlist = JSON.parse(localStorage.getItem("guest_wishlist") || "[]");
-        const updated = guestWishlist.filter((id: number) => id !== productId);
-        localStorage.setItem("guest_wishlist", JSON.stringify(updated));
+        try {
+          const raw = localStorage.getItem("guest_wishlist") || "[]";
+          const guestWishlist: number[] = JSON.parse(raw);
+          const updated = Array.isArray(guestWishlist)
+            ? guestWishlist.filter((id: number) => id !== productId)
+            : [];
+          localStorage.setItem("guest_wishlist", JSON.stringify(updated));
+        } catch (e) {
+          console.warn("Invalid guest_wishlist in localStorage when removing, clearing it", e);
+          localStorage.removeItem("guest_wishlist");
+        }
         return;
       }
 
@@ -278,8 +318,16 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
     // Check in guest wishlist (localStorage)
     if (!checkAuth() && typeof window !== 'undefined') {
-      const guestWishlist = JSON.parse(localStorage.getItem("guest_wishlist") || "[]");
-      return guestWishlist.includes(productId);
+      try {
+        const raw = localStorage.getItem("guest_wishlist") || "[]";
+        const guestWishlist: any = JSON.parse(raw);
+        if (Array.isArray(guestWishlist)) {
+          return guestWishlist.includes(productId);
+        }
+      } catch (e) {
+        console.warn("Invalid guest_wishlist in localStorage when checking isInWishlist", e);
+      }
+      return false;
     }
     return false;
   };

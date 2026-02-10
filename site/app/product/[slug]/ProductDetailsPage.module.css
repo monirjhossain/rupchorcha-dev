@@ -22,6 +22,12 @@
   min-width: 0;
 }
 
+.galleryWrapper {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
 .right {
   flex: 1.2;
   min-width: 0;

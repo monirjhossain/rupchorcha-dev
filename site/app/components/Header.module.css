@@ -445,6 +445,10 @@
 }
 
 @media (max-width: 900px) {
+  .desktopHeader {
+    display: none;
+  }
+
   .topBar {
     display: none;
   }
@@ -485,14 +489,12 @@
 
 .mobileNavIcon {
   position: relative;
-  width: 36px;
-  height: 36px;
-  border-radius: 999px;
-  background: linear-gradient(135deg, #7c32ff, #ec4899);
+  width: 24px;
+  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #ffffff;
+  color: #111111; /* black */
 }
 
 .mobileNavLabel {
@@ -519,6 +521,10 @@
 
 @media (min-width: 901px) {
   .mobileBottomNav {
+    display: none;
+  }
+
+  .mobileHeader {
     display: none;
   }
 }
