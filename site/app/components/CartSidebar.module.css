@@ -9,10 +9,10 @@
   position: fixed;
   top: 0;
   right: 0;
-  width: 380px;
+  width: 420px;
   max-width: 92vw;
   height: 100vh;
-  background: #fff;
+  background: #fafafa;
   box-shadow: -8px 0 24px rgba(0, 0, 0, 0.08);
   border-left: 1px solid #f1f1f1;
   z-index: 2000;
@@ -58,91 +58,178 @@
 }
 .cartItem {
   display: flex;
-  gap: 0.9rem;
-  margin-bottom: 1rem;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  padding: 0.85rem;
+  border: 1px solid #f0f0f0;
+  border-radius: 8px;
+  background: #fff;
+  align-items: flex-start;
+  position: relative;
+}
+
+.removeBtn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: none;
+  border: none;
+  color: #999;
+  font-size: 1.3rem;
+  cursor: pointer;
+  line-height: 1;
+  width: 20px;
+  height: 20px;
+  display: flex;
   align-items: center;
-  padding: 0.75rem 0.25rem 0.75rem 0;
-  border-bottom: 1px dashed #eee;
+  justify-content: center;
+  transition: color 0.2s;
 }
+
+.removeBtn:hover {
+  color: #e91e63;
+}
+
 .cartItemImg {
-  width: 56px;
-  height: 56px;
-  object-fit: cover;
-  border-radius: 10px;
-  border: 1px solid #eee;
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  border-radius: 8px;
+  border: 1px solid #e8e8e8;
+  flex-shrink: 0;
+  background: #fafafa;
 }
-.cartItemImgPlaceholder {
-  font-size: 2rem;
-  color: #bbb;
-}
-.cartItemInfo {
+
+.cartItemDetails {
   flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
+
+.cartItemBrand {
+  font-size: 0.75rem;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  font-weight: 500;
+}
+
 .cartItemName {
-  font-weight: 600;
-  margin-bottom: 0.2rem;
-  color: #222;
-  font-size: 0.9rem;
+  font-weight: 400;
+  color: #333;
+  font-size: 0.875rem;
   text-decoration: none;
   display: block;
   cursor: pointer;
   transition: color 0.2s;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 .cartItemName:hover {
   color: #e91e63;
 }
+
+.cartItemBottomRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.4rem;
+}
+
+.cartItemPriceCol {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .cartItemPrice {
   color: #e91e63;
-  font-weight: 600;
-  margin-bottom: 0.4rem;
+  font-weight: 700;
+  font-size: 0.95rem;
 }
+
+.cartItemOriginalPrice {
+  text-decoration: line-through;
+  color: #999;
+  font-size: 0.8rem;
+  font-weight: 400;
+}
+
 .cartItemQtyWrap {
   display: flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  overflow: hidden;
 }
+
 .qtyBtn {
   background: #fff;
-  border: 1.5px solid #e91e63;
-  color: #e91e63;
-  border-radius: 6px;
-  width: 28px;
-  height: 28px;
-  font-size: 1.05rem;
-  font-weight: 700;
-  cursor: pointer;
-}
-.qtyValue {
-  min-width: 24px;
-  text-align: center;
-  font-weight: 600;
-  color: #222;
-}
-.removeBtn {
-  background: none;
   border: none;
-  color: #999;
-  font-size: 1.25rem;
+  border-right: 1px solid #e0e0e0;
+  color: #666;
+  width: 24px;
+  height: 24px;
+  font-size: 0.9rem;
+  font-weight: 400;
   cursor: pointer;
-  margin-left: 0.25rem;
-  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.qtyBtn:last-child {
+  border-right: none;
+  border-left: 1px solid #e0e0e0;
+}
+
+.qtyBtn:hover {
+  background: #f5f5f5;
+}
+
+.qtyInput {
+  width: 35px;
+  height: 24px;
+  text-align: center;
+  border: none;
+  font-weight: 600;
+  color: #333;
+  font-size: 0.85rem;
+  -moz-appearance: textfield;
+}
+
+.qtyInput::-webkit-outer-spin-button,
+.qtyInput::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 .cartSidebarFooter {
-  padding: 1rem 1.25rem 1.25rem 1.25rem;
+  padding: 0.9rem 1.25rem 1.1rem 1.25rem;
   border-top: 1px solid #eee;
   background: #fff;
 }
 .subtotal {
-  font-size: 1.05rem;
-  margin-bottom: 0.9rem;
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  font-weight: 600;
+  color: #333;
 }
 .subtotalValue {
   color: #e91e63;
   font-weight: 700;
+  font-size: 1.1rem;
 }
 .checkoutBtn {
   display: block;
@@ -150,28 +237,38 @@
   background: #e91e63;
   color: #fff;
   text-align: center;
-  padding: 0.85rem 0.9rem;
-  border-radius: 10px;
-  font-weight: 700;
+  padding: 0.6rem 0.8rem;
+  border-radius: 5px;
+  font-weight: 500;
+  font-size: 0.875rem;
   text-decoration: none;
-  transition: background 0.15s ease;
-  box-shadow: 0 2px 8px rgba(233, 30, 99, 0.15);
-  margin-bottom: 0.7rem;
+  transition: all 0.2s ease;
+  margin-bottom: 0.5rem;
+  border: none;
 }
 .checkoutBtn:hover {
-  background: #c2185b;
+  background: #d81b60;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(233, 30, 99, 0.2);
 }
 .secondaryBtn {
   display: block;
   width: 100%;
   background: transparent;
-  color: #e91e63;
+  color: #666;
   text-align: center;
-  padding: 0.75rem 0.9rem;
-  border-radius: 10px;
-  font-weight: 600;
+  padding: 0.55rem 0.8rem;
+  border-radius: 5px;
+  font-weight: 400;
+  font-size: 0.85rem;
   text-decoration: none;
-  border: 1.5px solid #e91e63;
+  border: 1px solid #ddd;
+  transition: all 0.2s ease;
+}
+.secondaryBtn:hover {
+  background: #f5f5f5;
+  border-color: #ccc;
+  color: #333;
 }
 
 @media (max-width: 900px) {
@@ -201,8 +298,49 @@
     padding: 0.75rem 1rem 1rem 1rem;
   }
 
+  .cartItem {
+    padding: 0.7rem;
+    gap: 0.6rem;
+  }
+
   .cartItemImg {
-    width: 52px;
-    height: 52px;
+    width: 65px;
+    height: 65px;
+  }
+
+  .cartItemBrand {
+    font-size: 0.7rem;
+  }
+
+  .cartItemName {
+    font-size: 0.825rem;
+  }
+
+  .cartItemPrice {
+    font-size: 0.875rem;
+  }
+
+  .cartItemOriginalPrice {
+    font-size: 0.75rem;
+  }
+
+  .qtyBtn {
+    width: 26px;
+    height: 26px;
+    font-size: 0.95rem;
+  }
+
+  .qtyInput {
+    width: 38px;
+    height: 26px;
+    font-size: 0.825rem;
+  }
+
+  .removeBtn {
+    top: 0.4rem;
+    right: 0.4rem;
+    width: 18px;
+    height: 18px;
+    font-size: 1.2rem;
   }
 }

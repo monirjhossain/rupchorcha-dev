@@ -23,13 +23,13 @@ export const heroSlides: Slide[] = [
   {
     id: 4,
     image: "/slider/Freedom1.webp",
-    // mobileImage: "/slider/Freedom1-mobile.webp",
+    mobileImage: "/slider/myglamm-mobile.webp",
     ctaLink: "/deals",
   },
   {
     id: 5,
     image: "/slider/Freedom2.webp",
-    // mobileImage: "/slider/Freedom2-mobile.webp",
+    mobileImage: "/slider/freedom-mobile.webp",
     ctaLink: "/deals",
   },
 ];

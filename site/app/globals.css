@@ -29,13 +29,13 @@ body {
 .pageInner {
   min-height: 80vh;
   max-width: 1400px;
-  margin: 2rem auto;
+  margin: 0 auto 2rem auto;
   padding: 0 1rem;
 }
 
 @media (max-width: 768px) {
   .pageInner {
-    margin: 1rem auto;
+    margin: 0 auto 1rem auto;
     padding: 0 0.25rem; /* reduce side padding so mobile grids are wider */
   }
 }

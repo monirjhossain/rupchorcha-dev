@@ -89,38 +89,34 @@ export default function ShopProductsClient() {
 
       {isError && <div style={{ color: "#d33" }}>Failed to load products.</div>}
 
-      <div className={gridStyles["shop-container"]}>
-        <main className={gridStyles["shop-main"]}>
-          {isLoading && displayProducts.length === 0 ? (
-            <div className="loading-spinner">
-              <div className="spinner"></div>
-              <p>Loading products...</p>
+      {isLoading && displayProducts.length === 0 ? (
+        <div className="loading-spinner">
+          <div className="spinner"></div>
+          <p>Loading products...</p>
+        </div>
+      ) : displayProducts.length === 0 ? (
+        <div className="no-products">
+          <p>No products found.</p>
+        </div>
+      ) : (
+        <>
+          <div className={gridStyles["products-grid-wrapper"]}>
+            <div
+              className={gridStyles["products-grid"]}
+              style={isLoading ? { filter: 'blur(1.5px)', pointerEvents: 'none' } : {}}
+            >
+              {displayProducts.map((product: any) => (
+                <ProductCard
+                  key={product.id}
+                  product={{ ...product, images: Array.isArray(product.images) ? product.images : [] }}
+                  onAddToCart={handleAddToCart}
+                  isAddingToCart={!!isAddingToCart[product.id]}
+                />
+              ))}
             </div>
-          ) : displayProducts.length === 0 ? (
-            <div className="no-products">
-              <p>No products found.</p>
-            </div>
-          ) : (
-            <>
-              <div className={gridStyles["products-grid-wrapper"]}>
-                <div
-                  className={gridStyles["products-grid"]}
-                  style={isLoading ? { filter: 'blur(1.5px)', pointerEvents: 'none' } : {}}
-                >
-                  {displayProducts.map((product: any) => (
-                    <ProductCard
-                      key={product.id}
-                      product={{ ...product, images: Array.isArray(product.images) ? product.images : [] }}
-                      onAddToCart={handleAddToCart}
-                      isAddingToCart={!!isAddingToCart[product.id]}
-                    />
-                  ))}
-                </div>
-              </div>
-            </>
-          )}
-        </main>
-      </div>
+          </div>
+        </>
+      )}
 
       <PaginationControls
         currentPage={currentPage}

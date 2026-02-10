@@ -5,7 +5,6 @@ import { useSearchParams } from "next/navigation";
 import useSWR from "swr";
 import ProductCard from "./ProductCard";
 import GlobalSortBar from "./GlobalSortBar";
-import Sidebar from "./Sidebar";
 import { useCart } from "@/app/common/CartContext";
 import gridStyles from "./ProductGrid.module.css";
 import { usePaginationSort } from "../hooks/usePaginationSort";
@@ -58,22 +57,17 @@ const TagProductsPage = ({ params }: { params?: { slug?: string } }) => {
         sortBy={sortBy} 
         setSortBy={(value) => handleSortChange(value, `/tags/${slug}`)}
       />
-      <div className={gridStyles["shop-container"]}>
-        <div className="responsive-sidebar">
-          <Sidebar />
-        </div>
-        <main className={gridStyles["shop-main"]}>
-          {tag ? (
-            isLoading ? (
-              <div className="loading-spinner">
-                <div className="spinner"></div>
-                <p>Loading products...</p>
-              </div>
-            ) : products.length === 0 ? (
-              <div className="no-products">
-                <p>No products found for this tag.</p>
-              </div>
-            ) : (
+      {tag ? (
+        isLoading ? (
+          <div className="loading-spinner">
+            <div className="spinner"></div>
+            <p>Loading products...</p>
+          </div>
+        ) : products.length === 0 ? (
+          <div className="no-products">
+            <p>No products found for this tag.</p>
+          </div>
+        ) : (
               <>
                 <div style={{fontSize:'1.7rem',fontWeight:'bold',color:'#222',marginBottom:'0.5rem',marginTop:'0.5rem',textAlign:'center'}}>
                   {tag.name} Products
@@ -98,7 +92,7 @@ const TagProductsPage = ({ params }: { params?: { slug?: string } }) => {
                 <PaginationControls
                   currentPage={currentPage}
                   totalPages={totalPages}
-                  isLoading={loading}
+                  isLoading={isLoading}
                   onPageChange={(page) => handlePageChange(page, `/tags/${slug}`)}
                 />
               </>
@@ -108,8 +102,6 @@ const TagProductsPage = ({ params }: { params?: { slug?: string } }) => {
               <span>Loading tag...</span>
             </div>
           )}
-        </main>
-      </div>
     </div>
   );
 };

@@ -110,14 +110,12 @@ export default function BrandProductsClient({ slug }: { slug: string }) {
 
       {isError && <div style={{ color: "#d33" }}>Failed to load products.</div>}
 
-      <div className={gridStyles["shop-container"]}>
-        <main className={gridStyles["shop-main"]}>
-          {isLoading && products.length === 0 ? (
-            <div className="loading-spinner">
-              <div className="spinner"></div>
-              <p>Loading products...</p>
-            </div>
-          ) : products.length === 0 ? (
+      {isLoading && products.length === 0 ? (
+        <div className="loading-spinner">
+          <div className="spinner"></div>
+          <p>Loading products...</p>
+        </div>
+      ) : products.length === 0 ? (
             <div className="no-products">
               <p>No products found for this brand.</p>
             </div>
@@ -138,8 +136,6 @@ export default function BrandProductsClient({ slug }: { slug: string }) {
               </div>
             </div>
           )}
-        </main>
-      </div>
 
       <PaginationControls
         currentPage={currentPage}

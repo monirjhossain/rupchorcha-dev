@@ -1,6 +1,0 @@
-import { redirect } from "next/navigation";
-
-export default function CategoriesRedirect() {
-  redirect("/category");
-  return null;
-}

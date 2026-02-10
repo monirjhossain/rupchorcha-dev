@@ -66,70 +66,80 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
           {items.length === 0 ? (
             <div className={styles.emptyCart}>Your cart is empty.</div>
           ) : (
-            items.map((item) => (
-              <div key={item.product_id} className={styles.cartItem}>
-                {(() => {
-                  const product = item.product || item;
-                  const name = product?.name || "No Image";
-                  const priceRaw = (product?.price ?? item.price ?? 0).toString();
-                  const saleRaw = (product?.discount_price ?? product?.sale_price ?? (item as any).sale_price ?? 0).toString();
-                  const price = Number(priceRaw.replace(/[^\d.]/g, ""));
-                  const sale = Number(saleRaw.replace(/[^\d.]/g, ""));
-                  const hasDiscount = !isNaN(price) && !isNaN(sale) && sale > 0 && sale < price;
-                  const displaySale = hasDiscount ? sale : price;
-                  const displayOriginal = hasDiscount ? price : null;
-                  const productSlugOrId = product?.slug || item.product_id;
-                  return (
-                    <>
-                      <img
-                        className={styles.cartItemImg}
-                        src={getImageUrl(product)}
-                        alt={name}
-                      />
-                      <div className={styles.cartItemInfo}>
-                        <Link 
-                          href={`/product/${productSlugOrId}`}
-                          className={styles.cartItemName}
-                          onClick={onClose}
-                        >
-                          {name}
-                        </Link>
-                        <div className={styles.cartItemPrice}>
-                          ৳ {Math.round(displaySale)}
-                          {displayOriginal !== null && (
-                            <span style={{ marginLeft: 6, textDecoration: 'line-through', color: '#9ca3af', fontSize: '0.82rem' }}>
-                              ৳ {Math.round(displayOriginal)}
-                            </span>
-                          )}
-                        </div>
-                        <div className={styles.cartItemQtyWrap}>
-                          <button
-                            className={styles.qtyBtn}
-                            onClick={() => updateCart(item.product_id, Math.max(1, item.quantity - 1))}
-                          >
-                            –
-                          </button>
-                          <span className={styles.qtyValue}>{item.quantity}</span>
-                          <button
-                            className={styles.qtyBtn}
-                            onClick={() => updateCart(item.product_id, item.quantity + 1)}
-                          >
-                            +
-                          </button>
-                        </div>
+            items.map((item) => {
+              const product = item.product || item;
+              const name = product?.name || "No Image";
+              const brand = product?.brand?.name || product?.brand || "";
+              const priceRaw = (product?.price ?? item.price ?? 0).toString();
+              const saleRaw = (product?.discount_price ?? product?.sale_price ?? (item as any).sale_price ?? 0).toString();
+              const price = Number(priceRaw.replace(/[^\d.]/g, ""));
+              const sale = Number(saleRaw.replace(/[^\d.]/g, ""));
+              const hasDiscount = !isNaN(price) && !isNaN(sale) && sale > 0 && sale < price;
+              const displaySale = hasDiscount ? sale : price;
+              const displayOriginal = hasDiscount ? price : null;
+              const productSlugOrId = product?.slug || item.product_id;
+              
+              return (
+                <div key={item.product_id} className={styles.cartItem}>
+                  <button
+                    aria-label="Remove item"
+                    className={styles.removeBtn}
+                    onClick={() => removeFromCart(item.product_id)}
+                  >
+                    ×
+                  </button>
+                  <img
+                    className={styles.cartItemImg}
+                    src={getImageUrl(product)}
+                    alt={name}
+                  />
+                  <div className={styles.cartItemDetails}>
+                    {brand && <div className={styles.cartItemBrand}>{brand}</div>}
+                    <Link 
+                      href={`/product/${productSlugOrId}`}
+                      className={styles.cartItemName}
+                      onClick={onClose}
+                    >
+                      {name}
+                    </Link>
+                    <div className={styles.cartItemBottomRow}>
+                      <div className={styles.cartItemPriceCol}>
+                        <span className={styles.cartItemPrice}>৳ {Math.round(displaySale)}</span>
+                        {displayOriginal !== null && (
+                          <span className={styles.cartItemOriginalPrice}>
+                            ৳ {Math.round(displayOriginal)}
+                          </span>
+                        )}
                       </div>
-                    </>
-                  );
-                })()}
-                <button
-                  aria-label="Remove item"
-                  className={styles.removeBtn}
-                  onClick={() => removeFromCart(item.product_id)}
-                >
-                  ×
-                </button>
-              </div>
-            ))
+                      <div className={styles.cartItemQtyWrap}>
+                        <button
+                          className={styles.qtyBtn}
+                          onClick={() => updateCart(item.product_id, Math.max(1, item.quantity - 1))}
+                        >
+                          −
+                        </button>
+                        <input
+                          type="number"
+                          className={styles.qtyInput}
+                          value={item.quantity}
+                          onChange={(e) => {
+                            const val = parseInt(e.target.value) || 1;
+                            updateCart(item.product_id, Math.max(1, val));
+                          }}
+                          min="1"
+                        />
+                        <button
+                          className={styles.qtyBtn}
+                          onClick={() => updateCart(item.product_id, item.quantity + 1)}
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })
           )}
         </div>
         <div className={styles.cartSidebarFooter}>

@@ -62,13 +62,13 @@ const Sidebar = () => {
     }, 0);
   };
 
-  const stickyTop = 96; // header height + small gap
+  const stickyTop = '100px'; // header height + small gap
 
   if (categoriesLoading || brandsLoading) {
-    return <aside style={{width:300, minWidth:220, background:'#fff', borderRadius:14, boxShadow:'0 4px 24px #0001', padding:'2.2rem 1.5rem', marginRight:'1.5rem', fontSize:'1rem', position:'sticky', top:stickyTop, alignSelf:'flex-start', maxHeight:'90vh', overflowY:'auto', border:'1px solid #f2f2f2'}}>Loading filters...</aside>;
+    return <aside style={{width:300, minWidth:220, background:'#fff', borderRadius:14, boxShadow:'0 4px 24px #0001', padding:'2.2rem 1.5rem', fontSize:'1rem', position:'sticky', top:stickyTop, height:'fit-content', maxHeight:'calc(100vh - 120px)', overflowY:'auto', border:'1px solid #f2f2f2'}}>Loading filters...</aside>;
   }
   return (
-    <aside style={{width:300, minWidth:220, background:'#fff', borderRadius:14, boxShadow:'0 4px 24px #0001', padding:'2.2rem 1.5rem', marginRight:'1.5rem', fontSize:'1rem', position:'sticky', top:stickyTop, alignSelf:'flex-start', maxHeight:'90vh', overflowY:'auto', border:'1px solid #f2f2f2'}}>
+    <aside style={{width:300, minWidth:220, background:'#fff', borderRadius:14, boxShadow:'0 4px 24px #0001', padding:'2.2rem 1.5rem', fontSize:'1rem', position:'sticky', top:stickyTop, height:'fit-content', maxHeight:'calc(100vh - 120px)', overflowY:'auto', border:'1px solid #f2f2f2'}}>
       {/* Price Filter (collapsible) */}
       <div style={{marginBottom:'2.2rem',borderBottom:'1px solid #f2f2f2',paddingBottom:'1.5rem'}}>
         <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'0.7rem',cursor:'pointer',userSelect:'none'}} onClick={()=>setShowPrice(v=>!v)}>

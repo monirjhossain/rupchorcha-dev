@@ -127,33 +127,29 @@ const CategoryProductsPage = ({ params }: { params?: { slug?: string } }) => {
         setSortBy={onSortChange}
       />
 
-      <div className={gridStyles["shop-container"]}>
-        <main className={gridStyles["shop-main"]}>
-            {loading && products.length === 0 ? (
-                <div style={{textAlign:'center', padding:'3rem', color:'#666'}}>
-                <div className={gridStyles.loader} style={{margin:'0 auto 1rem auto'}}></div>
-                <p>Loading products...</p>
-                </div>
-            ) : products.length > 0 ? (
-                <div className={gridStyles["products-grid-wrapper"]}>
-                    <div className={gridStyles["products-grid"]} style={loading ? { filter: "blur(1.5px)", pointerEvents: "none" } : {}}>
-                    {products.map((product) => (
-                        <ProductCard
-                        key={product.id}
-                        product={product}
-                        onAddToCart={() => handleAddToCart(product)}
-                        isAddingToCart={addingToCart[product.id] || false}
-                        />
-                    ))}
-                    </div>
-                </div>
-            ) : (
+      {loading && products.length === 0 ? (
+          <div style={{textAlign:'center', padding:'3rem', color:'#666'}}>
+          <div className={gridStyles.loader} style={{margin:'0 auto 1rem auto'}}></div>
+          <p>Loading products...</p>
+          </div>
+      ) : products.length > 0 ? (
+          <div className={gridStyles["products-grid-wrapper"]}>
+              <div className={gridStyles["products-grid"]} style={loading ? { filter: "blur(1.5px)", pointerEvents: "none" } : {}}>
+              {products.map((product) => (
+                  <ProductCard
+                  key={product.id}
+                  product={product}
+                  onAddToCart={() => handleAddToCart(product)}
+                  isAddingToCart={addingToCart[product.id] || false}
+                  />
+              ))}
+              </div>
+          </div>
+      ) : (
                 <div className={gridStyles.noProducts} style={{textAlign:'center', padding:'3rem', color:'#888'}}>
                 <p>No products found in this category.</p>
                 </div>
             )}
-        </main>
-      </div>
 
       <PaginationControls
         currentPage={currentPage}
