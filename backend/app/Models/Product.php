@@ -100,6 +100,56 @@ class Product extends Model
         return $this->belongsTo(Warehouse::class);
     }
 
+    /**
+     * Get approved reviews for this product, applying the same
+     * approval logic used in the API ratingSummary endpoint.
+     */
+    protected function getApprovedReviews()
+    {
+        $reviews = Review::where('product_id', $this->id)->get();
+
+        if ($reviews->isEmpty()) {
+            return collect();
+        }
+
+        $productReviews = ProductReview::where('product_id', $this->id)
+            ->get()
+            ->groupBy('user_id');
+
+        return $reviews->filter(function ($review) use ($productReviews) {
+            $status = null;
+            $hasMirror = false;
+
+            if (isset($productReviews[$review->user_id])) {
+                $pr = $productReviews[$review->user_id]->sortByDesc('created_at')->first();
+                if ($pr) {
+                    $hasMirror = true;
+                    $status = $pr->status;
+                }
+            }
+
+            $effectiveStatus = $hasMirror ? ($status ?? 'pending') : 'approved';
+
+            return $effectiveStatus === 'approved';
+        });
+    }
+
+    public function getAverageRatingAttribute()
+    {
+        $approved = $this->getApprovedReviews();
+
+        if ($approved->count() === 0) {
+            return 0;
+        }
+
+        return round($approved->avg('rating'), 2);
+    }
+
+    public function getTotalReviewsAttribute()
+    {
+        return $this->getApprovedReviews()->count();
+    }
+
     protected static function boot()
     {
         parent::boot();

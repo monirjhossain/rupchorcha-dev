@@ -48,8 +48,9 @@ export function usePaginationSort(options: UsePaginationSortOptions = {}) {
    */
   const handlePageChange = (newPage: number, basePath: string) => {
     const sortParam = sortBy !== defaultSort ? `&sort=${sortBy}` : "";
-    router.push(`${basePath}?page=${newPage}${sortParam}`);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    // For "Load more" / pagination we want to keep the current scroll position,
+    // so disable Next.js' default scroll-to-top behaviour.
+    router.push(`${basePath}?page=${newPage}${sortParam}`, { scroll: false });
   };
 
   /**

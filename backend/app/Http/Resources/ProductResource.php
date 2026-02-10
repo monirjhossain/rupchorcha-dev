@@ -38,6 +38,8 @@ class ProductResource extends JsonResource
             'price' => (float)$this->price,
             'sale_price' => (float)$this->sale_price,
             'discount_price' => (float)$this->sale_price, // Legacy support
+            'average_rating' => (float) $this->average_rating,
+            'total_reviews' => (int) $this->total_reviews,
             'stock_quantity' => $this->stock_quantity,
             'stock_status' => $this->stock_quantity > 0 ? 'in_stock' : 'out_of_stock',
             'main_image' => $this->main_image ? url('storage/' . ltrim($this->main_image, '/')) : null,
