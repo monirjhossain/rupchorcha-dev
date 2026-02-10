@@ -445,6 +445,21 @@
 }
 
 @media (max-width: 900px) {
+  .searchWrap {
+    height: 38px;
+  }
+
+  .searchInput {
+    padding: 0.4rem 0.4rem;
+    font-size: 0.875rem;
+  }
+
+  .searchIcon {
+    font-size: 0.9rem;
+    margin-left: 0.4rem;
+    margin-right: 0.25rem;
+  }
+
   .desktopHeader {
     display: none;
   }
