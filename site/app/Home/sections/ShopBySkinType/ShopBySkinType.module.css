@@ -1,0 +1,178 @@
+/* Swiper navigation arrow overrides */
+.shopBySkinTypeSection :global(.swiper-button-next),
+.shopBySkinTypeSection :global(.swiper-button-prev) {
+  width: 24px !important;
+  height: 24px !important;
+  min-width: 24px !important;
+  min-height: 24px !important;
+  font-size: 16px !important;
+  background: none !important;
+  color: #888 !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0;
+  opacity: 0.85;
+  transition: color 0.2s;
+}
+.shopBySkinTypeSection :global(.swiper-button-next)::after,
+.shopBySkinTypeSection :global(.swiper-button-prev)::after {
+  font-size: 16px !important;
+  font-weight: 700;
+}
+.shopBySkinTypeSection :global(.swiper-button-next):hover,
+.shopBySkinTypeSection :global(.swiper-button-prev):hover {
+  background: none !important;
+  color: #333 !important;
+}
+.shopBySkinTypeSection {
+  margin: 2rem auto;
+  max-width: 1200px;
+  padding: 2rem 1rem;
+}
+
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.title {
+  font-size: 2.3rem;
+  font-weight: bold;
+  color: #111;
+  margin: 0;
+}
+
+.seeAllBtn {
+  text-decoration: none;
+  background: #fff;
+  color: #111;
+  border: 1px solid #ddd;
+  border-radius: 2em;
+  font-weight: 500;
+  font-size: 1.1rem;
+  padding: 0.5rem 1.5rem;
+  box-shadow: 0 1px 4px #0001;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+
+.tagRow {
+  display: flex;
+  gap: 0.7em;
+  margin-bottom: 1.2em;
+  flex-wrap: wrap;
+}
+
+.tagBtn, .activeTag {
+  border: 1px solid #ddd;
+  background: #fff;
+  color: #111;
+  border-radius: 2em;
+  padding: 0.3em 1.2em;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border 0.2s;
+}
+
+.activeTag {
+  background: #4b1869;
+  color: #fff;
+  border: 1px solid #4b1869;
+}
+
+.cardSlider {
+  width: 100%;
+  padding-bottom: 2.5em;
+}
+
+.card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px #0001;
+  min-width: 180px;
+  max-width: 240px;
+  flex: 0 0 48%;
+  padding: 1rem 1rem 1.2rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  position: relative;
+}
+
+.onSale {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: #e40046;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 0.2em 0.8em;
+  z-index: 2;
+}
+
+.cardImage {
+  width: 100%;
+  height: 120px;
+  object-fit: contain;
+  border-radius: 10px;
+  margin-bottom: 0.7em;
+}
+
+.cardInfo {
+  width: 100%;
+}
+
+.brandName {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #b48a6e;
+  margin-bottom: 0.2em;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.productName {
+  color: #222;
+  font-size: 1rem;
+  margin-bottom: 0.3em;
+}
+
+.priceRow {
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+}
+
+.oldPrice {
+  color: #aaa;
+  text-decoration: line-through;
+  font-size: 1rem;
+}
+
+.newPrice {
+  color: #e40046;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+@media (max-width: 600px) {
+  .cardSlider {
+    padding-bottom: 1.5em;
+  }
+  .card {
+    min-width: 48vw;
+    max-width: 48vw;
+    flex: 0 0 48vw;
+    margin-right: 0.5em;
+  }
+  .cardImage {
+    height: 90px;
+  }
+}

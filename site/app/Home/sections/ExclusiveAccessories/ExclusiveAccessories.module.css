@@ -1,0 +1,158 @@
+.exclusiveAccessoriesSection {
+  margin: 2rem auto;
+  max-width: 1200px;
+  padding: 2rem 1rem;
+}
+
+.title {
+  font-size: 2.3rem;
+  font-weight: bold;
+  color: #111;
+  margin: 0 0 1.5rem 0;
+  text-align: left;
+}
+
+.cardSlider {
+  width: 100%;
+  padding-bottom: 2.5em;
+}
+
+.card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px #0001;
+  min-width: 220px;
+  max-width: 400px;
+  flex: 0 0 48%;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  text-decoration: none;
+  transition: box-shadow 0.2s;
+  overflow: hidden;
+}
+.card:hover {
+  box-shadow: 0 4px 16px #0002;
+}
+
+.cardImageWrap {
+  width: 100%;
+  height: 270px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  background: #f8f3fa;
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+}
+
+.cardImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 16px;
+}
+
+.overlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 2.2em 1.5em 1.2em 1.5em;
+  background: linear-gradient(90deg,rgba(0,0,0,0.18) 0%,rgba(0,0,0,0.01) 100%);
+  pointer-events: none;
+}
+
+.overlayText {
+  color: #6b4e1e;
+  font-weight: 700;
+  font-size: 1.3rem;
+  text-shadow: 0 2px 8px #fff8;
+  margin-bottom: 0.7em;
+}
+
+.brandTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #7a7a00;
+  margin-bottom: 0.2em;
+}
+
+.desc {
+  font-size: 1.1rem;
+  color: #333;
+  font-weight: 500;
+}
+
+.subAndBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5em;
+}
+
+.sub {
+  color: #fff;
+  font-size: 1rem;
+  margin-bottom: 0.2em;
+  text-shadow: 0 2px 8px #0008;
+}
+
+.shopBtn {
+  background: #fff;
+  color: #111;
+  border: none;
+  border-radius: 2em;
+  font-weight: 500;
+  font-size: 1.1rem;
+  padding: 0.5rem 1.5rem;
+  box-shadow: 0 1px 4px #0001;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: background 0.2s, color 0.2s;
+}
+.shopBtn:hover {
+  background: #e40046;
+  color: #fff;
+}
+
+@media (max-width: 900px) {
+  .cardImageWrap {
+    height: 200px;
+  }
+}
+
+@media (max-width: 600px) {
+  .cardSlider {
+    padding-bottom: 1.5em;
+  }
+  .card {
+    min-width: 90vw;
+    max-width: 90vw;
+    flex: 0 0 90vw;
+    margin-right: 0.5em;
+  }
+  .cardImageWrap {
+    height: 160px;
+  }
+  .overlay {
+    padding: 1.2em 0.7em 0.7em 0.7em;
+  }
+  .overlayText {
+    font-size: 1.1rem;
+  }
+  .brandTitle {
+    font-size: 1.2rem;
+  }
+}
